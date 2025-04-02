@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 type Role = 'manufacturer' | 'distributor' | 'dispenser' | 'regulator';
 

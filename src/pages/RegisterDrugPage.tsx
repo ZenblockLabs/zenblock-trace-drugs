@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { mockBlockchainService } from "@/services/mockBlockchainService";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { ArrowLeft, PackagePlus } from "lucide-react";
 
 const formSchema = z.object({
@@ -56,11 +56,19 @@ export const RegisterDrugPage = () => {
     setIsSubmitting(true);
 
     try {
-      const newDrug = await mockBlockchainService.registerDrug({
-        ...data,
+      // Convert form data to required drug registration format
+      const drugData = {
         manufacturerId: user.id,
         manufacturerName: user.organization,
-      });
+        productName: data.productName,
+        dosage: data.dosage,
+        batchNumber: data.batchNumber,
+        gtin: data.gtin,
+        expiryDate: data.expiryDate,
+        description: data.description || "",
+      };
+      
+      const newDrug = await mockBlockchainService.registerDrug(drugData);
 
       toast.success("Drug registered successfully!");
       navigate(`/drugs/${newDrug.id}`);

@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/context/AuthContext";
 import { 
   Sidebar, 
@@ -128,7 +127,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton active={isActive(item.url)} asChild>
+                  <SidebarMenuButton isActive={isActive(item.url)} asChild>
                     <Link to={item.url}>
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
