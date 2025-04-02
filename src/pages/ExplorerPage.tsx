@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,6 +10,7 @@ import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Link as LinkIcon, Database, FileText } from "lucide-react";
+import { TrackingEvent } from "@/services/mockBlockchainService";
 
 interface Block {
   id: string;
@@ -52,17 +54,15 @@ const generateMockBlocks = (events: TrackingEvent[]): Block[] => {
 export function ExplorerPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("blocks");
-  
-  const blockchainService = getBlockchainService();
+  const [blocks, setBlocks] = useState<Block[]>([]);
   
   const { data: events = [], isLoading: isLoadingEvents } = useQuery({
     queryKey: ['explorer-events'],
     queryFn: async () => {
-      return blockchainService.getAllEvents();
+      const service = await getBlockchainService();
+      return service.getAllEvents();
     }
   });
-  
-  const [blocks, setBlocks] = useState<Block[]>([]);
   
   useEffect(() => {
     if (events.length > 0) {
