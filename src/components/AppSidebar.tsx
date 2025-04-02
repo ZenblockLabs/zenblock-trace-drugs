@@ -1,32 +1,37 @@
+
 import { useAuth } from "@/context/AuthContext";
 import { 
   Sidebar, 
-  SidebarContent, 
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
+  SidebarHeader, 
+  SidebarNav, 
+  SidebarNavSection, 
+  SidebarNavSubSection, 
+  SidebarNavSubSectionList, 
+  SidebarNavSubSectionTitle,
+  SidebarNavSub,
+  SidebarMenu, 
+  SidebarMenuButton, 
   SidebarMenuItem,
-  SidebarTrigger
+  SidebarFooter
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   LayoutDashboard, 
   Package, 
-  ListOrdered, 
-  Truck, 
   History, 
-  BarChart3, 
-  Users, 
   LogOut, 
-  Pill 
+  Users, 
+  Settings,
+  FileText,
+  Database,
+  Package2,
+  Chain
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-export function AppSidebar() {
+export function AppSidebar({ collapsed }: { collapsed: boolean }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   
@@ -34,138 +39,155 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Items shared across all roles
-  const sharedItems = [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Drug Catalog",
-      url: "/drugs",
-      icon: Pill,
-    },
-    {
-      title: "Transaction History",
-      url: "/history",
-      icon: History,
-    },
-  ];
-
-  // Role-specific items
-  const roleItems = {
-    manufacturer: [
+  // Define sidebar items based on user role
+  const getRoleBasedItems = () => {
+    if (!user) return [];
+    
+    const commonItems = [
       {
-        title: "Register Drug",
-        url: "/register-drug",
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Drugs",
+        url: "/drugs",
         icon: Package,
       },
       {
-        title: "Ship Products",
-        url: "/ship",
-        icon: Truck,
-      },
-    ],
-    distributor: [
-      {
-        title: "Receive Shipments",
-        url: "/receive",
-        icon: ListOrdered,
+        title: "History",
+        url: "/history",
+        icon: History,
       },
       {
-        title: "Ship Products",
-        url: "/ship",
-        icon: Truck,
-      },
-    ],
-    dispenser: [
-      {
-        title: "Receive Shipments",
-        url: "/receive",
-        icon: ListOrdered,
-      },
-      {
-        title: "Dispense Medication",
-        url: "/dispense",
-        icon: Pill,
-      },
-    ],
-    regulator: [
-      {
-        title: "Analytics",
-        url: "/analytics",
-        icon: BarChart3,
-      },
-      {
-        title: "Supply Chain Partners",
-        url: "/partners",
-        icon: Users,
-      },
-    ],
+        title: "Explorer",
+        url: "/explorer",
+        icon: Chain,
+      }
+    ];
+    
+    // Role-specific items
+    switch (user.role) {
+      case "manufacturer":
+        return [
+          ...commonItems,
+          {
+            title: "Register Drug",
+            url: "/register-drug",
+            icon: Package2,
+          }
+        ];
+      case "distributor":
+        return commonItems;
+      case "dispenser":
+        return commonItems;
+      case "regulator":
+        return [
+          ...commonItems,
+          {
+            title: "Reports",
+            url: "/reports",
+            icon: FileText,
+          }
+        ];
+      default:
+        return commonItems;
+    }
+  };
+  
+  const items = getRoleBasedItems();
+
+  // Function to get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
   };
 
-  // Get role-specific items
-  const items = user?.role ? [...sharedItems, ...roleItems[user.role]] : sharedItems;
+  // Role badge color
+  const getRoleBadgeColor = () => {
+    if (!user) return "bg-gray-200";
+    
+    switch (user.role) {
+      case "manufacturer":
+        return "bg-blue-100 text-blue-800";
+      case "distributor":
+        return "bg-green-100 text-green-800";
+      case "dispenser":
+        return "bg-purple-100 text-purple-800";
+      case "regulator":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
-    <Sidebar>
+    <Sidebar defaultCollapsed={collapsed} collapsible>
       <SidebarHeader>
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-sidebar-primary flex items-center justify-center">
-            <span className="text-white font-bold">ZL</span>
+        <Link to="/dashboard" className="flex items-center gap-2">
+          <div className="rounded-md bg-primary p-1 flex items-center justify-center">
+            <Database className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg">ZenBlock Labs</span>
-        </div>
-        <SidebarTrigger />
+          <span className="font-bold text-xl">ZenBlock</span>
+        </Link>
       </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton isActive={isActive(item.url)} asChild>
-                    <Link to={item.url}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {user && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Account</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="px-3 py-2">
-                <div className="font-medium">{user.name}</div>
-                <div className="text-xs text-sidebar-foreground/70">{user.organization}</div>
-                <div className="mt-1">
-                  <span className="inline-flex items-center rounded-full bg-sidebar-accent px-2 py-1 text-xs font-medium capitalize">
-                    {user.role}
-                  </span>
-                </div>
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-      </SidebarContent>
-
+      
+      <SidebarNav>
+        <SidebarNavSection>
+          <SidebarMenu>
+            {items.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton isActive={isActive(item.url)} asChild>
+                  <Link to={item.url}>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarNavSection>
+      </SidebarNav>
+      
       <SidebarFooter>
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start text-sidebar-foreground" 
-          onClick={logout}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </Button>
+        {user && (
+          <div className="px-3 py-2">
+            <div className="flex items-center gap-3 rounded-md border p-2">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-sm font-medium leading-none truncate">
+                  {user.name}
+                </span>
+                <span className={`mt-1 text-xs px-1.5 py-0.5 rounded-sm inline-block ${getRoleBadgeColor()}`}>
+                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                </span>
+              </div>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="ml-auto h-8 w-8"
+                    onClick={logout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="sr-only">Log out</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Log out</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+        )}
       </SidebarFooter>
     </Sidebar>
   );
