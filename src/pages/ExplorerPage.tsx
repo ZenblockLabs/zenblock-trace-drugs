@@ -9,7 +9,7 @@ import { mockBlockchainService, TrackingEvent } from "@/services/mockBlockchainS
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Chain, Database, FileText } from "lucide-react";
+import { ArrowRight, Calendar, Link as LinkIcon, Database, FileText } from "lucide-react";
 
 interface Block {
   id: string;
@@ -90,7 +90,7 @@ export const ExplorerPage = () => {
             Blocks
           </TabsTrigger>
           <TabsTrigger value="transactions">
-            <Chain className="h-4 w-4 mr-2" />
+            <LinkIcon className="h-4 w-4 mr-2" />
             Transactions
           </TabsTrigger>
           <TabsTrigger value="events">

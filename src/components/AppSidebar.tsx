@@ -3,16 +3,13 @@ import { useAuth } from "@/context/AuthContext";
 import { 
   Sidebar, 
   SidebarHeader, 
-  SidebarNav, 
-  SidebarNavSection, 
-  SidebarNavSubSection, 
-  SidebarNavSubSectionList, 
-  SidebarNavSubSectionTitle,
-  SidebarNavSub,
+  SidebarContent,
   SidebarMenu, 
   SidebarMenuButton, 
   SidebarMenuItem,
-  SidebarFooter
+  SidebarFooter,
+  SidebarMenuSub,
+  SidebarNav
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,12 +23,12 @@ import {
   FileText,
   Database,
   Package2,
-  Chain
+  Link
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-export function AppSidebar({ collapsed }: { collapsed: boolean }) {
+export function AppSidebar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   
@@ -62,7 +59,7 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
       {
         title: "Explorer",
         url: "/explorer",
-        icon: Chain,
+        icon: Link,
       }
     ];
     
@@ -125,32 +122,32 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
   };
 
   return (
-    <Sidebar defaultCollapsed={collapsed} collapsible>
+    <Sidebar collapsible>
       <SidebarHeader>
-        <Link to="/dashboard" className="flex items-center gap-2">
+        <RouterLink to="/dashboard" className="flex items-center gap-2">
           <div className="rounded-md bg-primary p-1 flex items-center justify-center">
             <Database className="h-6 w-6 text-primary-foreground" />
           </div>
           <span className="font-bold text-xl">ZenBlock</span>
-        </Link>
+        </RouterLink>
       </SidebarHeader>
       
-      <SidebarNav>
-        <SidebarNavSection>
+      <SidebarContent>
+        <SidebarNav>
           <SidebarMenu>
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton isActive={isActive(item.url)} asChild>
-                  <Link to={item.url}>
+                  <RouterLink to={item.url}>
                     <item.icon className="h-5 w-5" />
                     <span>{item.title}</span>
-                  </Link>
+                  </RouterLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-        </SidebarNavSection>
-      </SidebarNav>
+        </SidebarNav>
+      </SidebarContent>
       
       <SidebarFooter>
         {user && (
