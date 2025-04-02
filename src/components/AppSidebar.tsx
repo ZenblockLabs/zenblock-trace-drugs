@@ -8,8 +8,7 @@ import {
   SidebarMenuButton, 
   SidebarMenuItem,
   SidebarFooter,
-  SidebarMenuSub,
-  SidebarNav
+  SidebarMenuSub
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -122,7 +121,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible>
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <RouterLink to="/dashboard" className="flex items-center gap-2">
           <div className="rounded-md bg-primary p-1 flex items-center justify-center">
@@ -133,20 +132,18 @@ export function AppSidebar() {
       </SidebarHeader>
       
       <SidebarContent>
-        <SidebarNav>
-          <SidebarMenu>
-            {items.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton isActive={isActive(item.url)} asChild>
-                  <RouterLink to={item.url}>
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
-                  </RouterLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarNav>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton isActive={isActive(item.url)} asChild>
+                <RouterLink to={item.url}>
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </RouterLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarContent>
       
       <SidebarFooter>
