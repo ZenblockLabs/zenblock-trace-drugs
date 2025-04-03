@@ -22,7 +22,8 @@ import {
   FileText,
   Database,
   Package2,
-  Link
+  Link,
+  ShieldCheck
 } from "lucide-react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,11 @@ export function AppSidebar() {
         title: "Explorer",
         url: "/explorer",
         icon: Link,
+      },
+      {
+        title: "Compliance",
+        url: "/compliance",
+        icon: ShieldCheck,
       }
     ];
     
