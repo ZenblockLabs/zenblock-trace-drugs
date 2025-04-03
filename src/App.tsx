@@ -13,6 +13,7 @@ import { DrugDetailsPage } from "@/pages/DrugDetailsPage";
 import { RegisterDrugPage } from "@/pages/RegisterDrugPage";
 import { HistoryPage } from "@/pages/HistoryPage";
 import { ExplorerPage } from "@/pages/ExplorerPage";
+import { CompliancePage } from "@/pages/CompliancePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/register-drug" element={<RegisterDrugPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/explorer" element={<ExplorerPage />} />
+              <Route path="/compliance" element={<CompliancePage />} />
               {/* Add more routes as needed */}
             </Route>
             

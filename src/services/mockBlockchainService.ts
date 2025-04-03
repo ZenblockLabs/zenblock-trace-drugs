@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Drug {
@@ -41,9 +40,20 @@ export interface TrackingEvent {
   details: Record<string, any>;
 }
 
+export interface ComplianceReport {
+  id: string;
+  title: string;
+  timestamp: string;
+  period: 'month' | 'quarter' | 'year';
+  complianceScore: number;
+  violations: number;
+  details: Record<string, any>;
+}
+
 // In-memory storage for our mock blockchain
 let drugs: Drug[] = [];
 let events: TrackingEvent[] = [];
+let complianceReports: ComplianceReport[] = [];
 
 // Initialize with some mock data
 const initMockData = () => {
@@ -356,5 +366,57 @@ export const mockBlockchainService = {
     drug.status = 'received';
     
     return true;
+  },
+  
+  // Compliance reporting
+  generateComplianceReport: async (period: 'month' | 'quarter' | 'year'): Promise<ComplianceReport> => {
+    const now = new Date();
+    
+    const getTimePeriodLabel = (period: 'month' | 'quarter' | 'year') => {
+      if (period === 'month') {
+        return `${now.toLocaleString('default', { month: 'long' })} ${now.getFullYear()}`;
+      } else if (period === 'quarter') {
+        const quarter = Math.floor(now.getMonth() / 3) + 1;
+        return `Q${quarter} ${now.getFullYear()}`;
+      } else {
+        return `${now.getFullYear()}`;
+      }
+    };
+    
+    const newReport: ComplianceReport = {
+      id: uuidv4(),
+      title: `DSCSA Compliance Report - ${getTimePeriodLabel(period)}`,
+      timestamp: now.toISOString(),
+      period,
+      complianceScore: 95 + Math.random() * 5, // Random score between 95-100%
+      violations: Math.floor(Math.random() * 3), // 0-2 violations
+      details: {
+        totalDrugs: drugs.length,
+        trackedEvents: events.length,
+        traceabilityCompleteness: 98.5,
+        t3Compliance: true,
+        identifierCompliance: true,
+        verificationResponseTime: '0.5s',
+      }
+    };
+    
+    complianceReports.push(newReport);
+    return newReport;
+  },
+  
+  getComplianceReports: async (): Promise<ComplianceReport[]> => {
+    return [...complianceReports].sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  },
+  
+  getLatestComplianceReport: async (): Promise<ComplianceReport | null> => {
+    if (complianceReports.length === 0) {
+      return null;
+    }
+    
+    return [...complianceReports].sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )[0];
   }
 };
