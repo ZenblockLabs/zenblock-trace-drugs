@@ -16,6 +16,51 @@ const simulateChaincodeInteraction = async (action: string, fcn: string, args: s
   return mockChaincodeResponse(fcn, args);
 };
 
+// Validate that the current owner can transfer the drug
+const validateTransferPolicy = (drugData: any, transferData: any) => {
+  // Policy 1: Only current owner can transfer
+  if (drugData.currentOwnerId !== transferData.fromId) {
+    throw new Error("Policy violation: Only the current owner can transfer a drug");
+  }
+
+  // Policy 2: Drug must be in a valid status for transfer
+  const validStatusForTransfer = ['manufactured', 'received', 'in-transit'];
+  if (!validStatusForTransfer.includes(drugData.status)) {
+    throw new Error("Policy violation: Drug must be in manufactured, received, or in-transit status to be transferred");
+  }
+
+  // Policy 3: Valid supply chain flow based on roles
+  const validRoleTransitions: Record<string, string[]> = {
+    'manufacturer': ['distributor'],
+    'distributor': ['distributor', 'dispenser', 'pharmacy'],
+    'dispenser': ['patient'],
+    'pharmacy': ['patient']
+  };
+  
+  const validReceivers = validRoleTransitions[drugData.currentOwnerRole] || [];
+  if (!validReceivers.includes(transferData.toRole)) {
+    throw new Error(`Policy violation: A ${drugData.currentOwnerRole} can only transfer drugs to: ${validReceivers.join(', ')}`);
+  }
+
+  return true;
+};
+
+// Validate that the receiver can receive the drug
+const validateReceivePolicy = (drugData: any, receiveData: any) => {
+  // Policy 1: Only the intended recipient can receive
+  if (drugData.currentOwnerId !== receiveData.receiverId) {
+    throw new Error("Policy violation: Only the intended recipient can receive a drug");
+  }
+
+  // Policy 2: Drug must be in a valid status for receiving
+  const validStatusForReceive = ['shipped', 'in-transit'];
+  if (!validStatusForReceive.includes(drugData.status)) {
+    throw new Error("Policy violation: Drug must be in shipped or in-transit status to be received");
+  }
+
+  return true;
+};
+
 // Mock function to simulate chaincode responses
 const mockChaincodeResponse = (fcn: string, args: string[]) => {
   switch (fcn) {
@@ -86,19 +131,48 @@ const mockChaincodeResponse = (fcn: string, args: string[]) => {
     case 'TransferDrug':
       try {
         const transferData = JSON.parse(args[0]);
+        
+        // Find the drug to validate the transfer
+        const drugToTransfer = mockDrugs.find(d => d.id === transferData.drugId);
+        if (!drugToTransfer) {
+          throw new Error("Drug not found");
+        }
+        
+        // Validate transfer policies
+        validateTransferPolicy(drugToTransfer, transferData);
+        
         // In a real implementation, this would update the state in the ledger
+        // For our mock, we'll update the drug in our mock data
+        drugToTransfer.status = 'in-transit';
+        drugToTransfer.currentOwnerId = transferData.toId;
+        drugToTransfer.currentOwnerName = transferData.toName;
+        drugToTransfer.currentOwnerRole = transferData.toRole;
+        
         return true;
       } catch (error) {
-        throw new Error(`Failed to parse transfer data: ${error.message}`);
+        throw new Error(`Failed to transfer drug: ${error.message}`);
       }
     
     case 'ReceiveDrug':
       try {
         const receiveData = JSON.parse(args[0]);
+        
+        // Find the drug to validate the receive
+        const drugToReceive = mockDrugs.find(d => d.id === receiveData.drugId);
+        if (!drugToReceive) {
+          throw new Error("Drug not found");
+        }
+        
+        // Validate receive policies
+        validateReceivePolicy(drugToReceive, receiveData);
+        
         // In a real implementation, this would update the state in the ledger
+        // For our mock, we'll update the drug in our mock data
+        drugToReceive.status = 'received';
+        
         return true;
       } catch (error) {
-        throw new Error(`Failed to parse receive data: ${error.message}`);
+        throw new Error(`Failed to receive drug: ${error.message}`);
       }
     
     default:
