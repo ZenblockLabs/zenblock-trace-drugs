@@ -3,7 +3,7 @@ import { mockBlockchainService } from './mockBlockchainService';
 import { FabricService, IFabricService } from './fabricService';
 
 // Environment configuration
-const USE_FABRIC = false; // Set to true when ready to use real Fabric network
+const USE_FABRIC = true; // Set to true when ready to use real Fabric network
 
 // Singleton instance of the service
 let serviceInstance: IFabricService | null = null;
