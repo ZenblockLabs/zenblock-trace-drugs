@@ -14,9 +14,17 @@ import { RegisterDrugPage } from "@/pages/RegisterDrugPage";
 import { HistoryPage } from "@/pages/HistoryPage";
 import { ExplorerPage } from "@/pages/ExplorerPage";
 import { CompliancePage } from "@/pages/CompliancePage";
+import { VerifyDrugPage } from "@/pages/VerifyDrugPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -37,7 +45,7 @@ const App = () => (
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/explorer" element={<ExplorerPage />} />
               <Route path="/compliance" element={<CompliancePage />} />
-              {/* Add more routes as needed */}
+              <Route path="/verify" element={<VerifyDrugPage />} />
             </Route>
             
             <Route path="/" element={<Navigate to="/login" replace />} />
