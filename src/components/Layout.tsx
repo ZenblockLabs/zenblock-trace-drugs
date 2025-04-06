@@ -19,7 +19,7 @@ export const Layout = () => {
 
   const canScanBarcodes = user?.role === 'manufacturer' || 
                           user?.role === 'distributor' || 
-                          user?.role === 'pharmacy';
+                          user?.role === 'dispenser'; // Changed 'pharmacy' to 'dispenser' to match the Role type
 
   return (
     <SidebarProvider>
