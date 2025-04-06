@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/StatusBadge';
-import { ScanBarcode, ShieldCheck, ShieldX } from 'lucide-react';
+import { ScanBarcode, ShieldCheck, ShieldX, AlertTriangle } from 'lucide-react';
 
 export const VerifyDrugPage = () => {
   const [sgtin, setSgtin] = useState<string>('');
@@ -61,6 +61,8 @@ export const VerifyDrugPage = () => {
     });
   };
 
+  const isRecalled = drug?.status === 'recalled';
+
   return (
     <div className="container max-w-4xl py-8">
       <h1 className="text-3xl font-bold mb-6">Verify Drug Authenticity</h1>
@@ -101,15 +103,27 @@ export const VerifyDrugPage = () => {
       {hasSearched && !isLoading && (
         <>
           {drug ? (
-            <Card className="border-green-300">
+            <Card className={cn("border-2", isRecalled ? "border-red-400" : "border-green-400")}>
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-2xl flex items-center gap-2">
-                    <ShieldCheck className="h-6 w-6 text-green-600" />
-                    Verified Product
+                    {isRecalled ? (
+                      <>
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                        Recalled Product
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="h-6 w-6 text-green-600" />
+                        Verified Product
+                      </>
+                    )}
                   </CardTitle>
                   <CardDescription>
-                    This product appears to be legitimate according to blockchain records
+                    {isRecalled 
+                      ? "This product has been recalled and should not be used."
+                      : "This product appears to be legitimate according to blockchain records"
+                    }
                   </CardDescription>
                 </div>
                 <StatusBadge status={drug.status} size="lg" />
@@ -142,8 +156,13 @@ export const VerifyDrugPage = () => {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="bg-green-50/50 text-sm">
-                This verification was performed using blockchain technology to ensure product authenticity.
+              <CardFooter className={cn("text-sm", 
+                isRecalled ? "bg-red-50/80" : "bg-green-50/80"
+              )}>
+                {isRecalled 
+                  ? "This product has been recalled. Please contact the manufacturer for more information."
+                  : "This verification was performed using blockchain technology to ensure product authenticity."
+                }
               </CardFooter>
             </Card>
           ) : (
@@ -187,3 +206,8 @@ export const VerifyDrugPage = () => {
     </div>
   );
 };
+
+// Helper functions
+function cn(...classes: (string | undefined | boolean)[]) {
+  return classes.filter(Boolean).join(' ');
+}

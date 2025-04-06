@@ -1,6 +1,7 @@
 
 import { mockDrugs, mockEvents } from './mockData.ts';
 import { validateTransferPolicy, validateReceivePolicy } from './policyValidator.ts';
+import { Drug, TrackingEvent, DrugStatus, EventType } from './types.ts';
 
 // Mock function to simulate chaincode responses
 export const mockChaincodeResponse = (fcn: string, args: string[]) => {
@@ -19,7 +20,7 @@ export const mockChaincodeResponse = (fcn: string, args: string[]) => {
           productName: drugData.productName,
           dosage: drugData.dosage,
           description: drugData.description,
-          status: 'manufactured',
+          status: 'manufactured' as DrugStatus,
           currentOwnerId: drugData.manufacturerId,
           currentOwnerName: drugData.manufacturerName,
           currentOwnerRole: 'manufacturer'
@@ -69,6 +70,92 @@ export const mockChaincodeResponse = (fcn: string, args: string[]) => {
       const limit = parseInt(args[0]) || 10;
       return mockEvents.slice(0, limit);
     
+    case 'LogEvent':
+      try {
+        const { sgtin, eventType, metadata } = JSON.parse(args[0]);
+        const drug = mockDrugs.find(d => d.sgtin === sgtin);
+        
+        if (!drug) {
+          throw new Error("Drug not found");
+        }
+        
+        const newEvent: TrackingEvent = {
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          drugId: drug.id,
+          eventType: eventType as EventType,
+          location: metadata.location || 'Unknown',
+          actor: {
+            id: metadata.actorId,
+            name: metadata.actorName,
+            role: metadata.actorRole,
+            organization: metadata.actorOrganization || metadata.actorName
+          },
+          details: metadata
+        };
+        
+        // Update drug status based on event
+        if (eventType === 'recall') {
+          drug.status = 'recalled';
+        }
+        
+        mockEvents.push(newEvent);
+        return newEvent;
+      } catch (error) {
+        throw new Error(`Failed to log event: ${error.message}`);
+      }
+    
+    case 'TransferOwnership':
+      try {
+        const { sgtin, from, to, details } = JSON.parse(args[0]);
+        
+        // Find the drug
+        const drugToTransfer = mockDrugs.find(d => d.sgtin === sgtin);
+        if (!drugToTransfer) {
+          throw new Error("Drug not found");
+        }
+        
+        // Validate the transfer (from matches current owner)
+        if (drugToTransfer.currentOwnerId !== from.id) {
+          throw new Error("Current owner ID does not match the sender ID");
+        }
+        
+        // Create ship event
+        const transferEvent: TrackingEvent = {
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          drugId: drugToTransfer.id,
+          eventType: 'ship',
+          location: details.location || 'Unknown',
+          actor: {
+            id: from.id,
+            name: from.name,
+            role: from.role,
+            organization: from.organization || from.name
+          },
+          details: {
+            destination: to.name,
+            ...details
+          }
+        };
+        
+        mockEvents.push(transferEvent);
+        
+        // Update drug status and owner
+        drugToTransfer.status = 'in-transit';
+        drugToTransfer.currentOwnerId = to.id;
+        drugToTransfer.currentOwnerName = to.name;
+        drugToTransfer.currentOwnerRole = to.role;
+        
+        return {
+          success: true,
+          drug: drugToTransfer,
+          event: transferEvent
+        };
+      } catch (error) {
+        throw new Error(`Failed to transfer ownership: ${error.message}`);
+      }
+    
     case 'TransferDrug':
       try {
         const transferData = JSON.parse(args[0]);
@@ -116,6 +203,25 @@ export const mockChaincodeResponse = (fcn: string, args: string[]) => {
         throw new Error(`Failed to receive drug: ${error.message}`);
       }
     
+    case 'GetDrugHistory':
+      try {
+        const sgtin = args[0];
+        
+        // Find the drug
+        const drug = mockDrugs.find(d => d.sgtin === sgtin);
+        if (!drug) {
+          return [];
+        }
+        
+        // Return all events related to this drug
+        return mockEvents
+          .filter(event => event.drugId === drug.id)
+          .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        
+      } catch (error) {
+        throw new Error(`Failed to get drug history: ${error.message}`);
+      }
+      
     default:
       throw new Error(`Unknown chaincode function: ${fcn}`);
   }

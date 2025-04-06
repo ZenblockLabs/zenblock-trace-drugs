@@ -4,10 +4,13 @@ import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TrackingEvent, mockBlockchainService } from "@/services/mockBlockchainService";
-import { Search, Filter, PackageCheck, Truck, Pill, AlertTriangle, Calendar } from "lucide-react";
+import { getBlockchainService } from '@/services/blockchainServiceFactory';
+import { TrackingEvent } from "@/services/mockBlockchainService";
+import { Search, Filter, PackageCheck, Truck, Pill, AlertTriangle, Calendar, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const HistoryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,14 +24,15 @@ export const HistoryPage = () => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
+        const service = await getBlockchainService();
         const drugId = searchParams.get("drugId");
         let eventsData: TrackingEvent[] = [];
         
         if (drugId) {
-          eventsData = await mockBlockchainService.getEventsByDrug(drugId);
+          eventsData = await service.getEventsByDrug(drugId);
           setSearchQuery(drugId);
         } else {
-          eventsData = await mockBlockchainService.getAllEvents();
+          eventsData = await service.getAllEvents();
         }
         
         setEvents(eventsData);
@@ -77,7 +81,7 @@ export const HistoryPage = () => {
       case 'receive':
         return <PackageCheck className="h-5 w-5 text-green-500" />;
       case 'dispense':
-        return <Pill className="h-5 w-5 text-purple-500" />;
+        return <ShoppingBag className="h-5 w-5 text-purple-500" />;
       case 'recall':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
       default:
@@ -85,8 +89,53 @@ export const HistoryPage = () => {
     }
   };
 
+  const getEventBadge = (eventType: string) => {
+    const styles = {
+      'commission': 'bg-blue-100 text-blue-800 hover:bg-blue-100',
+      'ship': 'bg-amber-100 text-amber-800 hover:bg-amber-100',
+      'receive': 'bg-green-100 text-green-800 hover:bg-green-100',
+      'dispense': 'bg-purple-100 text-purple-800 hover:bg-purple-100',
+      'recall': 'bg-red-100 text-red-800 hover:bg-red-100',
+    };
+    
+    return (
+      <Badge variant="outline" className={styles[eventType] || ''}>
+        {eventType.charAt(0).toUpperCase() + eventType.slice(1)}
+      </Badge>
+    );
+  };
+
   if (isLoading) {
-    return <div className="flex items-center justify-center h-full">Loading event history...</div>;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Transaction History</h1>
+          <p className="text-muted-foreground">Loading event history...</p>
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8">
+              {Array(3).fill(0).map((_, i) => (
+                <div key={i} className="relative pl-14">
+                  <Skeleton className="absolute -left-14 mt-1 w-10 h-10 rounded-full" />
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-5 w-40" />
+                    </div>
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -154,16 +203,31 @@ export const HistoryPage = () => {
               <div className="space-y-8 relative pl-14">
                 {filteredEvents.map((event) => (
                   <div key={event.id} className="relative">
-                    <div className="absolute -left-14 mt-1 w-10 h-10 rounded-full bg-background border flex items-center justify-center">
+                    <div className={`absolute -left-14 mt-1 w-10 h-10 rounded-full border flex items-center justify-center 
+                      ${event.eventType === 'recall' ? 'bg-red-50 border-red-200' : 
+                       event.eventType === 'ship' ? 'bg-amber-50 border-amber-200' :
+                       event.eventType === 'receive' ? 'bg-green-50 border-green-200' : 
+                       event.eventType === 'dispense' ? 'bg-purple-50 border-purple-200' : 'bg-blue-50 border-blue-200'}`}
+                    >
                       {getEventIcon(event.eventType)}
                     </div>
                     
-                    <div className="bg-background border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-medium capitalize text-lg">
-                          {event.eventType} Event
-                        </h3>
-                        <span className="text-sm text-muted-foreground">
+                    <div className={`bg-background border rounded-lg p-4 
+                      ${event.eventType === 'recall' ? 'border-l-4 border-l-red-500' : 
+                       event.eventType === 'ship' ? 'border-l-4 border-l-amber-500' :
+                       event.eventType === 'receive' ? 'border-l-4 border-l-green-500' : 
+                       event.eventType === 'dispense' ? 'border-l-4 border-l-purple-500' : 
+                       'border-l-4 border-l-blue-500'}`}>
+                      <div className="flex justify-between items-start flex-col sm:flex-row gap-2 sm:gap-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-lg">
+                            {getEventBadge(event.eventType)}
+                          </h3>
+                          <span className="text-sm text-muted-foreground">
+                            for Drug ID: {event.drugId}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">
                           {format(new Date(event.timestamp), 'MMM d, yyyy h:mm a')}
                         </span>
                       </div>
@@ -171,11 +235,6 @@ export const HistoryPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                         <div>
                           <div className="space-y-2">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Drug ID:</p>
-                              <p className="text-sm font-medium">{event.drugId}</p>
-                            </div>
-                            
                             <div>
                               <p className="text-sm text-muted-foreground">Location:</p>
                               <p className="text-sm font-medium">{event.location}</p>
