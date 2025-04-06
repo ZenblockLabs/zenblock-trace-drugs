@@ -15,6 +15,7 @@ import { HistoryPage } from "@/pages/HistoryPage";
 import { ExplorerPage } from "@/pages/ExplorerPage";
 import { CompliancePage } from "@/pages/CompliancePage";
 import { VerifyDrugPage } from "@/pages/VerifyDrugPage";
+import { BatchProcessingPage } from "@/pages/BatchProcessingPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 const queryClient = new QueryClient({
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/explorer" element={<ExplorerPage />} />
               <Route path="/compliance" element={<CompliancePage />} />
               <Route path="/verify" element={<VerifyDrugPage />} />
+              <Route path="/batch-processing" element={<BatchProcessingPage />} />
             </Route>
             
             <Route path="/" element={<Navigate to="/login" replace />} />
