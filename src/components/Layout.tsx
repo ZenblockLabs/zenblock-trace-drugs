@@ -101,7 +101,7 @@ export const Layout = () => {
                       <div className="flex flex-col space-y-4">
                         {isScanning ? (
                           <div className="h-[300px] relative">
-                            <BarcodeScanner onBarcodeDetected={handleBarcodeDetected} />
+                            <BarcodeScanner onDetected={handleBarcodeDetected} />
                             <Button 
                               variant="secondary" 
                               className="absolute bottom-4 right-4"
