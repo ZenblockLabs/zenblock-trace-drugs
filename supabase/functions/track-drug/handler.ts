@@ -1,6 +1,29 @@
 
-import { DrugTraceability } from "../fabric-chaincode/types";
 import { corsHeaders } from "../fabric-chaincode/cors";
+
+// Define DrugTraceability type inline to avoid import problems
+interface DrugTraceability {
+  drug: {
+    name: string;
+    manufacturer: string;
+    batchId: string;
+    expiry: string;
+    license: string;
+    sgtin: string;
+  };
+  events: {
+    step: string;
+    timestamp: string;
+    location: string;
+    handler: string;
+    notes: string;
+  }[];
+  status: {
+    isRecalled: boolean;
+    message: string;
+    verifiedBy: string;
+  };
+}
 
 // Mock data for demo purposes
 export async function getTraceabilityData(code: string): Promise<DrugTraceability> {
@@ -70,4 +93,46 @@ export async function getTraceabilityData(code: string): Promise<DrugTraceabilit
       verifiedBy: "ZenPharma Verification System"
     }
   };
+}
+
+// Add handler for the edge function request
+export async function handleRequest(req: Request): Promise<Response> {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // Get the code parameter from the URL
+    const url = new URL(req.url);
+    const code = url.searchParams.get("code");
+
+    if (!code) {
+      return new Response(
+        JSON.stringify({ error: "No tracking code provided" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    const data = await getTraceabilityData(code);
+    
+    return new Response(
+      JSON.stringify(data),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message || "An error occurred" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
+  }
 }

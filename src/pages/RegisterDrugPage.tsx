@@ -9,6 +9,16 @@ import { toast } from 'sonner';
 import { QRCodeModal } from '@/components/QRCodeModal';
 import { Drug } from '@/services/types';
 import { getBlockchainService } from '@/services/blockchainServiceFactory';
+import { 
+  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage 
+} from "@/components/ui/form";
+import { 
+  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, PackagePlus } from "lucide-react";
 
 const formSchema = z.object({
   productName: z.string().min(3, "Product name must be at least 3 characters"),
@@ -63,7 +73,8 @@ export const RegisterDrugPage = () => {
         description: data.description || "",
       };
       
-      const newDrug = await getBlockchainService().registerDrug(drugData);
+      const service = await getBlockchainService();
+      const newDrug = await service.registerDrug(drugData);
 
       toast.success("Drug registered successfully!");
       navigate(`/drugs/${newDrug.id}`);
