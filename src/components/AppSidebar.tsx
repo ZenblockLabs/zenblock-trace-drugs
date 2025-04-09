@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/context/AuthContext";
 import { 
   Sidebar, 
@@ -23,10 +24,19 @@ import {
   Package2,
   Link,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  LucideIcon
 } from "lucide-react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+
+// Define a consistent type for sidebar menu items
+interface SidebarItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  roles?: string[];
+}
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
@@ -37,10 +47,10 @@ export function AppSidebar() {
   };
 
   // Define sidebar items based on user role
-  const getRoleBasedItems = () => {
+  const getRoleBasedItems = (): SidebarItem[] => {
     if (!user) return [];
     
-    const commonItems = [
+    const commonItems: SidebarItem[] = [
       {
         title: "Dashboard",
         url: "/dashboard",
@@ -77,6 +87,12 @@ export function AppSidebar() {
             title: "Register Drug",
             url: "/register-drug",
             icon: Package2,
+          },
+          {
+            title: "Recalls",
+            url: "/recalls",
+            icon: AlertTriangle,
+            roles: ["manufacturer", "regulator"]
           }
         ];
       case "distributor":
@@ -93,8 +109,8 @@ export function AppSidebar() {
           },
           {
             title: "Recalls",
-            href: "/recalls",
-            icon: <AlertTriangle className="h-5 w-5" />,
+            url: "/recalls",
+            icon: AlertTriangle,
             roles: ["regulator", "manufacturer"]
           }
         ];
@@ -137,7 +153,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <RouterLink to="/dashboard" className="flex items-center gap-2">
           <img 
-            src="/lovable-uploads/45b0e393-a331-4b63-9f6b-e590813b266e.png" 
+            src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
             alt="Zenblock Labs Logo" 
             className="h-8 w-8" 
           />
@@ -151,6 +167,7 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton isActive={isActive(item.url)} asChild>
                 <RouterLink to={item.url}>
+                  {/* Use the icon as a component properly */}
                   <item.icon className="h-5 w-5" />
                   <span>{item.title}</span>
                 </RouterLink>
