@@ -43,7 +43,7 @@ export const LoginPage = () => {
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
+              src="/lovable-uploads/45b0e393-a331-4b63-9f6b-e590813b266e.png" 
               alt="Zenblock Labs Logo" 
               className="h-24 w-24" 
             />
