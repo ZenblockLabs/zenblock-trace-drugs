@@ -132,7 +132,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <RouterLink to="/dashboard" className="flex items-center gap-2">
           <LogoWithTransparentBg 
-            src="/lovable-uploads/84abd095-fc01-44b0-9477-92a5958eefaa.png" 
+            src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
             alt="Zenblock Labs Logo" 
             className="h-8 w-8" 
           />

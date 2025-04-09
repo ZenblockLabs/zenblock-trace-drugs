@@ -44,7 +44,7 @@ export const LoginPage = () => {
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-4">
             <LogoWithTransparentBg 
-              src="/lovable-uploads/84abd095-fc01-44b0-9477-92a5958eefaa.png" 
+              src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
               alt="Zenblock Labs Logo" 
               className="h-24 w-24" 
             />
