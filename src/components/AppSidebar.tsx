@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogoWithTransparentBg } from "@/components/LogoWithTransparentBg";
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
@@ -131,7 +130,7 @@ export function AppSidebar() {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <RouterLink to="/dashboard" className="flex items-center gap-2">
-          <LogoWithTransparentBg 
+          <img 
             src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
             alt="Zenblock Labs Logo" 
             className="h-8 w-8" 
