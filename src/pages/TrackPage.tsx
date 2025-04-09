@@ -51,9 +51,10 @@ export function TrackPage() {
 
       try {
         setLoading(true);
+        // Fixed: Use 'params' instead of 'query' for the Edge Function invocation
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
           method: 'GET',
-          query: { code }
+          params: { code }
         });
 
         if (responseError) {

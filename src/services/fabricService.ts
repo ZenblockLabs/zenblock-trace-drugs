@@ -427,7 +427,7 @@ export class FabricService implements IFabricService {
     
     const { data, error } = await supabase.functions.invoke('track-drug', {
       method: 'GET',
-      query: { code: sgtin }
+      params: { code: sgtin }
     });
     
     if (error) {

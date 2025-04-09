@@ -467,5 +467,107 @@ export const mockBlockchainService = {
     return [...complianceReports].sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     )[0];
+  },
+  
+  // Add the missing getDrugDetailsBySGTIN method
+  getDrugDetailsBySGTIN: async (sgtin: string): Promise<any> => {
+    console.log('MockBlockchainService.getDrugDetailsBySGTIN called for:', sgtin);
+    
+    // Check if this is a recalled code
+    const isRecalled = !!recalls[sgtin];
+    
+    // Get drug by SGTIN
+    const drug = drugs.find(d => d.sgtin === sgtin);
+    
+    // If drug exists, return its details
+    if (drug) {
+      // Get events for this drug
+      const drugEvents = events.filter(event => event.drugId === drug.id)
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      // Format events for public API
+      const formattedEvents = drugEvents.map(event => ({
+        step: event.eventType === 'commission' ? 'Manufactured' :
+              event.eventType === 'ship' ? 'Shipped' :
+              event.eventType === 'receive' ? `Received by ${event.actor.role}` :
+              event.eventType === 'dispense' ? 'Dispensed' :
+              event.eventType === 'recall' ? 'Recalled' : 'Other',
+        timestamp: event.timestamp,
+        location: event.location,
+        handler: event.actor.name,
+        notes: event.details?.notes || ''
+      }));
+      
+      return {
+        drug: {
+          name: drug.productName,
+          manufacturer: drug.manufacturerName,
+          batchId: drug.batchNumber,
+          expiry: drug.expiryDate,
+          license: "MH/DRUGS/1191", // This would come from a real database
+          sgtin: drug.sgtin
+        },
+        events: formattedEvents,
+        status: {
+          isRecalled: isRecalled,
+          message: isRecalled 
+            ? "⚠️ This batch has been recalled. Do not use." 
+            : "✅ This batch is genuine and traceable.",
+          verifiedBy: "Zenblock Labs"
+        }
+      };
+    }
+    
+    // If drug doesn't exist in our database, generate mock data for demo purposes
+    // This would be similar to the Edge Function's getTraceabilityData
+    // In production, this would be an error if the drug doesn't exist
+    
+    return {
+      drug: {
+        name: sgtin.startsWith('ZBL-A') ? "Amoxiflox 500" : "Zenbiotic Plus",
+        manufacturer: "XYZ Pharma Ltd",
+        batchId: `BATCH-${sgtin.substring(sgtin.length - 5)}`,
+        expiry: "2026-01-01",
+        license: "MH/DRUGS/1191",
+        sgtin: sgtin
+      },
+      events: [
+        {
+          step: "Manufactured",
+          timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+          location: "Baddi, HP",
+          handler: "XYZ Pharma Ltd",
+          notes: "Batch created"
+        },
+        {
+          step: "Quality Control",
+          timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+          location: "Baddi, HP",
+          handler: "XYZ Pharma QA Team",
+          notes: "Batch passed all quality tests"
+        },
+        {
+          step: "Shipped",
+          timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          location: "Baddi, HP",
+          handler: "XYZ Pharma Ltd",
+          notes: "Shipped to MedEx Distributors"
+        },
+        {
+          step: "Received by Distributor",
+          timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          location: "Mumbai, MH",
+          handler: "MedEx Distributors",
+          notes: "Inventory verified and stored"
+        }
+      ],
+      status: {
+        isRecalled: isRecalled,
+        message: isRecalled 
+          ? "⚠️ This batch has been recalled. Do not use." 
+          : "✅ This batch is genuine and traceable.",
+        verifiedBy: "Zenblock Labs"
+      }
+    };
   }
 };
