@@ -351,7 +351,7 @@ export class FabricService extends BaseBlockchainService {
         headers: {
           'Content-Type': 'application/json'
         },
-        params: { code: sgtin }
+        body: { code: sgtin }
       });
 
       if (error) {

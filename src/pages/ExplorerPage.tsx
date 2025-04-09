@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
@@ -15,15 +14,10 @@ import { Link } from "react-router-dom";
 import { Calendar, ArrowRight, Database, Link as LinkIcon } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
-import { TrackingEvent } from "@/services/types";
+import { TrackingEvent, Actor } from "@/services/types";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-
-interface Actor {
-  name: string;
-  role: string;
-}
 
 interface Block {
   id: string;
@@ -33,6 +27,24 @@ interface Block {
   timestamp: string;
   txCount: number;
 }
+
+const isActorObject = (actor: string | Actor): actor is Actor => {
+  return typeof actor === 'object' && actor !== null && 'name' in actor && 'role' in actor;
+};
+
+const getActorName = (actor: string | Actor): string => {
+  if (isActorObject(actor)) {
+    return actor.name;
+  }
+  return String(actor);
+};
+
+const getActorRole = (actor: string | Actor): string => {
+  if (isActorObject(actor)) {
+    return actor.role;
+  }
+  return "unknown";
+};
 
 const generateMockBlocks = (events: TrackingEvent[]): Block[] => {
   const blocks: Block[] = [];
@@ -206,7 +218,7 @@ export function ExplorerPage() {
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline" className="capitalize">
-                                {event.eventType}
+                                {event.type}
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -270,14 +282,14 @@ export function ExplorerPage() {
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline" className="capitalize">
-                                {event.eventType}
+                                {event.type}
                               </Badge>
                             </TableCell>
                             <TableCell>
                               <div className="text-sm">
-                                {event.actor.name}
+                                {getActorName(event.actor)}
                                 <div className="text-xs text-muted-foreground capitalize">
-                                  ({event.actor.role})
+                                  ({getActorRole(event.actor)})
                                 </div>
                               </div>
                             </TableCell>

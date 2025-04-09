@@ -24,8 +24,8 @@ export function useDrugTracking(code: string | null) {
           headers: {
             'Content-Type': 'application/json'
           },
-          // Use the correct params property instead of queryParams
-          params: { code }
+          // Pass the parameters as query parameters in the URL
+          body: { code }
         });
 
         if (responseError) {

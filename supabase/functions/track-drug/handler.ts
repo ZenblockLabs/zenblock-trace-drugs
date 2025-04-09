@@ -1,5 +1,9 @@
 
-import { corsHeaders } from "../fabric-chaincode/cors";
+// Define CORS headers directly instead of importing them
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 // Define DrugTraceability type inline to avoid import problems
 interface DrugTraceability {
