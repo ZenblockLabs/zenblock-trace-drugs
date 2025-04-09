@@ -430,7 +430,7 @@ export class FabricService implements IFabricService {
       headers: {
         'Content-Type': 'application/json'
       },
-      queryParams: { code: sgtin }
+      params: { code: sgtin }
     });
     
     if (error) {

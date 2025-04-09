@@ -42,14 +42,14 @@ export function useDrugTracking(code: string | null) {
 
       try {
         setLoading(true);
-        // Using method and queryParams for Supabase Edge Function invocation
+        // Using method and params for Supabase Edge Function invocation
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           },
-          // Use simple object for the queryParams
-          queryParams: { code }
+          // Use params instead of queryParams
+          params: { code }
         });
 
         if (responseError) {
