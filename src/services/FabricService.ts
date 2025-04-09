@@ -6,7 +6,7 @@ export class FabricService extends BaseBlockchainService {
   private endpoint: string;
   private token: string | null;
 
-  constructor(endpoint: string, token: string | null = null) {
+  constructor(endpoint: string = '', token: string | null = null) {
     super();
     this.endpoint = endpoint;
     this.token = token;
@@ -351,7 +351,7 @@ export class FabricService extends BaseBlockchainService {
         headers: {
           'Content-Type': 'application/json'
         },
-        params: { code: sgtin }
+        queryParams: { code: sgtin }
       });
 
       if (error) {

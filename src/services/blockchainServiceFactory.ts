@@ -32,7 +32,8 @@ export const getBlockchainService = async (): Promise<IFabricService> => {
 
   if (USE_FABRIC) {
     try {
-      const fabricService = new FabricService();
+      // Pass empty string as default endpoint
+      const fabricService = new FabricService('');
       const connected = await fabricService.connect();
       
       if (connected) {

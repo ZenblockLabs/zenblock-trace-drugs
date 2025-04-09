@@ -24,8 +24,8 @@ export function useDrugTracking(code: string | null) {
           headers: {
             'Content-Type': 'application/json'
           },
-          // Correct params format for Supabase function invocation
-          params: { code }
+          // Use the correct queryParams for Supabase function invocation
+          queryParams: { code }
         });
 
         if (responseError) {

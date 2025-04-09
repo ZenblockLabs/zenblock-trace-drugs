@@ -1,18 +1,14 @@
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useAuth } from "@/context/AuthContext";
-import { mockBlockchainService } from "@/services/mockBlockchainService";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { ArrowLeft, PackagePlus } from "lucide-react";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useNavigate } from 'react-router-dom';
+import { RecallModal } from '@/components/RecallModal';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
+import { QRCodeModal } from '@/components/QRCodeModal';
+import { Drug } from '@/services/types';
+import { getBlockchainService } from '@/services/blockchainServiceFactory';
 
 const formSchema = z.object({
   productName: z.string().min(3, "Product name must be at least 3 characters"),
@@ -56,7 +52,6 @@ export const RegisterDrugPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Convert form data to required drug registration format
       const drugData = {
         manufacturerId: user.id,
         manufacturerName: user.organization,
@@ -68,7 +63,7 @@ export const RegisterDrugPage = () => {
         description: data.description || "",
       };
       
-      const newDrug = await mockBlockchainService.registerDrug(drugData);
+      const newDrug = await getBlockchainService().registerDrug(drugData);
 
       toast.success("Drug registered successfully!");
       navigate(`/drugs/${newDrug.id}`);
@@ -80,7 +75,6 @@ export const RegisterDrugPage = () => {
     }
   };
 
-  // Only manufacturers can access this page
   if (user && user.role !== "manufacturer") {
     return (
       <div className="flex flex-col items-center justify-center h-full">

@@ -13,10 +13,10 @@ export async function getTraceabilityData(code: string): Promise<DrugTraceabilit
     drug: {
       name: "Amoxicillin 500mg",
       manufacturer: "PharmaLabs Inc.",
-      batchId: "BTC" + code.substring(0, 5),
+      batchId: "BTC" + (code ? code.substring(0, 5) : "00000"),
       expiry: "2026-02-28",
       license: "FDA-PL-2023-4872",
-      sgtin: code
+      sgtin: code || "UNKNOWN"
     },
     events: [
       {

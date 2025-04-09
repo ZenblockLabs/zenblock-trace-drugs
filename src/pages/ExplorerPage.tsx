@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { 
+  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
+import { StatusBadge } from "@/components/StatusBadge";
+import { useAuth } from "@/context/AuthContext";
+import { TrackingEvent } from "@/services/types";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
-import { format } from "date-fns";
-import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Link as LinkIcon, Database, FileText } from "lucide-react";
-import { TrackingEvent } from "@/services/mockBlockchainService";
+
+interface Actor {
+  name: string;
+  role: string;
+}
 
 interface Block {
   id: string;

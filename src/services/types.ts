@@ -1,4 +1,3 @@
-
 // Define core types used across blockchain services
 
 export interface Drug {
@@ -24,20 +23,18 @@ export interface Drug {
 }
 
 export interface Actor {
-  id: string;
   name: string;
   role: string;
-  organization: string;
+  id?: string;
 }
 
 export interface TrackingEvent {
   id: string;
   drugId: string;
-  type: string; // Keeping this for backward compatibility
-  eventType?: string; // Adding this for new code references
+  type: string;
   timestamp: string;
   location: string;
-  actor: Actor | string; // Can be either an Actor object or a string ID
+  actor: string | Actor;
   details: Record<string, any>;
 }
 
