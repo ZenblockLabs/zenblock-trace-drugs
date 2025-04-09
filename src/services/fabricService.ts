@@ -23,6 +23,9 @@ export interface IFabricService {
   // Recall functionality
   initiateRecall: (sgtin: string, reason: string, initiator: any) => Promise<boolean>;
   checkRecallStatus: (sgtin: string) => Promise<any>;
+  
+  // New method for getting drug details by SGTIN for public tracking
+  getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
 }
 
 // This class implements the IFabricService interface using Supabase Edge Functions as a bridge to Hyperledger Fabric
@@ -415,5 +418,23 @@ export class FabricService implements IFabricService {
       
       return data;
     }
+  }
+
+  // Method to get public traceability data for a drug by SGTIN
+  async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
+    await this.ensureConnection();
+    console.log('FabricService.getDrugDetailsBySGTIN called for:', sgtin);
+    
+    const { data, error } = await supabase.functions.invoke('track-drug', {
+      method: 'GET',
+      query: { code: sgtin }
+    });
+    
+    if (error) {
+      console.error('Error getting drug details by SGTIN:', error);
+      throw new Error(`Failed to get drug details by SGTIN: ${error.message}`);
+    }
+    
+    return data;
   }
 }

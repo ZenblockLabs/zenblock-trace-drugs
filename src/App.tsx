@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,7 @@ import { VerifyDrugPage } from "@/pages/VerifyDrugPage";
 import { BatchProcessingPage } from "@/pages/BatchProcessingPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { RecallReportsPage } from "./pages/RecallReportsPage";
+import { TrackPage } from "./pages/TrackPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +38,9 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            
+            {/* Public tracking page - accessible without login */}
+            <Route path="/track" element={<TrackPage />} />
             
             {/* Protected Routes */}
             <Route element={<Layout />}>
