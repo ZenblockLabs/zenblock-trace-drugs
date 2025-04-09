@@ -1,6 +1,7 @@
 
-import { mockBlockchainService } from './mockBlockchainService';
-import { FabricService, IFabricService } from './fabricService';
+import { mockBlockchainService } from './MockBlockchainService';
+import { FabricService } from './FabricService';
+import { IFabricService } from './types';
 import { toast } from '@/hooks/use-toast';
 
 // Environment configuration (can be changed at runtime)

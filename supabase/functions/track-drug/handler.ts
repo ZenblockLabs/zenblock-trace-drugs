@@ -1,8 +1,35 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// Fix this import to match the correct path
-import { corsHeaders } from "../fabric-chaincode/cors.ts";
-import { DrugTraceability } from "../fabric-chaincode/types.ts";
+
+// Define CORS headers
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Define local interface for the drug traceability data to avoid import errors
+interface DrugTraceability {
+  drug: {
+    name: string;
+    manufacturer: string;
+    batchId: string;
+    expiry: string;
+    license: string;
+    sgtin: string;
+  };
+  events: Array<{
+    step: string;
+    timestamp: string;
+    location: string;
+    handler: string;
+    notes: string;
+  }>;
+  status: {
+    isRecalled: boolean;
+    message: string;
+    verifiedBy: string;
+  };
+}
 
 // Mock data for demonstration
 const mockTraceabilityData: Record<string, DrugTraceability> = {

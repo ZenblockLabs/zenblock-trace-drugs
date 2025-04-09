@@ -1,31 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-interface TrackingEvent {
-  step: string;
-  timestamp: string;
-  location: string;
-  handler: string;
-  notes: string;
-}
-
-export interface DrugTraceability {
-  drug: {
-    name: string;
-    manufacturer: string;
-    batchId: string;
-    expiry: string;
-    license: string;
-    sgtin: string;
-  };
-  events: TrackingEvent[];
-  status: {
-    isRecalled: boolean;
-    message: string;
-    verifiedBy: string;
-  };
-}
+import { DrugTraceability } from "@/services/types";
 
 export function useDrugTracking(code: string | null) {
   const [data, setData] = useState<DrugTraceability | null>(null);
@@ -48,8 +24,8 @@ export function useDrugTracking(code: string | null) {
           headers: {
             'Content-Type': 'application/json'
           },
-          // Use params instead of queryParams
-          params: { code }
+          // Use query param approach per Supabase functions API
+          query: { code }
         });
 
         if (responseError) {

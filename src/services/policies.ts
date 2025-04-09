@@ -1,12 +1,5 @@
 
-/**
- * Pharmaceutical Supply Chain Policies
- * 
- * This file defines the security and business policies that govern
- * the pharmaceutical supply chain operations in the blockchain network.
- */
-
-import { DrugStatus } from './mockBlockchainService';
+import { DrugStatus } from './types';
 
 export interface TransactionPolicy {
   name: string;

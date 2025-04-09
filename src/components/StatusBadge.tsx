@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { DrugStatus } from "@/services/mockBlockchainService";
+import { DrugStatus } from "@/services/types";
 
 interface StatusBadgeProps {
   status: DrugStatus;

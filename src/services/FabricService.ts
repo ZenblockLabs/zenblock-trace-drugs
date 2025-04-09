@@ -1,38 +1,11 @@
-import { Drug, TrackingEvent, DrugStatus } from './mockBlockchainService';
+
 import { supabase } from '@/integrations/supabase/client';
+import { BaseBlockchainService } from './BaseBlockchainService';
+import { Drug, TrackingEvent } from './types';
 
-// This interface defines the methods we'll implement when connecting to a real Fabric network
-export interface IFabricService {
-  // Drug management
-  registerDrug: (drugData: any) => Promise<Drug>;
-  getAllDrugs: () => Promise<Drug[]>;
-  getDrugsByOwner: (ownerId: string) => Promise<Drug[]>;
-  getDrugById: (id: string) => Promise<Drug | null>;
-  getDrugBySGTIN: (sgtin: string) => Promise<Drug | null>;
-  
-  // Event tracking
-  createEvent: (eventData: any) => Promise<TrackingEvent>;
-  getEventsByDrug: (drugId: string) => Promise<TrackingEvent[]>;
-  getAllEvents: () => Promise<TrackingEvent[]>;
-  getRecentEvents: (limit?: number) => Promise<TrackingEvent[]>;
-  
-  // Drug transfers
-  transferDrug: (drugId: string, fromId: string, toId: string, toName: string, toRole: string, location: string, details: Record<string, any>) => Promise<boolean>;
-  receiveDrug: (drugId: string, receiverId: string, receiverName: string, receiverRole: string, location: string, details: Record<string, any>) => Promise<boolean>;
-  
-  // Recall functionality
-  initiateRecall: (sgtin: string, reason: string, initiator: any) => Promise<boolean>;
-  checkRecallStatus: (sgtin: string) => Promise<any>;
-  
-  // Method to get drug details by SGTIN for public tracking
-  getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
-}
-
-// This class implements the IFabricService interface using Supabase Edge Functions as a bridge to Hyperledger Fabric
-export class FabricService implements IFabricService {
-  private gatewayConnected: boolean = false;
-
+export class FabricService extends BaseBlockchainService {
   constructor() {
+    super();
     console.log('FabricService initialized - Will connect to Fabric network via Supabase Edge Functions');
   }
 
@@ -59,14 +32,6 @@ export class FabricService implements IFabricService {
       console.error('Failed to connect to Fabric network:', error);
       return false;
     }
-  }
-
-  // Check connection status and connect if needed
-  private async ensureConnection(): Promise<boolean> {
-    if (!this.gatewayConnected) {
-      return this.connect();
-    }
-    return true;
   }
 
   // Drug management methods
@@ -326,7 +291,7 @@ export class FabricService implements IFabricService {
     return data as boolean;
   }
 
-  // New recall methods
+  // Recall methods
   async initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean> {
     await this.ensureConnection();
     console.log('FabricService.initiateRecall called with:', { sgtin, reason, initiator });
@@ -425,19 +390,24 @@ export class FabricService implements IFabricService {
     await this.ensureConnection();
     console.log('FabricService.getDrugDetailsBySGTIN called for:', sgtin);
     
-    const { data, error } = await supabase.functions.invoke('track-drug', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      params: { code: sgtin }
-    });
-    
-    if (error) {
-      console.error('Error getting drug details by SGTIN:', error);
-      throw new Error(`Failed to get drug details by SGTIN: ${error.message}`);
+    try {
+      const { data, error } = await supabase.functions.invoke('track-drug', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: { code: sgtin }
+      });
+      
+      if (error) {
+        console.error('Error getting drug details by SGTIN:', error);
+        throw new Error(`Failed to get drug details by SGTIN: ${error.message}`);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error invoking track-drug function:', error);
+      throw error;
     }
-    
-    return data;
   }
 }
