@@ -24,7 +24,7 @@ export interface IFabricService {
   initiateRecall: (sgtin: string, reason: string, initiator: any) => Promise<boolean>;
   checkRecallStatus: (sgtin: string) => Promise<any>;
   
-  // New method for getting drug details by SGTIN for public tracking
+  // Method to get drug details by SGTIN for public tracking
   getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
 }
 
@@ -427,7 +427,10 @@ export class FabricService implements IFabricService {
     
     const { data, error } = await supabase.functions.invoke('track-drug', {
       method: 'GET',
-      params: { code: sgtin }
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      queryParams: { code: sgtin }
     });
     
     if (error) {
