@@ -99,9 +99,9 @@ export const DashboardPage = () => {
                     <Activity className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">{event.eventType} event</p>
+                    <p className="font-medium text-sm">{event.type} event</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(event.timestamp).toLocaleString()} by {event.actor.name}
+                      {new Date(event.timestamp).toLocaleString()} by {typeof event.actor === 'string' ? event.actor : event.actor.name}
                     </p>
                   </div>
                 </div>

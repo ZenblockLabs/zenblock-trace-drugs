@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Drug, mockBlockchainService } from "@/services/mockBlockchainService";
+import { getBlockchainService } from "@/services/blockchainServiceFactory";
+import { Drug } from "@/services/types";
 import { DrugCard } from "@/components/DrugCard";
 import { Search, Filter } from "lucide-react";
 
@@ -21,13 +22,14 @@ export const DrugsPage = () => {
       setIsLoading(true);
       try {
         let drugData: Drug[] = [];
+        const service = await getBlockchainService();
         
         if (user?.role === 'regulator') {
           // Regulators see all drugs
-          drugData = await mockBlockchainService.getAllDrugs();
+          drugData = await service.getAllDrugs();
         } else if (user?.id) {
           // Other roles see drugs they own or previously owned
-          drugData = await mockBlockchainService.getAllDrugs();
+          drugData = await service.getAllDrugs();
           // For now, show all drugs for demo purposes
         }
         
@@ -52,10 +54,10 @@ export const DrugsPage = () => {
       const query = searchQuery.toLowerCase();
       results = results.filter(
         drug =>
-          drug.productName.toLowerCase().includes(query) ||
-          drug.sgtin.toLowerCase().includes(query) ||
-          drug.batchNumber.toLowerCase().includes(query) ||
-          drug.manufacturerName.toLowerCase().includes(query)
+          drug.productName?.toLowerCase().includes(query) ||
+          drug.sgtin?.toLowerCase().includes(query) ||
+          drug.batchNumber?.toLowerCase().includes(query) ||
+          drug.manufacturerName?.toLowerCase().includes(query)
       );
     }
     

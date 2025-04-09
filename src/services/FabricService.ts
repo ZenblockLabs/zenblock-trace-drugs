@@ -1,51 +1,72 @@
-
-import { supabase } from '@/integrations/supabase/client';
 import { BaseBlockchainService } from './BaseBlockchainService';
 import { Drug, TrackingEvent } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
 export class FabricService extends BaseBlockchainService {
-  constructor() {
+  private endpoint: string;
+  private token: string | null;
+
+  constructor(endpoint: string, token: string | null = null) {
     super();
-    console.log('FabricService initialized - Will connect to Fabric network via Supabase Edge Functions');
+    this.endpoint = endpoint;
+    this.token = token;
+    this.gatewayConnected = false;
   }
 
   async connect(): Promise<boolean> {
     try {
-      // In a real implementation, we would validate the connection to Fabric
-      // Here we're just simulating successful connection
-      console.log('Connecting to Fabric network via Supabase Edge Functions');
-      
-      // Check if the edge function endpoint is available
+      // Check if the Fabric service is accessible via Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('fabric-ping', {
-        body: { action: 'ping' }
+        method: 'GET'
       });
-      
+
       if (error) {
-        console.error('Failed to connect to Fabric network:', error);
+        console.error('Failed to connect to fabric service:', error);
         return false;
       }
-      
-      console.log('Connected to Fabric network', data);
+
       this.gatewayConnected = true;
       return true;
-    } catch (error) {
-      console.error('Failed to connect to Fabric network:', error);
+    } catch (err) {
+      console.error('Error connecting to fabric service:', err);
       return false;
     }
   }
 
-  // Drug management methods
+  private async callChaincode(functionName: string, args: any = {}): Promise<any> {
+    const connected = await this.ensureConnection();
+    if (!connected) {
+      throw new Error('Not connected to blockchain network');
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          functionName,
+          args
+        }
+      });
+
+      if (error) {
+        throw new Error(`Chaincode error: ${error.message}`);
+      }
+
+      return data;
+    } catch (err) {
+      console.error(`Error calling chaincode function ${functionName}:`, err);
+      throw err;
+    }
+  }
+
   async registerDrug(drugData: any): Promise<Drug> {
     await this.ensureConnection();
     console.log('FabricService.registerDrug called with:', drugData);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'invoke',
-        chaincodeFcn: 'RegisterDrug',
-        args: [JSON.stringify(drugData)]
-      }
-    });
+    const { data, error } = await this.callChaincode('RegisterDrug', [JSON.stringify(drugData)]);
     
     if (error) {
       console.error('Error registering drug:', error);
@@ -59,13 +80,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getAllDrugs called');
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetAllDrugs',
-        args: []
-      }
-    });
+    const { data, error } = await this.callChaincode('GetAllDrugs');
     
     if (error) {
       console.error('Error getting all drugs:', error);
@@ -79,13 +94,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getDrugsByOwner called for:', ownerId);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetDrugsByOwner',
-        args: [ownerId]
-      }
-    });
+    const { data, error } = await this.callChaincode('GetDrugsByOwner', [ownerId]);
     
     if (error) {
       console.error('Error getting drugs by owner:', error);
@@ -99,13 +108,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getDrugById called for:', id);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'ReadDrug',
-        args: [id]
-      }
-    });
+    const { data, error } = await this.callChaincode('ReadDrug', [id]);
     
     if (error) {
       console.error('Error getting drug by ID:', error);
@@ -119,13 +122,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getDrugBySGTIN called for:', sgtin);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetDrugBySGTIN',
-        args: [sgtin]
-      }
-    });
+    const { data, error } = await this.callChaincode('GetDrugBySGTIN', [sgtin]);
     
     if (error) {
       console.error('Error getting drug by SGTIN:', error);
@@ -135,18 +132,11 @@ export class FabricService extends BaseBlockchainService {
     return data as Drug;
   }
 
-  // Event tracking methods
   async createEvent(eventData: any): Promise<TrackingEvent> {
     await this.ensureConnection();
     console.log('FabricService.createEvent called with:', eventData);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'invoke',
-        chaincodeFcn: 'CreateEvent',
-        args: [JSON.stringify(eventData)]
-      }
-    });
+    const { data, error } = await this.callChaincode('CreateEvent', [JSON.stringify(eventData)]);
     
     if (error) {
       console.error('Error creating event:', error);
@@ -160,13 +150,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getEventsByDrug called for:', drugId);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetEventsByDrug',
-        args: [drugId]
-      }
-    });
+    const { data, error } = await this.callChaincode('GetEventsByDrug', [drugId]);
     
     if (error) {
       console.error('Error getting events by drug:', error);
@@ -180,13 +164,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getAllEvents called');
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetAllEvents',
-        args: []
-      }
-    });
+    const { data, error } = await this.callChaincode('GetAllEvents');
     
     if (error) {
       console.error('Error getting all events:', error);
@@ -200,13 +178,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     console.log('FabricService.getRecentEvents called with limit:', limit);
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'query',
-        chaincodeFcn: 'GetRecentEvents',
-        args: [limit.toString()]
-      }
-    });
+    const { data, error } = await this.callChaincode('GetRecentEvents', [limit.toString()]);
     
     if (error) {
       console.error('Error getting recent events:', error);
@@ -216,7 +188,6 @@ export class FabricService extends BaseBlockchainService {
     return data as TrackingEvent[];
   }
 
-  // Drug transfer methods
   async transferDrug(
     drugId: string, 
     fromId: string, 
@@ -239,13 +210,7 @@ export class FabricService extends BaseBlockchainService {
       details
     };
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'invoke',
-        chaincodeFcn: 'TransferDrug',
-        args: [JSON.stringify(transferData)]
-      }
-    });
+    const { data, error } = await this.callChaincode('TransferDrug', [JSON.stringify(transferData)]);
     
     if (error) {
       console.error('Error transferring drug:', error);
@@ -275,13 +240,7 @@ export class FabricService extends BaseBlockchainService {
       details
     };
     
-    const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
-      body: { 
-        action: 'invoke',
-        chaincodeFcn: 'ReceiveDrug',
-        args: [JSON.stringify(receiveData)]
-      }
-    });
+    const { data, error } = await this.callChaincode('ReceiveDrug', [JSON.stringify(receiveData)]);
     
     if (error) {
       console.error('Error receiving drug:', error);
@@ -291,7 +250,6 @@ export class FabricService extends BaseBlockchainService {
     return data as boolean;
   }
 
-  // Recall methods
   async initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean> {
     await this.ensureConnection();
     console.log('FabricService.initiateRecall called with:', { sgtin, reason, initiator });
@@ -385,12 +343,9 @@ export class FabricService extends BaseBlockchainService {
     }
   }
 
-  // Method to get public traceability data for a drug by SGTIN
   async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
-    await this.ensureConnection();
-    console.log('FabricService.getDrugDetailsBySGTIN called for:', sgtin);
-    
     try {
+      // Call the Edge Function to get drug details for public tracking
       const { data, error } = await supabase.functions.invoke('track-drug', {
         method: 'GET',
         headers: {
@@ -398,16 +353,15 @@ export class FabricService extends BaseBlockchainService {
         },
         params: { code: sgtin }
       });
-      
+
       if (error) {
-        console.error('Error getting drug details by SGTIN:', error);
-        throw new Error(`Failed to get drug details by SGTIN: ${error.message}`);
+        throw new Error(`Error fetching drug details: ${error.message}`);
       }
-      
+
       return data;
-    } catch (error) {
-      console.error('Error invoking track-drug function:', error);
-      throw error;
+    } catch (err) {
+      console.error('Error in getDrugDetailsBySGTIN:', err);
+      throw err;
     }
   }
 }

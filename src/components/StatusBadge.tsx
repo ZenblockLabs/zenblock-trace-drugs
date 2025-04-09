@@ -24,16 +24,25 @@ export const StatusBadge = ({ status, className, size = "md" }: StatusBadgeProps
     'recalled': 'bg-red-100 text-red-800 border-red-200',
   };
   
+  // Guard clause to prevent errors with undefined status
+  if (!status) {
+    return <span className={cn("status-badge rounded-full font-medium border bg-gray-100 text-gray-800 border-gray-200", sizeClasses[size], className)}>
+      Unknown
+    </span>;
+  }
+  
+  const displayText = status.charAt(0).toUpperCase() + status.slice(1).replace(/-/g, ' ');
+  
   return (
     <span 
       className={cn(
         "status-badge rounded-full font-medium border", 
-        statusClasses[status], 
+        statusClasses[status] || 'bg-gray-100 text-gray-800 border-gray-200', 
         sizeClasses[size],
         className
       )}
     >
-      {status.charAt(0).toUpperCase() + status.slice(1).replace(/-/g, ' ')}
+      {displayText}
     </span>
   );
 };

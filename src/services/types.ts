@@ -18,15 +18,26 @@ export interface Drug {
   currentOwnerId?: string;
   currentOwnerName?: string;
   currentOwnerRole?: string;
+  gtin?: string;
+  manufacturerId?: string;
+  manufacturerName?: string;
+}
+
+export interface Actor {
+  id: string;
+  name: string;
+  role: string;
+  organization: string;
 }
 
 export interface TrackingEvent {
   id: string;
   drugId: string;
-  type: string;
+  type: string; // Keeping this for backward compatibility
+  eventType?: string; // Adding this for new code references
   timestamp: string;
   location: string;
-  actor: string;
+  actor: Actor | string; // Can be either an Actor object or a string ID
   details: Record<string, any>;
 }
 

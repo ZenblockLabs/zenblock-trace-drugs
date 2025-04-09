@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
-import { Drug } from "@/services/mockBlockchainService";
+import { Drug } from "@/services/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -117,4 +118,4 @@ export function DrugDetailsPage() {
       )}
     </div>
   );
-}
+};
