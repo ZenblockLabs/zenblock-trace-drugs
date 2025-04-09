@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogoWithTransparentBg } from "@/components/LogoWithTransparentBg";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ export const LoginPage = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-4">
-            <img 
+            <LogoWithTransparentBg 
               src="/lovable-uploads/84abd095-fc01-44b0-9477-92a5958eefaa.png" 
               alt="Zenblock Labs Logo" 
               className="h-24 w-24" 
