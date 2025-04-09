@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Blocks } from "lucide-react";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -43,11 +42,13 @@ export const LoginPage = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-white p-3 rounded-full">
-              <Blocks className="h-10 w-10 text-zenblue-600" />
-            </div>
+            <img 
+              src="/lovable-uploads/84abd095-fc01-44b0-9477-92a5958eefaa.png" 
+              alt="Zenblock Labs Logo" 
+              className="h-24 w-24" 
+            />
           </div>
-          <h1 className="text-3xl font-bold text-white">ZenBlock Labs</h1>
+          <h1 className="text-3xl font-bold text-white">Zenblock Labs</h1>
           <p className="text-zenblue-100 mt-2">Pharmaceutical Supply Chain Tracking</p>
         </div>
 

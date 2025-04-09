@@ -130,10 +130,12 @@ export function AppSidebar() {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <RouterLink to="/dashboard" className="flex items-center gap-2">
-          <div className="rounded-md bg-primary p-1 flex items-center justify-center">
-            <Database className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-xl">ZenBlock</span>
+          <img 
+            src="/lovable-uploads/84abd095-fc01-44b0-9477-92a5958eefaa.png" 
+            alt="Zenblock Labs Logo" 
+            className="h-8 w-8" 
+          />
+          <span className="font-bold text-xl">Zenblock</span>
         </RouterLink>
       </SidebarHeader>
       
