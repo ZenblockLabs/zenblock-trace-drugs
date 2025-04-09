@@ -47,3 +47,10 @@ export interface TrackingEvent {
   actor: Actor;
   details: Record<string, any>;
 }
+
+export interface RecallInfo {
+  sgtin: string;
+  reason: string;
+  initiatedBy: string | Actor;
+  timestamp: string;
+}

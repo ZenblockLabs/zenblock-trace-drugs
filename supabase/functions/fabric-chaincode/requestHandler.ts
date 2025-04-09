@@ -9,7 +9,54 @@ export async function handleRequest(req: Request): Promise<Response> {
   }
 
   try {
-    // Parse the request body
+    // Check for specific API routes
+    const url = new URL(req.url);
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+    const endpoint = pathSegments[pathSegments.length - 2] === 'recall' ? 'recall' : '';
+    const sgtinParam = endpoint === 'recall' ? pathSegments[pathSegments.length - 1] : '';
+
+    // Handle recall routes
+    if (endpoint === 'recall') {
+      // GET /recall/:sgtin - Check recall status
+      if (req.method === 'GET' && sgtinParam) {
+        const result = await simulateChaincodeInteraction('query', 'IsRecalled', [sgtinParam]);
+        
+        return new Response(
+          JSON.stringify(result),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
+      
+      // POST /recall - Initiate recall
+      if (req.method === 'POST') {
+        const recallData = await req.json();
+        
+        if (!recallData.sgtin) {
+          return new Response(
+            JSON.stringify({ error: 'Missing required parameter: sgtin' }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 400 
+            }
+          );
+        }
+        
+        const result = await simulateChaincodeInteraction('invoke', 'InitiateRecall', [JSON.stringify(recallData)]);
+        
+        return new Response(
+          JSON.stringify(result),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
+    }
+
+    // If not a recall endpoint, proceed with standard chaincode interaction
     const { action, chaincodeFcn, args } = await req.json();
 
     if (!action || !chaincodeFcn) {

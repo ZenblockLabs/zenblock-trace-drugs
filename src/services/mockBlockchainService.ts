@@ -54,6 +54,7 @@ export interface ComplianceReport {
 let drugs: Drug[] = [];
 let events: TrackingEvent[] = [];
 let complianceReports: ComplianceReport[] = [];
+let recalls: Record<string, any> = {};
 
 // Initialize with some mock data
 const initMockData = () => {
@@ -366,6 +367,54 @@ export const mockBlockchainService = {
     drug.status = 'received';
     
     return true;
+  },
+  
+  // Drug transfers
+  initiateRecall: async (sgtin: string, reason: string, initiator: any): Promise<boolean> => {
+    const drug = drugs.find(d => d.sgtin === sgtin);
+    
+    if (!drug) {
+      throw new Error(`Drug with SGTIN ${sgtin} not found`);
+    }
+    
+    // Store recall information
+    recalls[sgtin] = {
+      sgtin,
+      reason,
+      initiatedBy: initiator,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Update drug status
+    drug.status = 'recalled';
+    
+    // Create a recall event
+    await mockBlockchainService.createEvent({
+      drugId: drug.id,
+      eventType: 'recall',
+      location: 'System',
+      actor: {
+        id: typeof initiator === 'string' ? initiator : initiator.id,
+        name: typeof initiator === 'string' ? 'System' : initiator.name,
+        role: typeof initiator === 'string' ? 'system' : initiator.role,
+        organization: typeof initiator === 'string' ? 'System' : initiator.organization
+      },
+      details: {
+        reason,
+        recallId: Math.random().toString(36).substring(2, 15)
+      }
+    });
+    
+    return true;
+  },
+  
+  checkRecallStatus: async (sgtin: string): Promise<any> => {
+    const recallInfo = recalls[sgtin];
+    
+    return {
+      isRecalled: !!recallInfo,
+      recallDetails: recallInfo || null
+    };
   },
   
   // Compliance reporting

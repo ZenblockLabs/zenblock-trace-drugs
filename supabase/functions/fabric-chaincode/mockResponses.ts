@@ -1,7 +1,9 @@
-
 import { mockDrugs, mockEvents } from './mockData.ts';
 import { validateTransferPolicy, validateReceivePolicy } from './policyValidator.ts';
-import { Drug, TrackingEvent, DrugStatus, EventType } from './types.ts';
+import { Drug, TrackingEvent, DrugStatus, EventType, RecallInfo } from './types.ts';
+
+// Mock storage for recalls
+const mockRecalls: Record<string, RecallInfo> = {};
 
 // Mock function to simulate chaincode responses
 export const mockChaincodeResponse = (fcn: string, args: string[]) => {
@@ -220,6 +222,73 @@ export const mockChaincodeResponse = (fcn: string, args: string[]) => {
         
       } catch (error) {
         throw new Error(`Failed to get drug history: ${error.message}`);
+      }
+      
+    case 'InitiateRecall':
+      try {
+        const recallData = JSON.parse(args[0]);
+        const { sgtin, reason, initiatedBy, timestamp } = recallData;
+        
+        // Find the drug by SGTIN
+        const drug = mockDrugs.find(d => d.sgtin === sgtin);
+        if (!drug) {
+          throw new Error(`Drug with SGTIN ${sgtin} not found`);
+        }
+        
+        // Store recall information
+        const recallInfo: RecallInfo = {
+          sgtin,
+          reason,
+          initiatedBy,
+          timestamp: timestamp || new Date().toISOString()
+        };
+        
+        mockRecalls[sgtin] = recallInfo;
+        
+        // Update drug status to recalled
+        drug.status = 'recalled';
+        
+        // Create a recall event
+        const recallEvent: TrackingEvent = {
+          id: crypto.randomUUID(),
+          timestamp: recallInfo.timestamp,
+          drugId: drug.id,
+          eventType: 'recall',
+          location: 'System',
+          actor: {
+            id: initiatedBy.id || initiatedBy,
+            name: initiatedBy.name || 'Regulator',
+            role: initiatedBy.role || 'regulator',
+            organization: initiatedBy.organization || 'Regulatory Authority'
+          },
+          details: {
+            reason,
+            recallId: crypto.randomUUID()
+          }
+        };
+        
+        mockEvents.push(recallEvent);
+        
+        return { 
+          success: true, 
+          recallInfo,
+          drugId: drug.id 
+        };
+      } catch (error) {
+        throw new Error(`Failed to initiate recall: ${error.message}`);
+      }
+    
+    case 'IsRecalled':
+      try {
+        const sgtin = args[0];
+        const recallInfo = mockRecalls[sgtin];
+        
+        return {
+          isRecalled: !!recallInfo,
+          recallDetails: recallInfo || null
+        };
+      } catch (error) {
+        throw new Error(`Failed to check recall status: ${error.message}`);
       }
       
     default:

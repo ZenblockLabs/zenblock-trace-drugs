@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,7 @@ import { CompliancePage } from "@/pages/CompliancePage";
 import { VerifyDrugPage } from "@/pages/VerifyDrugPage";
 import { BatchProcessingPage } from "@/pages/BatchProcessingPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { RecallReportsPage } from "./pages/RecallReportsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +48,7 @@ const App = () => (
               <Route path="/compliance" element={<CompliancePage />} />
               <Route path="/verify" element={<VerifyDrugPage />} />
               <Route path="/batch-processing" element={<BatchProcessingPage />} />
+              <Route path="/recalls" element={<RecallReportsPage />} />
             </Route>
             
             <Route path="/" element={<Navigate to="/login" replace />} />

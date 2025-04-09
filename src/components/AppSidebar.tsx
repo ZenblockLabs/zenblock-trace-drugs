@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/context/AuthContext";
 import { 
   Sidebar, 
@@ -23,7 +22,8 @@ import {
   Database,
   Package2,
   Link,
-  ShieldCheck
+  ShieldCheck,
+  AlertTriangle
 } from "lucide-react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,12 @@ export function AppSidebar() {
             title: "Reports",
             url: "/reports",
             icon: FileText,
+          },
+          {
+            title: "Recalls",
+            href: "/recalls",
+            icon: <AlertTriangle className="h-5 w-5" />,
+            roles: ["regulator", "manufacturer"]
           }
         ];
       default:

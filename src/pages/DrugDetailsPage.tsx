@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
+import { RecallStatus } from "@/components/RecallStatus";
+import { RecallModal } from "@/components/RecallModal";
 import { useAuth } from "@/context/AuthContext";
-import { Drug, TrackingEvent, mockBlockchainService } from "@/services/mockBlockchainService";
-import { Pill, Clock, FileText, Truck, PackageCheck, ArrowLeft, Building, Thermometer, ShieldCheck } from "lucide-react";
+import { getBlockchainService } from "@/services/blockchainServiceFactory";
+import { Drug, TrackingEvent } from "@/services/mockBlockchainService";
+import { Pill, Clock, FileText, Truck, PackageCheck, ArrowLeft, Building, Thermometer, ShieldCheck, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 
 export const DrugDetailsPage = () => {
@@ -16,29 +19,40 @@ export const DrugDetailsPage = () => {
   const [drug, setDrug] = useState<Drug | null>(null);
   const [events, setEvents] = useState<TrackingEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [recallModalOpen, setRecallModalOpen] = useState(false);
+
+  const fetchDrugDetails = async () => {
+    if (!id) return;
+    
+    setIsLoading(true);
+    try {
+      const service = await getBlockchainService();
+      const drugData = await service.getDrugById(id);
+      setDrug(drugData);
+      
+      if (drugData) {
+        const eventsData = await service.getEventsByDrug(drugData.id);
+        setEvents(eventsData);
+      }
+    } catch (error) {
+      console.error("Error fetching drug details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDrugDetails = async () => {
-      if (!id) return;
-      
-      setIsLoading(true);
-      try {
-        const drugData = await mockBlockchainService.getDrugById(id);
-        setDrug(drugData);
-        
-        if (drugData) {
-          const eventsData = await mockBlockchainService.getEventsByDrug(drugData.id);
-          setEvents(eventsData);
-        }
-      } catch (error) {
-        console.error("Error fetching drug details:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     fetchDrugDetails();
   }, [id]);
+
+  const handleRecallSuccess = () => {
+    fetchDrugDetails();
+  };
+
+  // Check if the current user is a manufacturer
+  const isManufacturer = user?.role === 'manufacturer';
+  // Check if this manufacturer is the manufacturer of this drug
+  const isProductManufacturer = isManufacturer && drug?.manufacturerId === user?.id;
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-full">Loading drug details...</div>;
@@ -60,6 +74,8 @@ export const DrugDetailsPage = () => {
       </div>
     );
   }
+
+  const isRecalled = drug.status === 'recalled';
 
   return (
     <div className="space-y-6">
@@ -315,6 +331,34 @@ export const DrugDetailsPage = () => {
             </CardContent>
           </Card>
           
+          {/* Recall Information Card */}
+          <Card className={isRecalled ? "border-red-200" : ""}>
+            <CardHeader className={isRecalled ? "bg-red-50/50" : ""}>
+              <CardTitle className="flex items-center gap-2">
+                {isRecalled && <AlertTriangle className="h-5 w-5 text-red-500" />}
+                Recall Status
+              </CardTitle>
+              <CardDescription>
+                Current recall status and information
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecallStatus sgtin={drug.sgtin} />
+            </CardContent>
+            {isManufacturer && isProductManufacturer && !isRecalled && (
+              <CardFooter>
+                <Button 
+                  variant="destructive" 
+                  className="w-full flex items-center gap-2"
+                  onClick={() => setRecallModalOpen(true)}
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  Initiate Recall
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
+          
           {/* Actions Card - shown based on user role and drug status */}
           {user && (
             <Card>
@@ -324,7 +368,7 @@ export const DrugDetailsPage = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Manufacturer Actions */}
-                {user.role === 'manufacturer' && drug.currentOwnerId === user.id && (
+                {user.role === 'manufacturer' && drug.currentOwnerId === user.id && !isRecalled && (
                   <Button className="w-full">
                     <Truck className="mr-2 h-4 w-4" />
                     Ship Product
@@ -332,7 +376,7 @@ export const DrugDetailsPage = () => {
                 )}
                 
                 {/* Distributor Actions */}
-                {user.role === 'distributor' && (
+                {user.role === 'distributor' && !isRecalled && (
                   <>
                     {drug.status === 'in-transit' && drug.currentOwnerId === user.id && (
                       <Button className="w-full">
@@ -350,7 +394,7 @@ export const DrugDetailsPage = () => {
                 )}
                 
                 {/* Dispenser Actions */}
-                {user.role === 'dispenser' && (
+                {user.role === 'dispenser' && !isRecalled && (
                   <>
                     {drug.status === 'in-transit' && drug.currentOwnerId === user.id && (
                       <Button className="w-full">
@@ -368,14 +412,23 @@ export const DrugDetailsPage = () => {
                 )}
                 
                 {/* Regulator Actions */}
-                {user.role === 'regulator' && (
+                {user.role === 'regulator' && !isRecalled && (
                   <Button 
                     variant="destructive" 
                     className="w-full"
-                    disabled={drug.status === 'recalled'}
+                    onClick={() => setRecallModalOpen(true)}
                   >
+                    <AlertTriangle className="mr-2 h-4 w-4" />
                     Issue Recall
                   </Button>
+                )}
+                
+                {/* Show message if recalled */}
+                {isRecalled && (
+                  <div className="bg-red-50 p-3 rounded-md border border-red-200 text-center text-sm">
+                    <AlertTriangle className="h-4 w-4 text-red-500 inline-block mr-1" />
+                    No actions available - product has been recalled
+                  </div>
                 )}
               </CardContent>
               <CardFooter>
@@ -394,6 +447,14 @@ export const DrugDetailsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Recall Modal */}
+      <RecallModal
+        open={recallModalOpen}
+        onOpenChange={setRecallModalOpen}
+        drug={drug}
+        onSuccess={handleRecallSuccess}
+      />
     </div>
   );
 };
