@@ -23,8 +23,8 @@ declare module 'jspdf' {
         unsubscribe: (eventName: string, callback: Function) => void;
       };
       getEncryptor: (objectId: number) => (data: string) => string;
-      getNumberOfPages: () => number;
     };
+    setPage: (pageNumber: number) => jsPDF;
   }
 }
 

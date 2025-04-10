@@ -33,18 +33,34 @@ export function useComplianceReport({ drugId, drugSgtin }: UseComplianceReportPr
       
       // Fetch drug data
       let drug: Drug | null = null;
+      
+      // First try to get drug by ID if provided
       if (drugId) {
-        drug = await service.getDrugById(drugId);
-      } else if (drugSgtin) {
-        drug = await service.getDrugBySGTIN(drugSgtin);
+        try {
+          drug = await service.getDrugById(drugId);
+        } catch (error) {
+          console.log("Failed to get drug by ID, trying SGTIN next:", error);
+        }
+      }
+      
+      // If drug not found by ID or no ID provided, try SGTIN
+      if (!drug && drugSgtin) {
+        try {
+          drug = await service.getDrugBySGTIN(drugSgtin);
+        } catch (error) {
+          console.log("Failed to get drug by SGTIN:", error);
+        }
       }
       
       if (!drug) {
-        throw new Error("Drug not found");
+        throw new Error(`Drug not found with ${drugId ? `ID: ${drugId}` : ''} ${drugSgtin ? `SGTIN: ${drugSgtin}` : ''}`);
       }
+      
+      console.log("Found drug for report:", drug);
       
       // Fetch all events for this drug - using the regulator role to get unfiltered data
       const events = await service.getEventsByDrug(drug.id);
+      console.log(`Retrieved ${events.length} events for drug ${drug.id}`);
       
       // Check the recall status
       const recallStatus = await service.checkRecallStatus(drug.sgtin);
@@ -65,7 +81,7 @@ export function useComplianceReport({ drugId, drugSgtin }: UseComplianceReportPr
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to generate compliance report",
+        description: "Failed to generate compliance report: " + (error instanceof Error ? error.message : "Unknown error"),
       });
     } finally {
       setIsGenerating(false);

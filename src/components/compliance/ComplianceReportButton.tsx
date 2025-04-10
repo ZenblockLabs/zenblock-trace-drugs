@@ -9,6 +9,7 @@ interface ComplianceReportButtonProps {
   variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
+  disabled?: boolean;
 }
 
 export function ComplianceReportButton({
@@ -16,9 +17,14 @@ export function ComplianceReportButton({
   drugSgtin,
   variant = "default",
   size = "default",
-  className
+  className,
+  disabled: externalDisabled
 }: ComplianceReportButtonProps) {
   const { isGenerating, generateReport } = useComplianceReport({ drugId, drugSgtin });
+
+  // Button is disabled if explicitly set from outside, or if generating,
+  // or if neither drug ID nor SGTIN provided
+  const isDisabled = externalDisabled || isGenerating || (!drugId && !drugSgtin);
 
   return (
     <Button
@@ -26,7 +32,7 @@ export function ComplianceReportButton({
       size={size}
       className={className}
       onClick={generateReport}
-      disabled={isGenerating || (!drugId && !drugSgtin)}
+      disabled={isDisabled}
     >
       {isGenerating ? (
         <>

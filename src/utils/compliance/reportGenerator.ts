@@ -156,6 +156,13 @@ export const generatePDFReport = async (
     );
   }
   
-  // Save the PDF
-  doc.save(`compliance-report-${drug.sgtin}.pdf`);
+  try {
+    // Save the PDF with a unique name including timestamp to avoid browser caching issues
+    const timestamp = new Date().getTime();
+    doc.save(`compliance-report-${drug.sgtin}-${timestamp}.pdf`);
+    return true;
+  } catch (error) {
+    console.error("Error saving PDF:", error);
+    throw new Error("Failed to download PDF report");
+  }
 };
