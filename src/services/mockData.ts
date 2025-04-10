@@ -1,16 +1,21 @@
-
 import { Drug, TrackingEvent, DrugStatus } from './types';
 
 // Mock data for testing
 export const mockDrugs: Drug[] = [
   {
     id: "d1",
-    gtin: "01234567890123",
-    sgtin: "sgtin:01234567890123.123456",
+    name: "ZenRelief",
+    manufacturer: "ZenPharma Inc.",
     batchNumber: "BATCH-1234",
+    expiryDate: "2025-12-31",
+    licenseNumber: "LIC-12345",
+    sgtin: "sgtin:01234567890123.123456",
+    ownerId: "user1",
+    ownerName: "ZenPharma Inc.",
+    ownerRole: "manufacturer",
+    gtin: "01234567890123",
     manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2025-12-31",
     productName: "ZenRelief",
     dosage: "10mg",
     status: "manufactured",
@@ -20,12 +25,18 @@ export const mockDrugs: Drug[] = [
   },
   {
     id: "d2",
-    gtin: "01234567890124",
-    sgtin: "sgtin:01234567890124.123457",
+    name: "CardioZen",
+    manufacturer: "ZenPharma Inc.",
     batchNumber: "BATCH-1235",
+    expiryDate: "2026-01-15",
+    licenseNumber: "LIC-12346",
+    sgtin: "sgtin:01234567890124.123457",
+    ownerId: "user2",
+    ownerName: "MediDistribute LLC",
+    ownerRole: "distributor",
+    gtin: "01234567890124",
     manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2026-01-15",
     productName: "CardioZen",
     dosage: "25mg",
     status: "shipped",
@@ -35,12 +46,18 @@ export const mockDrugs: Drug[] = [
   },
   {
     id: "d3",
-    gtin: "01234567890125",
-    sgtin: "sgtin:01234567890125.123458",
+    name: "PainEase",
+    manufacturer: "ZenPharma Inc.",
     batchNumber: "BATCH-1236",
+    expiryDate: "2025-06-30",
+    licenseNumber: "LIC-12347",
+    sgtin: "sgtin:01234567890125.123458",
+    ownerId: "user3",
+    ownerName: "ZenMed Pharmacy",
+    ownerRole: "dispenser",
+    gtin: "01234567890125",
     manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2025-06-30",
     productName: "PainEase",
     dosage: "50mg",
     status: "received",
@@ -51,12 +68,18 @@ export const mockDrugs: Drug[] = [
   // A drug with an anomalous flow (skips distributor)
   {
     id: "d4",
-    gtin: "01234567890126",
-    sgtin: "sgtin:01234567890126.123459",
+    name: "AnomalyMed",
+    manufacturer: "ZenPharma Inc.",
     batchNumber: "BATCH-1237",
+    expiryDate: "2025-08-15",
+    licenseNumber: "LIC-12348",
+    sgtin: "sgtin:01234567890126.123459",
+    ownerId: "user3",
+    ownerName: "ZenMed Pharmacy",
+    ownerRole: "dispenser",
+    gtin: "01234567890126",
     manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2025-08-15",
     productName: "AnomalyMed",
     dosage: "100mg",
     status: "dispensed",
@@ -67,12 +90,18 @@ export const mockDrugs: Drug[] = [
   // A drug with a gap in its timeline
   {
     id: "d5",
-    gtin: "01234567890127",
-    sgtin: "sgtin:01234567890127.123460",
+    name: "TimeGapMed",
+    manufacturer: "ZenPharma Inc.",
     batchNumber: "BATCH-1238",
+    expiryDate: "2025-10-20",
+    licenseNumber: "LIC-12349",
+    sgtin: "sgtin:01234567890127.123460",
+    ownerId: "user2",
+    ownerName: "MediDistribute LLC",
+    ownerRole: "distributor",
+    gtin: "01234567890127",
     manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2025-10-20",
     productName: "TimeGapMed",
     dosage: "75mg",
     status: "in-transit",
@@ -793,95 +822,4 @@ export const mockEvents: TrackingEvent[] = [
   }
 ];
 
-// A utility function to generate the current status of a drug based on its most recent event
-export function computeDrugStatus(drugId: string): {
-  status: DrugStatus;
-  currentOwnerId: string;
-  currentOwnerName: string;
-  currentOwnerRole: string;
-} {
-  // Get all events for this drug
-  const drugEvents = mockEvents.filter(event => event.drugId === drugId);
-  
-  // Default values if no events found
-  if (drugEvents.length === 0) {
-    return {
-      status: 'manufactured',
-      currentOwnerId: '',
-      currentOwnerName: 'Unknown',
-      currentOwnerRole: 'unknown'
-    };
-  }
-  
-  // Sort events by timestamp (newest first)
-  const sortedEvents = [...drugEvents].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
-  
-  // Get most recent event
-  const latestEvent = sortedEvents[0];
-  
-  // Map event type to status
-  let status: DrugStatus;
-  switch (latestEvent.type) {
-    case 'commission':
-    case 'qa-passed':
-      status = 'manufactured';
-      break;
-    case 'ship':
-      status = 'shipped';
-      break;
-    case 'receive':
-      status = 'received';
-      break;
-    case 'warehouse':
-      status = 'warehoused';
-      break;
-    case 'dispense':
-      status = 'dispensed';
-      break;
-    case 'recall':
-      status = 'recalled';
-      break;
-    default:
-      status = 'manufactured';
-  }
-  
-  // Get actor information from the latest event
-  const actorId = typeof latestEvent.actor === 'string' 
-    ? latestEvent.actor 
-    : latestEvent.actor.id || '';
-  
-  const actorName = typeof latestEvent.actor === 'string' 
-    ? latestEvent.actor 
-    : latestEvent.actor.name || 'Unknown';
-  
-  const actorRole = typeof latestEvent.actor === 'string' 
-    ? 'unknown' 
-    : latestEvent.actor.role || 'unknown';
-  
-  return {
-    status,
-    currentOwnerId: actorId,
-    currentOwnerName: actorName,
-    currentOwnerRole: actorRole
-  };
-}
-
-// Function to filter events based on user role
-export function filterEventsByRole(events: TrackingEvent[], role: string): TrackingEvent[] {
-  if (role === 'regulator') {
-    // Regulators see everything
-    return events;
-  }
-  
-  // Define which event types each role can see
-  const roleEventMap: Record<string, string[]> = {
-    'manufacturer': ['commission', 'qa-passed', 'ship'],
-    'distributor': ['receive', 'warehouse', 'ship'],
-    'dispenser': ['receive', 'warehouse', 'dispense']
-  };
-  
-  const allowedTypes = roleEventMap[role] || [];
-  return events.filter(event => allowedTypes.includes(event.type));
-}
+// A utility function to generate the current

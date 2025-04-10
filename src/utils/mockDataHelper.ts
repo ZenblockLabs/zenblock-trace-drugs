@@ -91,7 +91,10 @@ function hasSupplyChainAnomalies(events: TrackingEvent[]): boolean {
   
   // Check for unusual shipping routes (e.g., manufacturer directly to pharmacy)
   const manufacturerShips = events.filter(event => 
-    event.type === 'ship' && event.actor.role === 'manufacturer'
+    event.type === 'ship' && 
+    (typeof event.actor === 'string' ? 
+      false : // Skip if actor is a string
+      (event.actor as any).role === 'manufacturer')
   );
   
   const directToPharmacy = manufacturerShips.some(event => 
