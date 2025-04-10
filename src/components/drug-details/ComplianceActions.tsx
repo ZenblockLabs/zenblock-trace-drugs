@@ -2,7 +2,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComplianceReportGenerator } from "@/components/compliance/ComplianceReportGenerator";
-import { Shield, FileText } from "lucide-react";
+import { Shield } from "lucide-react";
 
 interface ComplianceActionsProps {
   drugId: string;

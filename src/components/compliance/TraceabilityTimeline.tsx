@@ -20,7 +20,14 @@ import {
 import { TrackingEvent, Drug } from "@/services/types";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { useAuth } from "@/context/AuthContext";
-import { AlertTriangle, CheckCircle, XCircle, Clock, ArrowDown, ArrowUp, Package } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { checkCompliance } from "@/utils/compliance/complianceChecker";
+import { 
+  determineComplianceStatus, 
+  getEventIcon, 
+  formatEventDate,
+  ComplianceStatus 
+} from "@/utils/compliance/statusUtils";
 
 interface TraceabilityTimelineProps {
   drugId?: string;
@@ -31,7 +38,7 @@ export function TraceabilityTimeline({ drugId, showFullDetails = false }: Tracea
   const [events, setEvents] = useState<TrackingEvent[]>([]);
   const [drug, setDrug] = useState<Drug | null>(null);
   const [loading, setLoading] = useState(true);
-  const [complianceStatus, setComplianceStatus] = useState<"compliant" | "warning" | "violated">("compliant");
+  const [complianceStatus, setComplianceStatus] = useState<ComplianceStatus>("compliant");
   const [complianceIssues, setComplianceIssues] = useState<string[]>([]);
   const { user } = useAuth();
 
@@ -59,14 +66,7 @@ export function TraceabilityTimeline({ drugId, showFullDetails = false }: Tracea
         // Check compliance
         const issues = checkCompliance(sortedEvents);
         setComplianceIssues(issues);
-        
-        if (issues.length === 0) {
-          setComplianceStatus("compliant");
-        } else if (issues.some(issue => issue.includes("Missing required event") || issue.includes("Invalid flow"))) {
-          setComplianceStatus("violated");
-        } else {
-          setComplianceStatus("warning");
-        }
+        setComplianceStatus(determineComplianceStatus(issues));
       } catch (error) {
         console.error("Failed to load traceability timeline:", error);
       } finally {
@@ -76,66 +76,6 @@ export function TraceabilityTimeline({ drugId, showFullDetails = false }: Tracea
     
     loadEvents();
   }, [drugId, user?.email]);
-
-  const checkCompliance = (events: TrackingEvent[]): string[] => {
-    const issues: string[] = [];
-    
-    if (events.length === 0) {
-      issues.push("No events recorded for this drug");
-      return issues;
-    }
-    
-    // Required event types in proper order
-    const requiredSequence = ['commission', 'ship', 'receive', 'dispense'];
-    let foundEvents = new Set<string>();
-    
-    // Check for required events
-    events.forEach(event => {
-      foundEvents.add(event.type.toLowerCase());
-    });
-    
-    requiredSequence.forEach(required => {
-      if (!foundEvents.has(required)) {
-        issues.push(`Missing required event: ${required}`);
-      }
-    });
-    
-    // Check for logical flow (manufacturers → distributors → dispensers)
-    let currentRole = "manufacturer";
-    const roleOrder = ["manufacturer", "distributor", "dispenser"];
-    
-    for (let i = 0; i < events.length; i++) {
-      const event = events[i];
-      const actorRole = typeof event.actor === 'string' 
-        ? 'unknown' 
-        : event.actor.role.toLowerCase();
-      
-      if (actorRole === 'regulator') continue; // Regulators can interact at any point
-      
-      const roleIndex = roleOrder.indexOf(actorRole);
-      const currentRoleIndex = roleOrder.indexOf(currentRole);
-      
-      if (roleIndex < currentRoleIndex) {
-        issues.push(`Invalid flow: ${actorRole} acted after ${currentRole} (Event: ${event.type})`);
-      } else if (roleIndex > currentRoleIndex) {
-        currentRole = actorRole;
-      }
-    }
-    
-    // Check for timeline gaps (more than 72 hours between events)
-    const maxGapHours = 72;
-    for (let i = 1; i < events.length; i++) {
-      const prevTime = new Date(events[i-1].timestamp).getTime();
-      const currTime = new Date(events[i].timestamp).getTime();
-      const diffHours = (currTime - prevTime) / (1000 * 60 * 60);
-      
-      if (diffHours > maxGapHours) {
-        issues.push(`Timeline gap of ${Math.round(diffHours)} hours between events ${i-1} and ${i}`);
-      }
-    }
-    
-    return issues;
-  };
 
   const getComplianceBadge = () => {
     switch (complianceStatus) {
@@ -161,29 +101,6 @@ export function TraceabilityTimeline({ drugId, showFullDetails = false }: Tracea
           </Badge>
         );
     }
-  };
-
-  const getEventIcon = (eventType: string) => {
-    switch (eventType.toLowerCase()) {
-      case 'commission':
-        return <Package className="h-4 w-4 text-blue-500" />;
-      case 'ship':
-        return <ArrowUp className="h-4 w-4 text-indigo-500" />;
-      case 'receive':
-        return <ArrowDown className="h-4 w-4 text-green-500" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   if (loading) {
@@ -250,7 +167,7 @@ export function TraceabilityTimeline({ drugId, showFullDetails = false }: Tracea
                     {getEventIcon(event.type)}
                     <span className="ml-2 capitalize">{event.type}</span>
                   </TableCell>
-                  <TableCell>{formatDate(event.timestamp)}</TableCell>
+                  <TableCell>{formatEventDate(event.timestamp)}</TableCell>
                   <TableCell>
                     {typeof event.actor === 'string' 
                       ? event.actor 
