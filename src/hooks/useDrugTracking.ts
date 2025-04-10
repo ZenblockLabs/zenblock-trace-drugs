@@ -2,11 +2,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DrugTraceability } from "@/services/types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useDrugTracking(code: string | null) {
   const [data, setData] = useState<DrugTraceability | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFiltered, setIsFiltered] = useState<boolean>(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,14 +21,32 @@ export function useDrugTracking(code: string | null) {
 
       try {
         setLoading(true);
+        
+        // Determine user role for filtering
+        let role = null;
+        if (user) {
+          // Extract role from user email or user metadata
+          if (user.email?.includes('manufacturer')) {
+            role = 'manufacturer';
+          } else if (user.email?.includes('distributor')) {
+            role = 'distributor';
+          } else if (user.email?.includes('dispenser')) {
+            role = 'dispenser';
+          } else if (user.email?.includes('regulator')) {
+            role = 'regulator';
+          }
+        }
+        
+        setIsFiltered(role !== null && role !== 'regulator');
+        
         // Using correctly formatted Supabase Edge Function invocation
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          // Pass the code as a body parameter
-          body: { code }
+          // Pass the code and role as body parameters
+          body: { code, role }
         });
 
         if (responseError) {
@@ -42,7 +63,7 @@ export function useDrugTracking(code: string | null) {
     };
 
     fetchData();
-  }, [code]);
+  }, [code, user]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -59,5 +80,5 @@ export function useDrugTracking(code: string | null) {
     }
   };
 
-  return { data, loading, error, formatDate };
+  return { data, loading, error, formatDate, isFiltered };
 }

@@ -4,9 +4,11 @@ import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link as RouterLink } from "react-router-dom";
 import { RecallStatus } from "@/components/RecallStatus";
-import { Loader2, Clock, Map, Package } from "lucide-react";
+import { Loader2, Clock, Map, Package, ShieldCheck, Info } from "lucide-react";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { TrackingEvent } from "@/services/types";
+import { useAuth } from "@/context/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TrackingContentProps {
   drugId: string;
@@ -16,14 +18,26 @@ interface TrackingContentProps {
 export function TrackingContent({ drugId, sgtin }: TrackingContentProps) {
   const [events, setEvents] = useState<TrackingEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const service = await getBlockchainService();
+        const service = await getBlockchainService(user?.email || null);
         const drugEvents = await service.getEventsByDrug(drugId);
         setEvents(drugEvents);
+        
+        // Check if we're using a filtered view based on role
+        if (user?.email) {
+          const role = user.email.includes('regulator') ? 'regulator' : 
+                      user.email.includes('manufacturer') ? 'manufacturer' :
+                      user.email.includes('distributor') ? 'distributor' :
+                      user.email.includes('dispenser') ? 'dispenser' : null;
+          
+          setIsFiltered(role !== null && role !== 'regulator');
+        }
       } catch (error) {
         console.error("Failed to fetch drug events:", error);
       } finally {
@@ -34,7 +48,7 @@ export function TrackingContent({ drugId, sgtin }: TrackingContentProps) {
     if (drugId) {
       fetchEvents();
     }
-  }, [drugId]);
+  }, [drugId, user?.email]);
 
   const renderTimeline = () => {
     if (loading) {
@@ -85,6 +99,13 @@ export function TrackingContent({ drugId, sgtin }: TrackingContentProps) {
                     <span className="font-medium">Notes:</span> {event.details.notes}
                   </p>
                 )}
+                
+                {/* Display blockchain verification if available */}
+                {event.details?.isOnChain && (
+                  <div className="mt-2 text-xs text-green-600 flex items-center">
+                    <ShieldCheck className="h-3 w-3 mr-1" /> Blockchain Verified
+                  </div>
+                )}
               </div>
             </li>
           ))}
@@ -94,9 +115,11 @@ export function TrackingContent({ drugId, sgtin }: TrackingContentProps) {
   };
 
   const getEventIcon = (eventType: string) => {
-    switch (eventType) {
+    switch (eventType.toLowerCase()) {
       case "commission":
         return <Package className="h-3 w-3 text-white" />;
+      case "qa-passed":
+        return <ShieldCheck className="h-3 w-3 text-white" />;
       case "ship":
       case "receive":
         return <Map className="h-3 w-3 text-white" />;
@@ -108,6 +131,16 @@ export function TrackingContent({ drugId, sgtin }: TrackingContentProps) {
   return (
     <CardContent className="py-6">
       <p className="text-gray-500 mb-6">Track the journey of this product through the supply chain.</p>
+      
+      {/* Role-based filtering notice */}
+      {isFiltered && (
+        <Alert variant="outline" className="mb-4 border-blue-200 bg-blue-50">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-700">
+            🔐 Filtered view – showing only relevant events for your role.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {renderTimeline()}
       

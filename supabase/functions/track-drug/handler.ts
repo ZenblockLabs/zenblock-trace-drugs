@@ -30,11 +30,76 @@ interface DrugTraceability {
 }
 
 // Mock data for demo purposes
-export async function getTraceabilityData(code: string): Promise<DrugTraceability> {
+export async function getTraceabilityData(code: string, userRole?: string): Promise<DrugTraceability> {
   // In a real implementation, this would query the blockchain
   
   // Check if the drug is recalled
   const isRecalled = code.includes("RECALL") || Math.random() < 0.1;
+  
+  // Base events for the supply chain journey
+  const allEvents = [
+    {
+      step: "manufactured",
+      timestamp: "2023-04-15T09:30:00Z",
+      location: "Boston, MA, USA",
+      handler: "PharmaLabs Manufacturing",
+      notes: "Produced according to GMP guidelines"
+    },
+    {
+      step: "quality-checked",
+      timestamp: "2023-04-16T14:20:00Z",
+      location: "Boston, MA, USA",
+      handler: "PharmaLabs QA Team",
+      notes: "Batch passed all quality tests"
+    },
+    {
+      step: "shipped",
+      timestamp: "2023-04-20T08:15:00Z",
+      location: "Boston, MA, USA",
+      handler: "MedLogistics",
+      notes: "Shipped with temperature control"
+    },
+    {
+      step: "in-transit",
+      timestamp: "2023-04-21T11:45:00Z",
+      location: "Chicago, IL, USA",
+      handler: "MedLogistics Fleet",
+      notes: "Temperature maintained at 18°C"
+    },
+    {
+      step: "received",
+      timestamp: "2023-04-23T09:10:00Z",
+      location: "Denver, CO, USA",
+      handler: "MountainHealth Distributors",
+      notes: "Package integrity verified"
+    },
+    {
+      step: "dispensed",
+      timestamp: "2023-05-02T15:30:00Z",
+      location: "Denver Community Pharmacy",
+      handler: "Licensed Pharmacist",
+      notes: "Dispensed with patient counseling"
+    }
+  ];
+  
+  // Filter events based on user role
+  let filteredEvents = allEvents;
+  if (userRole) {
+    if (userRole === 'manufacturer') {
+      filteredEvents = allEvents.filter(event => 
+        ['manufactured', 'quality-checked', 'shipped'].includes(event.step)
+      );
+    } else if (userRole === 'distributor') {
+      filteredEvents = allEvents.filter(event => 
+        ['received', 'in-transit', 'shipped'].includes(event.step)
+      );
+    } else if (userRole === 'dispenser') {
+      filteredEvents = allEvents.filter(event => 
+        ['received', 'dispensed'].includes(event.step)
+      );
+    }
+    // regulator sees all events (default)
+  }
   
   return {
     drug: {
@@ -45,56 +110,13 @@ export async function getTraceabilityData(code: string): Promise<DrugTraceabilit
       license: "FDA-PL-2023-4872",
       sgtin: code || "UNKNOWN"
     },
-    events: [
-      {
-        step: "manufactured",
-        timestamp: "2023-04-15T09:30:00Z",
-        location: "Boston, MA, USA",
-        handler: "PharmaLabs Manufacturing",
-        notes: "Produced according to GMP guidelines"
-      },
-      {
-        step: "quality-checked",
-        timestamp: "2023-04-16T14:20:00Z",
-        location: "Boston, MA, USA",
-        handler: "PharmaLabs QA Team",
-        notes: "Batch passed all quality tests"
-      },
-      {
-        step: "shipped",
-        timestamp: "2023-04-20T08:15:00Z",
-        location: "Boston, MA, USA",
-        handler: "MedLogistics",
-        notes: "Shipped with temperature control"
-      },
-      {
-        step: "in-transit",
-        timestamp: "2023-04-21T11:45:00Z",
-        location: "Chicago, IL, USA",
-        handler: "MedLogistics Fleet",
-        notes: "Temperature maintained at 18°C"
-      },
-      {
-        step: "received",
-        timestamp: "2023-04-23T09:10:00Z",
-        location: "Denver, CO, USA",
-        handler: "MountainHealth Distributors",
-        notes: "Package integrity verified"
-      },
-      {
-        step: "dispensed",
-        timestamp: "2023-05-02T15:30:00Z",
-        location: "Denver Community Pharmacy",
-        handler: "Licensed Pharmacist",
-        notes: "Dispensed with patient counseling"
-      }
-    ],
+    events: filteredEvents,
     status: {
       isRecalled: isRecalled,
       message: isRecalled 
         ? "RECALL ALERT: This product has been recalled due to potential contamination. Do not use. Return to pharmacy." 
         : "This product has been verified as authentic and is safe to use as directed.",
-      verifiedBy: "ZenPharma Verification System"
+      verifiedBy: "ZenPharma Verification Service"
     }
   };
 }
@@ -108,17 +130,20 @@ export async function handleRequest(req: Request): Promise<Response> {
 
   try {
     let code: string | null = null;
+    let userRole: string | null = null;
     
     // Support both GET and POST methods
     if (req.method === "GET") {
       // Get the code parameter from the URL
       const url = new URL(req.url);
       code = url.searchParams.get("code");
+      userRole = url.searchParams.get("role");
     } else if (req.method === "POST") {
       // Get the code from the request body
       try {
         const body = await req.json();
         code = body.code || null;
+        userRole = body.role || null;
       } catch (e) {
         console.error("Error parsing JSON body:", e);
       }
@@ -134,8 +159,8 @@ export async function handleRequest(req: Request): Promise<Response> {
       );
     }
 
-    console.log(`Processing tracking request for code: ${code}`);
-    const data = await getTraceabilityData(code);
+    console.log(`Processing tracking request for code: ${code}, role: ${userRole || 'not specified'}`);
+    const data = await getTraceabilityData(code, userRole || undefined);
     
     return new Response(
       JSON.stringify(data),

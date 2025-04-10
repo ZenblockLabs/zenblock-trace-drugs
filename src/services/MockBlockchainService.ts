@@ -1,236 +1,43 @@
+
 import { BaseBlockchainService } from './BaseBlockchainService';
-import { Drug, TrackingEvent, DrugStatus } from './types';
-
-// Mock data for demonstration purposes
-const mockDrugs: Drug[] = [
-  {
-    id: '1',
-    name: 'Paracetamol',
-    manufacturer: 'ZenPharma Inc.',
-    batchNumber: 'BATCH-001',
-    expiryDate: '2024-12-31',
-    licenseNumber: 'LP001',
-    sgtin: 'SGTIN001',
-    ownerId: 'user1', // John Manufacturer
-    ownerName: 'ZenPharma Inc.',
-    ownerRole: 'manufacturer',
-    status: 'manufactured'
-  },
-  {
-    id: '2',
-    name: 'Amoxicillin',
-    manufacturer: 'ZenPharma Inc.',
-    batchNumber: 'BATCH-002',
-    expiryDate: '2025-06-30',
-    licenseNumber: 'LP002',
-    sgtin: 'SGTIN002',
-    ownerId: 'user2', // Jane Distributor
-    ownerName: 'MediDistribute LLC',
-    ownerRole: 'distributor',
-    status: 'shipped'
-  },
-  {
-    id: '3',
-    name: 'Ibuprofen',
-    manufacturer: 'ZenPharma Inc.',
-    batchNumber: 'BATCH-003',
-    expiryDate: '2024-11-15',
-    licenseNumber: 'LP003',
-    sgtin: 'SGTIN003',
-    ownerId: 'user3', // Sam Pharmacist
-    ownerName: 'ZenMed Pharmacy',
-    ownerRole: 'dispenser',
-    status: 'received'
-  },
-  {
-    id: '4',
-    name: 'Aspirin',
-    manufacturer: 'ZenPharma Inc.',
-    batchNumber: 'BATCH-004',
-    expiryDate: '2025-01-01',
-    licenseNumber: 'LP004',
-    sgtin: 'SGTIN004',
-    ownerId: 'user1', // John Manufacturer
-    ownerName: 'ZenPharma Inc.',
-    ownerRole: 'manufacturer',
-    status: 'manufactured'
-  },
-  {
-    id: '5',
-    name: 'Vitamin C',
-    manufacturer: 'ZenPharma Inc.',
-    batchNumber: 'BATCH-005',
-    expiryDate: '2026-03-01',
-    licenseNumber: 'LP005',
-    sgtin: 'SGTIN005',
-    ownerId: 'user2', // Jane Distributor
-    ownerName: 'MediDistribute LLC',
-    ownerRole: 'distributor',
-    status: 'in-transit'
-  }
-];
-
-const mockEvents: TrackingEvent[] = [
-  {
-    id: 'event1',
-    drugId: '1',
-    type: 'Manufactured',
-    timestamp: '2023-01-01T00:00:00.000Z',
-    location: 'ZenPharma Manufacturing Facility',
-    actor: 'John Manufacturer',
-    details: { notes: 'Initial production completed' }
-  },
-  {
-    id: 'event2',
-    drugId: '2',
-    type: 'Manufactured',
-    timestamp: '2023-01-10T00:00:00.000Z',
-    location: 'ZenPharma Manufacturing Facility',
-    actor: 'John Manufacturer',
-    details: { notes: 'Initial production completed' }
-  },
-  {
-    id: 'event3',
-    drugId: '2',
-    type: 'Shipped',
-    timestamp: '2023-01-15T00:00:00.000Z',
-    location: 'ZenPharma Distribution Center',
-    actor: 'John Manufacturer',
-    details: { notes: 'Transferred to MediDistribute LLC' }
-  },
-  {
-    id: 'event4',
-    drugId: '2',
-    type: 'Received',
-    timestamp: '2023-01-17T00:00:00.000Z',
-    location: 'MediDistribute Warehouse',
-    actor: 'Jane Distributor',
-    details: { notes: 'Received from ZenPharma Inc.' }
-  },
-  {
-    id: 'event5',
-    drugId: '3',
-    type: 'Manufactured',
-    timestamp: '2023-02-01T00:00:00.000Z',
-    location: 'ZenPharma Manufacturing Facility',
-    actor: 'John Manufacturer',
-    details: { notes: 'Initial production completed' }
-  },
-  {
-    id: 'event6',
-    drugId: '3',
-    type: 'Shipped',
-    timestamp: '2023-02-05T00:00:00.000Z',
-    location: 'ZenPharma Distribution Center',
-    actor: 'John Manufacturer',
-    details: { notes: 'Transferred to MediDistribute LLC' }
-  },
-  {
-    id: 'event7',
-    drugId: '3',
-    type: 'Received',
-    timestamp: '2023-02-07T00:00:00.000Z',
-    location: 'MediDistribute Warehouse',
-    actor: 'Jane Distributor',
-    details: { notes: 'Received from ZenPharma Inc.' }
-  },
-  {
-    id: 'event8',
-    drugId: '3',
-    type: 'Shipped',
-    timestamp: '2023-02-10T00:00:00.000Z',
-    location: 'MediDistribute Warehouse',
-    actor: 'Jane Distributor',
-    details: { notes: 'Transferred to ZenMed Pharmacy' }
-  },
-  {
-    id: 'event9',
-    drugId: '3',
-    type: 'Received',
-    timestamp: '2023-02-12T00:00:00.000Z',
-    location: 'ZenMed Pharmacy',
-    actor: 'Sam Pharmacist',
-    details: { notes: 'Received from MediDistribute LLC' }
-  },
-  {
-    id: 'event10',
-    drugId: '5',
-    type: 'Manufactured',
-    timestamp: '2023-03-01T00:00:00.000Z',
-    location: 'ZenPharma Manufacturing Facility',
-    actor: 'John Manufacturer',
-    details: { notes: 'Initial production completed' }
-  },
-  {
-    id: 'event11',
-    drugId: '5',
-    type: 'Shipped',
-    timestamp: '2023-03-05T00:00:00.000Z',
-    location: 'ZenPharma Distribution Center',
-    actor: 'John Manufacturer',
-    details: { notes: 'Transferred to MediDistribute LLC' }
-  },
-  {
-    id: 'event12',
-    drugId: '5',
-    type: 'In Transit',
-    timestamp: '2023-03-07T00:00:00.000Z',
-    location: 'Shipping Carrier',
-    actor: 'Logistics System',
-    details: { notes: 'Package in transit to MediDistribute LLC' }
-  }
-];
-
-interface DrugRecallStatus {
-  sgtin: string;
-  isRecalled: boolean;
-  reason: string;
-  verifiedBy: string;
-  timestamp: string;
-}
-
-const mockDrugStatuses: DrugRecallStatus[] = [
-  {
-    sgtin: 'SGTIN001',
-    isRecalled: false,
-    reason: '',
-    verifiedBy: 'Mock Verification Service',
-    timestamp: '2023-01-01T00:00:00.000Z'
-  },
-  {
-    sgtin: 'SGTIN002',
-    isRecalled: true,
-    reason: 'Incorrect dosage',
-    verifiedBy: 'Mock Verification Service',
-    timestamp: '2023-01-05T00:00:00.000Z'
-  },
-  {
-    sgtin: 'SGTIN003',
-    isRecalled: false,
-    reason: '',
-    verifiedBy: 'Mock Verification Service',
-    timestamp: '2023-02-01T00:00:00.000Z'
-  },
-  {
-    sgtin: 'SGTIN004',
-    isRecalled: false,
-    reason: '',
-    verifiedBy: 'Mock Verification Service',
-    timestamp: '2023-02-03T00:00:00.000Z'
-  },
-  {
-    sgtin: 'SGTIN005',
-    isRecalled: false,
-    reason: '',
-    verifiedBy: 'Mock Verification Service',
-    timestamp: '2023-02-07T00:00:00.000Z'
-  }
-];
+import { Drug, TrackingEvent, DrugStatus, UserRole } from './types';
+import { mockDrugs as initialMockDrugs, mockEvents, computeDrugStatus, filterEventsByRole } from '../utils/mockDataHelper';
 
 export class MockBlockchainService extends BaseBlockchainService {
+  private drugs: Drug[] = [];
+  private events: TrackingEvent[] = [];
+  private userRole: UserRole = 'regulator'; // Default to regulator which sees everything
+
   constructor() {
     super();
     console.log('MockBlockchainService initialized');
+    this.initializeData();
+  }
+
+  // Set the current user role for filtering
+  setUserRole(role: UserRole) {
+    this.userRole = role;
+    console.log(`MockBlockchainService: User role set to ${role}`);
+  }
+
+  // Initialize the service with mock data and compute current statuses
+  private initializeData() {
+    // Deep clone the initial data to avoid modifying the source
+    this.events = JSON.parse(JSON.stringify(mockEvents));
+    
+    // Initialize drugs with computed statuses
+    this.drugs = initialMockDrugs.map(drug => {
+      const { status, currentOwnerId, currentOwnerName, currentOwnerRole } = 
+        computeDrugStatus(drug.id);
+      
+      return {
+        ...drug,
+        status,
+        currentOwnerId,
+        currentOwnerName, 
+        currentOwnerRole
+      };
+    });
   }
 
   async connect(): Promise<boolean> {
@@ -243,24 +50,24 @@ export class MockBlockchainService extends BaseBlockchainService {
       id: Math.random().toString(36).substring(2, 15), // Generate a random ID
       ...drugData
     };
-    mockDrugs.push(newDrug);
+    this.drugs.push(newDrug);
     return newDrug;
   }
 
   async getAllDrugs(): Promise<Drug[]> {
-    return mockDrugs;
+    return this.drugs;
   }
 
   async getDrugsByOwner(ownerId: string): Promise<Drug[]> {
-    return mockDrugs.filter(drug => drug.ownerId === ownerId);
+    return this.drugs.filter(drug => drug.currentOwnerId === ownerId);
   }
 
   async getDrugById(id: string): Promise<Drug | null> {
-    return mockDrugs.find(drug => drug.id === id) || null;
+    return this.drugs.find(drug => drug.id === id) || null;
   }
 
   async getDrugBySGTIN(sgtin: string): Promise<Drug | null> {
-    return mockDrugs.find(drug => drug.sgtin === sgtin) || null;
+    return this.drugs.find(drug => drug.sgtin === sgtin) || null;
   }
 
   async createEvent(eventData: Omit<TrackingEvent, 'id'>): Promise<TrackingEvent> {
@@ -268,45 +75,86 @@ export class MockBlockchainService extends BaseBlockchainService {
       id: Math.random().toString(36).substring(2, 15), // Generate a random ID
       ...eventData
     };
-    mockEvents.push(newEvent);
+    this.events.push(newEvent);
+    
+    // Update the drug's status based on the new event
+    this.updateDrugStatus(eventData.drugId);
+    
     return newEvent;
   }
 
   async getEventsByDrug(drugId: string): Promise<TrackingEvent[]> {
-    return mockEvents.filter(event => event.drugId === drugId);
+    const allEvents = this.events.filter(event => event.drugId === drugId);
+    
+    // Apply role-based filtering if not a regulator
+    if (this.userRole !== 'regulator') {
+      return filterEventsByRole(allEvents, this.userRole);
+    }
+    
+    return allEvents;
   }
 
   async getAllEvents(): Promise<TrackingEvent[]> {
-    return mockEvents;
+    // Apply role-based filtering if not a regulator
+    if (this.userRole !== 'regulator') {
+      return filterEventsByRole(this.events, this.userRole);
+    }
+    
+    return this.events;
   }
 
   async getRecentEvents(limit: number = 10): Promise<TrackingEvent[]> {
-    return mockEvents.slice(-limit);
+    const sortedEvents = [...this.events]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    
+    // Apply role-based filtering if not a regulator
+    const filteredEvents = this.userRole !== 'regulator' 
+      ? filterEventsByRole(sortedEvents, this.userRole)
+      : sortedEvents;
+    
+    return filteredEvents.slice(0, limit);
+  }
+
+  // Update a drug's status based on its latest event
+  private updateDrugStatus(drugId: string): void {
+    const drugIndex = this.drugs.findIndex(d => d.id === drugId);
+    if (drugIndex === -1) return;
+    
+    const { status, currentOwnerId, currentOwnerName, currentOwnerRole } = 
+      computeDrugStatus(drugId);
+    
+    this.drugs[drugIndex] = {
+      ...this.drugs[drugIndex],
+      status,
+      currentOwnerId,
+      currentOwnerName,
+      currentOwnerRole
+    };
   }
 
   async transferDrug(drugId: string, fromId: string, toId: string, toName: string, toRole: string, location: string, details: Record<string, any>): Promise<boolean> {
-    const drugIndex = mockDrugs.findIndex(drug => drug.id === drugId);
+    const drugIndex = this.drugs.findIndex(drug => drug.id === drugId);
     if (drugIndex === -1) {
       return false;
     }
 
-    mockDrugs[drugIndex] = {
-      ...mockDrugs[drugIndex],
-      ownerId: toId,
-      ownerName: toName,
-      ownerRole: toRole
-    };
-
     // Create a transfer event
     await this.createEvent({
       drugId: drugId,
-      type: 'Transfer',
+      type: 'ship',
       timestamp: new Date().toISOString(),
       location: location,
-      actor: fromId,
+      actor: {
+        id: fromId,
+        name: this.drugs[drugIndex].currentOwnerName,
+        role: this.drugs[drugIndex].currentOwnerRole,
+        organization: this.drugs[drugIndex].currentOwnerName
+      },
       details: {
         toId: toId,
-        notes: `Transferred to ${toName} (${toRole})`
+        toName: toName,
+        toRole: toRole,
+        ...details
       }
     });
 
@@ -314,7 +162,7 @@ export class MockBlockchainService extends BaseBlockchainService {
   }
 
   async receiveDrug(drugId: string, receiverId: string, receiverName: string, receiverRole: string, location: string, details: Record<string, any>): Promise<boolean> {
-    const drugIndex = mockDrugs.findIndex(drug => drug.id === drugId);
+    const drugIndex = this.drugs.findIndex(drug => drug.id === drugId);
     if (drugIndex === -1) {
       return false;
     }
@@ -322,12 +170,18 @@ export class MockBlockchainService extends BaseBlockchainService {
     // Create a receive event
     await this.createEvent({
       drugId: drugId,
-      type: 'Receive',
+      type: 'receive',
       timestamp: new Date().toISOString(),
       location: location,
-      actor: receiverId,
+      actor: {
+        id: receiverId,
+        name: receiverName,
+        role: receiverRole,
+        organization: receiverName
+      },
       details: {
-        notes: `Received by ${receiverName} (${receiverRole})`
+        notes: `Received by ${receiverName} (${receiverRole})`,
+        ...details
       }
     });
 
@@ -335,40 +189,77 @@ export class MockBlockchainService extends BaseBlockchainService {
   }
 
   async initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean> {
-    const status = mockDrugStatuses.find(status => status.sgtin === sgtin);
-    if (!status) {
+    const drug = this.drugs.find(d => d.sgtin === sgtin);
+    if (!drug) {
       return false;
     }
 
-    status.isRecalled = true;
-    status.reason = reason;
-    status.timestamp = new Date().toISOString();
+    // Create a recall event
+    await this.createEvent({
+      drugId: drug.id,
+      type: 'recall',
+      timestamp: new Date().toISOString(),
+      location: 'System',
+      actor: {
+        id: typeof initiator === 'string' ? initiator : initiator.id,
+        name: typeof initiator === 'string' ? 'Regulatory Authority' : initiator.name,
+        role: typeof initiator === 'string' ? 'regulator' : initiator.role,
+        organization: typeof initiator === 'string' ? 'Regulatory Authority' : initiator.organization
+      },
+      details: {
+        reason,
+        recallId: Math.random().toString(36).substring(2, 10)
+      }
+    });
 
     return true;
   }
 
   async checkRecallStatus(sgtin: string): Promise<any> {
-    const status = mockDrugStatuses.find(status => status.sgtin === sgtin);
-    if (!status) {
+    const drug = this.drugs.find(d => d.sgtin === sgtin);
+    if (!drug) {
       return { isRecalled: false, reason: '' };
     }
 
-    return {
-      isRecalled: status.isRecalled,
-      reason: status.reason
-    };
+    // Check if there are any recall events for this drug
+    const recallEvents = this.events.filter(
+      e => e.drugId === drug.id && e.type.toLowerCase() === 'recall'
+    );
+
+    if (recallEvents.length > 0) {
+      // Sort by timestamp (newest first) to get the most recent recall
+      const latestRecall = recallEvents.sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )[0];
+
+      return {
+        isRecalled: true,
+        reason: latestRecall.details.reason || 'Unspecified reason'
+      };
+    }
+
+    return { isRecalled: false, reason: '' };
   }
 
   async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
-    const allDrugs = await this.getAllDrugs();
-    const drug = allDrugs.find(d => d.sgtin === sgtin);
+    const drug = this.drugs.find(d => d.sgtin === sgtin);
     
     if (!drug) {
       return null;
     }
     
     // Get events for this drug
-    const events = await this.getEventsByDrug(drug.id);
+    const allEvents = this.events.filter(e => e.drugId === drug.id);
+    
+    // Sort events by timestamp
+    const sortedEvents = [...allEvents].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    
+    // Apply role-based filtering if applicable
+    const events = this.userRole !== 'regulator' 
+      ? filterEventsByRole(sortedEvents, this.userRole) 
+      : sortedEvents;
     
     // Check if drug is recalled
     const recallStatus = await this.checkRecallStatus(sgtin);
@@ -376,18 +267,18 @@ export class MockBlockchainService extends BaseBlockchainService {
     // Format the response as expected by the tracking UI
     return {
       drug: {
-        name: drug.name,
-        manufacturer: drug.manufacturer,
+        name: drug.productName,
+        manufacturer: drug.manufacturerName,
         batchId: drug.batchNumber,
         expiry: drug.expiryDate,
-        license: drug.licenseNumber,
+        license: drug.id, // Using ID as a stand-in for license
         sgtin: drug.sgtin
       },
       events: events.map(event => ({
-        step: event.type,
+        step: event.type.charAt(0).toUpperCase() + event.type.slice(1),
         timestamp: event.timestamp,
         location: event.location,
-        handler: event.actor,
+        handler: typeof event.actor === 'string' ? event.actor : event.actor.name,
         notes: event.details.notes || ''
       })),
       status: {

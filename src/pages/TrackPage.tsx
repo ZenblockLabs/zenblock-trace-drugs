@@ -7,11 +7,13 @@ import { StatusAlert } from "@/components/tracking/StatusAlert";
 import { DrugInformation } from "@/components/tracking/DrugInformation";
 import { SupplyChainJourney } from "@/components/tracking/SupplyChainJourney";
 import { ActionButtons } from "@/components/tracking/ActionButtons";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ShieldAlert, Info } from "lucide-react";
 
 export function TrackPage() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
-  const { data, loading, error, formatDate } = useDrugTracking(code);
+  const { data, loading, error, formatDate, isFiltered } = useDrugTracking(code);
 
   if (loading) {
     return <TrackingLoader />;
@@ -33,6 +35,16 @@ export function TrackPage() {
       
       {/* Status Banner */}
       <StatusAlert status={data.status} />
+      
+      {/* Role-based filtering notice */}
+      {isFiltered && (
+        <Alert variant="outline" className="mb-4 border-blue-200 bg-blue-50">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-700">
+            🔐 Filtered view – showing only relevant events for your role.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Drug Details */}
       <DrugInformation drug={data.drug} />

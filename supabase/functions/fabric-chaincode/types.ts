@@ -4,6 +4,7 @@ export type DrugStatus =
   | 'shipped' 
   | 'in-transit' 
   | 'received' 
+  | 'warehoused' 
   | 'dispensed' 
   | 'recalled';
 
@@ -11,14 +12,33 @@ export type EventType =
   | 'commission' 
   | 'ship' 
   | 'receive' 
+  | 'warehouse'
   | 'dispense' 
-  | 'recall';
+  | 'recall'
+  | 'qa-passed';
+
+export type UserRole = 'manufacturer' | 'distributor' | 'dispenser' | 'regulator';
+
+export interface GeoCoordinates {
+  latitude: number;
+  longitude: number;
+}
 
 export interface Actor {
   id: string;
   name: string;
   role: string;
   organization: string;
+}
+
+export interface EventMetadata {
+  temperatureCheckPassed?: boolean;
+  digitalSignature?: string;
+  geoCoordinates?: GeoCoordinates;
+  isOnChain?: boolean;
+  verificationHash?: string;
+  notes?: string;
+  [key: string]: any;
 }
 
 export interface Drug {
@@ -45,7 +65,7 @@ export interface TrackingEvent {
   eventType: EventType;
   location: string;
   actor: Actor;
-  details: Record<string, any>;
+  details: EventMetadata;
 }
 
 export interface RecallInfo {
@@ -54,3 +74,22 @@ export interface RecallInfo {
   initiatedBy: string | Actor;
   timestamp: string;
 }
+
+// Role-based event visibility mapping
+export const ROLE_EVENT_VISIBILITY: Record<UserRole, EventType[] | null> = {
+  'manufacturer': ['commission', 'qa-passed', 'ship'],
+  'distributor': ['receive', 'warehouse', 'ship'],
+  'dispenser': ['receive', 'dispense'],
+  'regulator': null // null means all events are visible
+};
+
+// Status derivation from event types
+export const EVENT_TO_STATUS_MAP: Record<EventType, DrugStatus> = {
+  'commission': 'manufactured',
+  'qa-passed': 'manufactured',
+  'ship': 'shipped',
+  'receive': 'received',
+  'warehouse': 'warehoused',
+  'dispense': 'dispensed',
+  'recall': 'recalled'
+};

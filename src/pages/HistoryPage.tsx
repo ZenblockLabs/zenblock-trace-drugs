@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Package, ArrowUp, ArrowDown, Clock, AlertTriangle } from "lucide-react";
+import { Loader2, Package, ArrowUp, ArrowDown, Clock, AlertTriangle, ShieldCheck, Info } from "lucide-react";
 import { TrackingEvent, Drug } from "@/services/types";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
+import { useAuth } from "@/context/AuthContext";
 
 export function HistoryPage() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const drugId = searchParams.get("drugId");
   
@@ -17,6 +20,26 @@ export function HistoryPage() {
   const [drug, setDrug] = useState<Drug | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Determine user role based on email
+    if (user?.email) {
+      let role = null;
+      if (user.email.includes('manufacturer')) {
+        role = 'manufacturer';
+      } else if (user.email.includes('distributor')) {
+        role = 'distributor';
+      } else if (user.email.includes('dispenser')) {
+        role = 'dispenser';
+      } else if (user.email.includes('regulator')) {
+        role = 'regulator';
+      }
+      setUserRole(role);
+      setIsFiltered(role !== null && role !== 'regulator');
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -24,7 +47,7 @@ export function HistoryPage() {
         setLoading(true);
         setError(null);
         
-        const service = await getBlockchainService();
+        const service = await getBlockchainService(user?.email || null);
         
         if (drugId) {
           const drugData = await service.getDrugById(drugId);
@@ -48,7 +71,7 @@ export function HistoryPage() {
     };
 
     loadData();
-  }, [drugId]);
+  }, [drugId, user?.email]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -65,12 +88,18 @@ export function HistoryPage() {
     switch (type.toLowerCase()) {
       case 'commission':
         return <Package className="h-5 w-5 text-blue-500" />;
+      case 'qa-passed':
+        return <ShieldCheck className="h-5 w-5 text-green-500" />;
       case 'ship':
         return <ArrowUp className="h-5 w-5 text-indigo-500" />;
       case 'receive':
         return <ArrowDown className="h-5 w-5 text-green-500" />;
       case 'recall':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      case 'warehouse':
+        return <Package className="h-5 w-5 text-purple-500" />;
+      case 'dispense':
+        return <Package className="h-5 w-5 text-teal-500" />;
       default:
         return <Clock className="h-5 w-5 text-gray-500" />;
     }
@@ -80,12 +109,16 @@ export function HistoryPage() {
     switch (type.toLowerCase()) {
       case 'commission':
         return 'bg-blue-100 text-blue-800';
+      case 'qa-passed':
+        return 'bg-green-100 text-green-800';
       case 'ship':
         return 'bg-indigo-100 text-indigo-800';
       case 'receive':
         return 'bg-green-100 text-green-800';
       case 'recall':
         return 'bg-red-100 text-red-800';
+      case 'warehouse':
+        return 'bg-purple-100 text-purple-800';
       case 'dispense':
         return 'bg-teal-100 text-teal-800';
       default:
@@ -131,6 +164,16 @@ export function HistoryPage() {
           </Badge>
         )}
       </div>
+      
+      {/* Role-based filtering notice */}
+      {isFiltered && (
+        <Alert variant="outline" className="mb-6 border-blue-200 bg-blue-50">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-700">
+            🔐 Filtered view – showing only relevant events for your role ({userRole}).
+          </AlertDescription>
+        </Alert>
+      )}
       
       {events.length === 0 ? (
         <Card>
@@ -186,13 +229,19 @@ export function HistoryPage() {
                           <div className="mt-2">
                             <p className="font-semibold">Additional Details:</p>
                             <ul className="mt-1 space-y-1">
-                              {Object.entries(event.details).map(([key, value]) => 
-                                key !== 'notes' && (
+                              {Object.entries(event.details).map(([key, value]) => {
+                                // Skip notes as we display them separately
+                                if (key === 'notes') return null;
+                                
+                                // Skip complex nested objects
+                                if (typeof value === 'object' && value !== null) return null;
+                                
+                                return (
                                   <li key={key} className="text-sm text-gray-700">
                                     <span className="font-medium capitalize">{key}:</span> {String(value)}
                                   </li>
-                                )
-                              )}
+                                );
+                              })}
                             </ul>
                           </div>
                           
@@ -202,6 +251,15 @@ export function HistoryPage() {
                             </div>
                           )}
                         </>
+                      )}
+                      
+                      {/* Display blockchain verification status */}
+                      {event.details && event.details.isOnChain && (
+                        <div className="mt-3 flex items-center justify-end">
+                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            <ShieldCheck className="h-3 w-3 mr-1" /> Blockchain Verified
+                          </Badge>
+                        </div>
                       )}
                     </div>
                   </li>
