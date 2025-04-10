@@ -17,7 +17,11 @@ declare module 'jspdf' {
         getHeight: () => number;
       };
       pages: number[];
-      events: any;
+      events: {
+        publish: (eventName: string) => void;
+        subscribe: (eventName: string, callback: Function) => void;
+        unsubscribe: (eventName: string, callback: Function) => void;
+      };
       scaleFactor: number;
       getEncryptor: (objectId: number) => (data: string) => string;
     };
