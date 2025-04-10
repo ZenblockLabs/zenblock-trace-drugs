@@ -9,7 +9,7 @@ declare module 'jspdf' {
       finalY: number;
     };
     internal: {
-      getNumberOfPages: () => number;
+      scaleFactor: number;
       pageSize: {
         width: number;
         getWidth: () => number;
@@ -22,8 +22,8 @@ declare module 'jspdf' {
         subscribe: (eventName: string, callback: Function) => void;
         unsubscribe: (eventName: string, callback: Function) => void;
       };
-      scaleFactor: number;
       getEncryptor: (objectId: number) => (data: string) => string;
+      getNumberOfPages: () => number;
     };
   }
 }

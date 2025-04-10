@@ -141,7 +141,9 @@ export const generatePDFReport = async (
   });
   
   // Footer with company information
-  const pageCount = doc.internal.getNumberOfPages();
+  // Using a safer approach to get page count
+  const pageCount = doc.internal.pages ? doc.internal.pages.length - 1 : 1;
+  
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
