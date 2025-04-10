@@ -41,6 +41,7 @@ export function QRCodeModal({ drugId, sgtin, productName }: QRCodeModalProps) {
           <DialogTitle>Drug Traceability QR Code</DialogTitle>
           <DialogDescription>
             Generate a QR code that links to the public traceability page for {productName}.
+            Anyone can scan this QR code to verify the authenticity and track the journey of this drug.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">

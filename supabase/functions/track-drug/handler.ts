@@ -107,9 +107,22 @@ export async function handleRequest(req: Request): Promise<Response> {
   }
 
   try {
-    // Get the code parameter from the URL
-    const url = new URL(req.url);
-    const code = url.searchParams.get("code");
+    let code: string | null = null;
+    
+    // Support both GET and POST methods
+    if (req.method === "GET") {
+      // Get the code parameter from the URL
+      const url = new URL(req.url);
+      code = url.searchParams.get("code");
+    } else if (req.method === "POST") {
+      // Get the code from the request body
+      try {
+        const body = await req.json();
+        code = body.code || null;
+      } catch (e) {
+        console.error("Error parsing JSON body:", e);
+      }
+    }
 
     if (!code) {
       return new Response(
@@ -121,6 +134,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       );
     }
 
+    console.log(`Processing tracking request for code: ${code}`);
     const data = await getTraceabilityData(code);
     
     return new Response(
@@ -131,6 +145,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       }
     );
   } catch (error) {
+    console.error("Error in track-drug edge function:", error);
     return new Response(
       JSON.stringify({ error: error.message || "An error occurred" }),
       {

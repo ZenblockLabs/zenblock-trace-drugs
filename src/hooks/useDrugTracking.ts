@@ -20,11 +20,11 @@ export function useDrugTracking(code: string | null) {
         setLoading(true);
         // Using correctly formatted Supabase Edge Function invocation
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          // Pass the parameters as query parameters in the URL
+          // Pass the code as a body parameter
           body: { code }
         });
 

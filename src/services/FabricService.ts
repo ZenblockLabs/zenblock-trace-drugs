@@ -345,9 +345,8 @@ export class FabricService extends BaseBlockchainService {
 
   async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
     try {
-      // Call the Edge Function to get drug details for public tracking
-      const { data, error } = await supabase.functions.invoke('track-drug', {
-        method: 'GET',
+      const { data, error } = await this.supabase.functions.invoke('track-drug', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -355,13 +354,14 @@ export class FabricService extends BaseBlockchainService {
       });
 
       if (error) {
-        throw new Error(`Error fetching drug details: ${error.message}`);
+        console.error("Error fetching drug tracking data:", error);
+        throw new Error(`Failed to get drug details: ${error.message}`);
       }
 
       return data;
-    } catch (err) {
-      console.error('Error in getDrugDetailsBySGTIN:', err);
-      throw err;
+    } catch (error) {
+      console.error("Error in getDrugDetailsBySGTIN:", error);
+      throw error;
     }
   }
 }
