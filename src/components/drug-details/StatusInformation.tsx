@@ -1,50 +1,44 @@
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { StatusBadge } from "@/components/StatusBadge";
-import { Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DrugStatus } from "@/services/types";
 
-interface StatusInformationProps {
-  status: string;
-  ownerName: string;
-  ownerRole?: string;
-}
+export function StatusInformation({ 
+  status, 
+  timestamp 
+}: { 
+  status: DrugStatus; 
+  timestamp: string;
+}) {
+  const getStatusColor = (status: DrugStatus) => {
+    switch (status) {
+      case "manufactured":
+        return "bg-blue-100 text-blue-800";
+      case "shipped":
+        return "bg-indigo-100 text-indigo-800";
+      case "in-transit":
+        return "bg-purple-100 text-purple-800";
+      case "received":
+        return "bg-green-100 text-green-800";
+      case "dispensed":
+        return "bg-teal-100 text-teal-800";
+      case "recalled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
-export function StatusInformation({ status, ownerName, ownerRole }: StatusInformationProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Status Information</CardTitle>
-        <CardDescription>Current product status and location</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-500">Current Status:</p>
-            <div className="mt-1">
-              <StatusBadge size="lg" status={status || 'manufactured'} />
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Current Owner:</p>
-            <p className="font-medium">{ownerName}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Owner Type:</p>
-            <p className="font-medium">{ownerRole || 'Distributor'}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Last Updated:</p>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4 text-gray-400" />
-              <p className="font-medium">{new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric'
-              })}</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div>
+      <h3 className="text-lg font-medium mb-4">Status Information</h3>
+      <div className="flex items-center mb-3">
+        <p className="text-sm text-gray-500 w-24">Current Status</p>
+        <Badge className={`ml-2 ${getStatusColor(status)}`}>{status}</Badge>
+      </div>
+      <div>
+        <p className="text-sm text-gray-500">Last Updated</p>
+        <p className="font-medium">{timestamp}</p>
+      </div>
+    </div>
   );
 }
