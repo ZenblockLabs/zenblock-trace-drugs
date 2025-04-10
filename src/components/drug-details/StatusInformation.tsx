@@ -4,10 +4,12 @@ import { DrugStatus } from "@/services/types";
 
 export function StatusInformation({ 
   status, 
-  timestamp 
+  ownerName,
+  ownerRole
 }: { 
   status: DrugStatus; 
-  timestamp: string;
+  ownerName: string;
+  ownerRole: string;
 }) {
   const getStatusColor = (status: DrugStatus) => {
     switch (status) {
@@ -28,6 +30,8 @@ export function StatusInformation({
     }
   };
 
+  const timestamp = new Date().toLocaleString();
+
   return (
     <div>
       <h3 className="text-lg font-medium mb-4">Status Information</h3>
@@ -35,6 +39,14 @@ export function StatusInformation({
         <p className="text-sm text-gray-500 w-24">Current Status</p>
         <Badge className={`ml-2 ${getStatusColor(status)}`}>{status}</Badge>
       </div>
+      
+      {/* Owner Information */}
+      <div className="mb-3">
+        <p className="text-sm text-gray-500">Current Owner</p>
+        <p className="font-medium">{ownerName}</p>
+        <p className="text-sm text-gray-500">{ownerRole}</p>
+      </div>
+      
       <div>
         <p className="text-sm text-gray-500">Last Updated</p>
         <p className="font-medium">{timestamp}</p>

@@ -13,7 +13,7 @@ export class ApiService {
   protected async invokeFunction<T>(
     functionName: string, 
     options: {
-      method?: string;
+      method?: 'POST' | 'GET' | 'PUT' | 'PATCH' | 'DELETE';
       headers?: Record<string, string>;
       body?: any;
     } = {}

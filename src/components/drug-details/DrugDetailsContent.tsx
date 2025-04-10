@@ -30,8 +30,8 @@ export function DrugDetailsContent({ data, formatDate }: DrugDetailsContentProps
           <div className="space-y-6">
             <StatusInformation 
               status={data.status || 'manufactured'} 
-              ownerName={data.currentOwnerName} 
-              ownerRole={data.currentOwnerRole} 
+              ownerName={data.currentOwnerName || 'Unknown'} 
+              ownerRole={data.currentOwnerRole || 'Unknown'} 
             />
             
             <ActionCard 
