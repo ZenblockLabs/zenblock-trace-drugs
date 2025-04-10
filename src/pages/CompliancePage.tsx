@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,23 +9,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { format } from "date-fns";
-import { Download, FileCheck, ShieldCheck, FileText, AlertTriangle, Search } from "lucide-react";
+import { Download, FileCheck, ShieldCheck, FileText, AlertTriangle, Search, Loader } from "lucide-react";
+import { ComplianceReport } from "@/services/types/TrackingTypes";
+import { useAuth } from "@/context/AuthContext";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
   const [auditFilter, setAuditFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [complianceReport, setComplianceReport] = useState<ComplianceReport | null>(null);
+  const [isReportLoading, setIsReportLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Mock compliance data
+  useEffect(() => {
+    const fetchComplianceReport = async () => {
+      setIsReportLoading(true);
+      try {
+        const service = await getBlockchainService(user?.email);
+        const report = await service.getLatestComplianceReport();
+        setComplianceReport(report);
+      } catch (error) {
+        console.error("Error fetching compliance report:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch compliance report data",
+        });
+      } finally {
+        setIsReportLoading(false);
+      }
+    };
+
+    fetchComplianceReport();
+  }, [user?.email, toast]);
+
   const complianceData = {
     dscsa: {
-      status: "Compliant",
-      lastUpdated: new Date(),
-      complianceRatio: 98.2,
-      violations: 2,
-      pendingResolutions: 1
+      status: complianceReport ? (complianceReport.complianceScore > 95 ? "Compliant" : "Non-Compliant") : "Compliant",
+      lastUpdated: complianceReport ? new Date(complianceReport.timestamp) : new Date(),
+      complianceRatio: complianceReport ? complianceReport.complianceScore : 98.2,
+      violations: complianceReport ? complianceReport.violations : 2,
+      pendingResolutions: complianceReport ? Math.ceil(complianceReport.violations / 2) : 1
     },
     traceability: {
       totalDrugs: 103,
@@ -36,15 +61,14 @@ export function CompliancePage() {
     }
   };
 
-  // Mock audit reports
   const auditReports = [
     {
       id: "audit-1",
-      name: "DSCSA Compliance Audit - Q1 2025",
-      date: new Date(2025, 0, 15),
+      name: complianceReport ? complianceReport.title : "DSCSA Compliance Audit - Q1 2025",
+      date: complianceReport ? new Date(complianceReport.timestamp) : new Date(2025, 0, 15),
       type: "DSCSA",
       status: "Passed",
-      findings: 0
+      findings: complianceReport ? complianceReport.violations : 0
     },
     {
       id: "audit-2",
@@ -72,7 +96,6 @@ export function CompliancePage() {
     }
   ];
 
-  // Filter audit reports based on search query and type filter
   const filteredReports = auditReports.filter(report => {
     const matchesSearch = report.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                         report.type.toLowerCase().includes(searchQuery.toLowerCase());
@@ -83,23 +106,21 @@ export function CompliancePage() {
   const handleGenerateReport = async () => {
     setIsLoading(true);
     try {
-      // This would call the blockchain service in a real implementation
-      // await getBlockchainService().then(service => service.generateComplianceReport(selectedPeriod));
+      const service = await getBlockchainService(user?.email);
+      const report = await service.getLatestComplianceReport();
+      setComplianceReport(report);
       
-      // Mock successful generation
-      setTimeout(() => {
-        toast({
-          title: "Report Generated",
-          description: `DSCSA Compliance report for ${selectedPeriod} has been generated successfully`,
-        });
-        setIsLoading(false);
-      }, 1500);
+      toast({
+        title: "Report Generated",
+        description: `DSCSA Compliance report for ${selectedPeriod} has been generated successfully`,
+      });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to generate compliance report"
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -110,6 +131,15 @@ export function CompliancePage() {
       description: "Your report download will begin shortly",
     });
   };
+
+  if (isReportLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96">
+        <Loader className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading compliance data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
