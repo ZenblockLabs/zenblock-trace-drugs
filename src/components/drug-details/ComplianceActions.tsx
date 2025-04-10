@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ComplianceReportGenerator } from "@/components/compliance/ComplianceReportGenerator";
+import { ComplianceReportButton } from "@/components/compliance/ComplianceReportButton";
 import { Shield } from "lucide-react";
 
 interface ComplianceActionsProps {
@@ -31,10 +31,10 @@ export function ComplianceActions({ drugId, sgtin }: ComplianceActionsProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <ComplianceReportGenerator 
+          <ComplianceReportButton 
             drugId={drugId} 
             drugSgtin={sgtin}
-            buttonVariant="outline"
+            variant="outline"
             className="w-full justify-start"
           />
         </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,7 @@ import { ComplianceReportGenerator } from "@/components/compliance/ComplianceRep
 import { ComplianceReport } from "@/services/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { ComplianceReportButton } from "@/components/compliance/ComplianceReportButton";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -22,7 +22,6 @@ export function CompliancePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Check if user is a compliance or regulator user
   const isComplianceUser = user?.role === 'regulator' || 
                           user?.email?.includes('compliance') ||
                           user?.email?.includes('regulator');
@@ -206,7 +205,7 @@ export function CompliancePage() {
               />
             </div>
             
-            <ComplianceReportGenerator 
+            <ComplianceReportButton 
               drugSgtin="10012345678903" // Example SGTIN - in a real app this would come from the input
             />
           </div>
