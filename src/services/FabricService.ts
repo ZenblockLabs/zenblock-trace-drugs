@@ -1,5 +1,5 @@
 import { BaseBlockchainService } from './BaseBlockchainService';
-import { Drug, TrackingEvent } from './types';
+import { Drug, TrackingEvent, ComplianceReport } from './types';
 import { NetworkService } from './fabric/NetworkService';
 import { DrugService } from './fabric/DrugService';
 import { EventService } from './fabric/EventService';
@@ -128,7 +128,7 @@ export class FabricService extends BaseBlockchainService {
     return this.recallService.checkRecallStatus(sgtin);
   }
 
-  async getLatestComplianceReport(): Promise<any> {
+  async getLatestComplianceReport(): Promise<ComplianceReport> {
     await this.ensureConnection();
     return {
       id: 'fabric-comp-1',

@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ComplianceStatus } from "@/components/compliance/ComplianceStatus";
 import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { AuditReportsList } from "@/components/compliance/AuditReportsList";
-import { ComplianceReport } from "@/services/types/TrackingTypes";
+import { ComplianceReport } from "@/services/types";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");

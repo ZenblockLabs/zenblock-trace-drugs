@@ -1,6 +1,5 @@
-
 import { BaseBlockchainService } from './BaseBlockchainService';
-import { Drug, TrackingEvent, DrugStatus } from './types';
+import { Drug, TrackingEvent, DrugStatus, ComplianceReport } from './types';
 import { MockDrugService } from './mock/DrugService';
 import { MockEventService } from './mock/EventService';
 import { MockTransferService } from './mock/TransferService';
@@ -141,7 +140,7 @@ export class MockBlockchainService extends BaseBlockchainService {
     return this.trackingService.getDrugDetailsBySGTIN(sgtin);
   }
 
-  async getLatestComplianceReport(): Promise<any> {
+  async getLatestComplianceReport(): Promise<ComplianceReport> {
     return this.trackingService.getLatestComplianceReport();
   }
 }

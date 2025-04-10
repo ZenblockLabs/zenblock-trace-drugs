@@ -43,13 +43,3 @@ export interface DrugTraceability {
     verifiedBy: string;
   };
 }
-
-export interface ComplianceReport {
-  id: string;
-  title: string;
-  period: string;
-  timestamp: string;
-  violations: number;
-  complianceScore: number;
-  details: Record<string, any>;
-}

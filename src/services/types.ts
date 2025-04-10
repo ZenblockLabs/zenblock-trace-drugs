@@ -47,6 +47,17 @@ export type DrugStatus =
   | 'dispensed'
   | 'recalled';
 
+// Add the ComplianceReport interface to improve type safety
+export interface ComplianceReport {
+  id: string;
+  title: string;
+  period: string;
+  timestamp: string;
+  violations: number;
+  complianceScore: number;
+  details: Record<string, any>;
+}
+
 // Define the common interface for the blockchain service
 export interface IFabricService {
   // Drug management
@@ -74,5 +85,5 @@ export interface IFabricService {
   getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
   
   // Compliance methods
-  getLatestComplianceReport: () => Promise<any>;
+  getLatestComplianceReport: () => Promise<ComplianceReport>;
 }

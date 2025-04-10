@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ShieldCheck } from "lucide-react";
-import { ComplianceReport } from "@/services/types/TrackingTypes";
+import { ComplianceReport } from "@/services/types";
 
 interface ComplianceStatusProps {
   complianceData: {

@@ -1,5 +1,5 @@
 
-import { IFabricService, Drug, TrackingEvent } from './types';
+import { IFabricService, Drug, TrackingEvent, ComplianceReport } from './types';
 import { supabase } from '@/integrations/supabase/client';
 
 export abstract class BaseBlockchainService implements IFabricService {
@@ -29,5 +29,5 @@ export abstract class BaseBlockchainService implements IFabricService {
   abstract initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean>;
   abstract checkRecallStatus(sgtin: string): Promise<any>;
   abstract getDrugDetailsBySGTIN(sgtin: string): Promise<any>;
-  abstract getLatestComplianceReport(): Promise<any>;
+  abstract getLatestComplianceReport(): Promise<ComplianceReport>;
 }

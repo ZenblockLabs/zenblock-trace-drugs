@@ -1,5 +1,5 @@
 
-import { ComplianceReport } from '../../types/TrackingTypes';
+import { ComplianceReport } from '../../types';
 
 export class ComplianceTrackingService {
   async getLatestComplianceReport(): Promise<ComplianceReport> {

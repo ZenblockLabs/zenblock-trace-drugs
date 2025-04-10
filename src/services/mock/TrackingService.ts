@@ -3,6 +3,7 @@ import { MockDrugService } from './DrugService';
 import { MockEventService } from './EventService';
 import { MockRecallService } from './RecallService';
 import { DrugTraceability } from '../types/TrackingTypes';
+import { ComplianceReport } from '../types';
 import { DrugTrackingService } from './tracking/DrugTrackingService';
 import { RecallTrackingService } from './tracking/RecallTrackingService';
 import { ComplianceTrackingService } from './tracking/ComplianceTrackingService';
@@ -36,7 +37,7 @@ export class MockTrackingService {
     return this.drugTrackingService.getDrugDetailsBySGTIN(sgtin);
   }
 
-  async getLatestComplianceReport(): Promise<any> {
+  async getLatestComplianceReport(): Promise<ComplianceReport> {
     return this.complianceService.getLatestComplianceReport();
   }
 }
