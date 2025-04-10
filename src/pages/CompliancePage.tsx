@@ -7,7 +7,10 @@ import { useAuth } from "@/context/AuthContext";
 import { ComplianceStatus } from "@/components/compliance/ComplianceStatus";
 import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { AuditReportsList } from "@/components/compliance/AuditReportsList";
+import { ComplianceReportGenerator } from "@/components/compliance/ComplianceReportGenerator";
 import { ComplianceReport } from "@/services/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -18,6 +21,11 @@ export function CompliancePage() {
   const [isReportLoading, setIsReportLoading] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // Check if user is a compliance or regulator user
+  const isComplianceUser = user?.role === 'regulator' || 
+                          user?.email?.includes('compliance') ||
+                          user?.email?.includes('regulator');
 
   useEffect(() => {
     const fetchComplianceReport = async () => {
@@ -145,6 +153,15 @@ export function CompliancePage() {
           Monitor DSCSA compliance and access audit reports
         </p>
       </div>
+      
+      {!isComplianceUser && (
+        <Alert className="bg-amber-50 border-amber-200">
+          <Info className="h-4 w-4 text-amber-800" />
+          <AlertDescription className="text-amber-800">
+            Some compliance features are only visible to compliance officers and regulators.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <ComplianceStatus 
@@ -168,6 +185,33 @@ export function CompliancePage() {
         onFilterChange={setAuditFilter}
         onDownload={handleDownloadReport}
       />
+      
+      {isComplianceUser && (
+        <div className="mt-8 p-6 border rounded-lg bg-slate-50">
+          <h2 className="text-xl font-semibold mb-4">Generate Custom Compliance Report</h2>
+          <p className="text-gray-600 mb-6">
+            Generate a detailed compliance report for any specific product by entering its SGTIN (Serialized Global Trade Item Number).
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+            <div className="w-full sm:w-auto">
+              <label htmlFor="sgtin" className="block text-sm font-medium text-gray-700 mb-1">
+                Product SGTIN
+              </label>
+              <input
+                type="text"
+                id="sgtin"
+                placeholder="Enter product SGTIN"
+                className="px-3 py-2 border rounded-md w-full sm:w-80"
+              />
+            </div>
+            
+            <ComplianceReportGenerator 
+              drugSgtin="10012345678903" // Example SGTIN - in a real app this would come from the input
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

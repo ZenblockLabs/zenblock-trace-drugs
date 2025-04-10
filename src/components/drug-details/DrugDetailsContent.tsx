@@ -4,6 +4,8 @@ import { DrugHeader } from "./DrugHeader";
 import { DetailsTabs } from "./DetailsTabs";
 import { StatusInformation } from "./StatusInformation";
 import { ActionCard } from "./ActionCard";
+import { ComplianceActions } from "./ComplianceActions";
+import { TraceabilityTimeline } from "@/components/compliance/TraceabilityTimeline";
 import { useAuth } from "@/context/AuthContext";
 import { Drug } from "@/services/types";
 
@@ -14,6 +16,11 @@ interface DrugDetailsContentProps {
 
 export function DrugDetailsContent({ data, formatDate }: DrugDetailsContentProps) {
   const { user } = useAuth();
+  
+  // Check if user is a compliance or regulator user
+  const isComplianceUser = user?.role === 'regulator' || 
+                          user?.email?.includes('compliance') ||
+                          user?.email?.includes('regulator');
 
   return (
     <div className="container mx-auto py-6 px-4">
@@ -24,6 +31,13 @@ export function DrugDetailsContent({ data, formatDate }: DrugDetailsContentProps
           <Card>
             <DetailsTabs data={data} formatDate={formatDate} />
           </Card>
+          
+          {/* Show full traceability timeline for compliance/regulator users */}
+          {isComplianceUser && (
+            <div className="mt-6">
+              <TraceabilityTimeline drugId={data.id} showFullDetails={true} />
+            </div>
+          )}
         </div>
         
         <div>
@@ -37,6 +51,12 @@ export function DrugDetailsContent({ data, formatDate }: DrugDetailsContentProps
             <ActionCard 
               drugId={data.id} 
               userRole={user?.role} 
+            />
+            
+            {/* Add compliance actions for regulator/compliance users */}
+            <ComplianceActions 
+              drugId={data.id}
+              sgtin={data.sgtin}
             />
           </div>
         </div>
