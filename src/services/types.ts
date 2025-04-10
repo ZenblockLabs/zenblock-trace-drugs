@@ -1,3 +1,4 @@
+
 // Define core types used across blockchain services
 
 export interface Drug {
@@ -46,29 +47,6 @@ export type DrugStatus =
   | 'dispensed'
   | 'recalled';
 
-export interface DrugTraceability {
-  drug: {
-    name: string;
-    manufacturer: string;
-    batchId: string;
-    expiry: string;
-    license: string;
-    sgtin: string;
-  };
-  events: Array<{
-    step: string;
-    timestamp: string;
-    location: string;
-    handler: string;
-    notes: string;
-  }>;
-  status: {
-    isRecalled: boolean;
-    message: string;
-    verifiedBy: string;
-  };
-}
-
 // Define the common interface for the blockchain service
 export interface IFabricService {
   // Drug management
@@ -94,14 +72,4 @@ export interface IFabricService {
   
   // Method to get drug details by SGTIN for public tracking
   getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
-}
-
-export interface ComplianceReport {
-  id: string;
-  title: string;
-  period: string;
-  timestamp: string;
-  violations: number;
-  complianceScore: number;
-  details: Record<string, any>;
 }

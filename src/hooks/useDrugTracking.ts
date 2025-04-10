@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { DrugTraceability } from "@/services/types";
+import { DrugTraceability } from "@/services/types/TrackingTypes";
 import { useAuth } from "@/context/AuthContext";
 
 export function useDrugTracking(code: string | null) {

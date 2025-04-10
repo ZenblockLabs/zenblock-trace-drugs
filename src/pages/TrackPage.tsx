@@ -1,4 +1,3 @@
-
 import { useSearchParams } from "react-router-dom";
 import { useDrugTracking } from "@/hooks/useDrugTracking";
 import { TrackingLoader } from "@/components/tracking/TrackingLoader";
@@ -8,7 +7,7 @@ import { DrugInformation } from "@/components/tracking/DrugInformation";
 import { SupplyChainJourney } from "@/components/tracking/SupplyChainJourney";
 import { ActionButtons } from "@/components/tracking/ActionButtons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, Info } from "lucide-react";
+import { Info } from "lucide-react";
 
 export function TrackPage() {
   const [searchParams] = useSearchParams();
