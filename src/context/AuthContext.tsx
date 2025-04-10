@@ -9,6 +9,7 @@ interface UserData {
   name: string;
   role: Role;
   organization: string;
+  email: string; // Add email property to fix type errors
 }
 
 interface AuthContextType {
@@ -29,7 +30,8 @@ const DEMO_USERS = [
       id: 'user1',
       name: 'John Manufacturer',
       role: 'manufacturer' as Role,
-      organization: 'ZenPharma Inc.'
+      organization: 'ZenPharma Inc.',
+      email: 'manufacturer@zenblock.com' // Add email to the user data
     }
   },
   {
@@ -39,7 +41,8 @@ const DEMO_USERS = [
       id: 'user2',
       name: 'Jane Distributor',
       role: 'distributor' as Role,
-      organization: 'MediDistribute LLC'
+      organization: 'MediDistribute LLC',
+      email: 'distributor@zenblock.com' // Add email to the user data
     }
   },
   {
@@ -49,7 +52,8 @@ const DEMO_USERS = [
       id: 'user3',
       name: 'Sam Pharmacist',
       role: 'dispenser' as Role,
-      organization: 'ZenMed Pharmacy'
+      organization: 'ZenMed Pharmacy',
+      email: 'dispenser@zenblock.com' // Add email to the user data
     }
   },
   {
@@ -59,7 +63,8 @@ const DEMO_USERS = [
       id: 'user4',
       name: 'Alex Regulator',
       role: 'regulator' as Role,
-      organization: 'FDA'
+      organization: 'FDA',
+      email: 'regulator@zenblock.com' // Add email to the user data
     }
   }
 ];

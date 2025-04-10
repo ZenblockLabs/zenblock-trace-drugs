@@ -24,15 +24,15 @@ export function useDrugTracking(code: string | null) {
         
         // Determine user role for filtering
         let role = null;
-        if (user) {
+        if (user && user.email) {
           // Extract role from user email or user metadata
-          if (user.email?.includes('manufacturer')) {
+          if (user.email.includes('manufacturer')) {
             role = 'manufacturer';
-          } else if (user.email?.includes('distributor')) {
+          } else if (user.email.includes('distributor')) {
             role = 'distributor';
-          } else if (user.email?.includes('dispenser')) {
+          } else if (user.email.includes('dispenser')) {
             role = 'dispenser';
-          } else if (user.email?.includes('regulator')) {
+          } else if (user.email.includes('regulator')) {
             role = 'regulator';
           }
         }
