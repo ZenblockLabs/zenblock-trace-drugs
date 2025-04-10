@@ -20,11 +20,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo users for the MVP
+// Demo users for the MVP with more distinctive passwords
 const DEMO_USERS = [
   {
     email: 'manufacturer@zenblock.com',
-    password: 'password',
+    password: 'createMeds123',
     userData: {
       id: 'user1',
       name: 'John Manufacturer',
@@ -34,7 +34,7 @@ const DEMO_USERS = [
   },
   {
     email: 'distributor@zenblock.com',
-    password: 'password',
+    password: 'shipMeds456',
     userData: {
       id: 'user2',
       name: 'Jane Distributor',
@@ -44,7 +44,7 @@ const DEMO_USERS = [
   },
   {
     email: 'dispenser@zenblock.com',
-    password: 'password',
+    password: 'provideMeds789',
     userData: {
       id: 'user3',
       name: 'Sam Pharmacist',
@@ -54,7 +54,7 @@ const DEMO_USERS = [
   },
   {
     email: 'regulator@zenblock.com',
-    password: 'password',
+    password: 'overseeAll321',
     userData: {
       id: 'user4',
       name: 'Alex Regulator',

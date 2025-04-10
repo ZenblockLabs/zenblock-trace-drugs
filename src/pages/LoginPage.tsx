@@ -24,12 +24,12 @@ export const LoginPage = () => {
     }
   };
 
-  // Demo credentials
+  // Demo credentials with updated passwords
   const demoCredentials = [
-    { role: "Manufacturer", email: "manufacturer@zenblock.com", password: "password" },
-    { role: "Distributor", email: "distributor@zenblock.com", password: "password" },
-    { role: "Dispenser", email: "dispenser@zenblock.com", password: "password" },
-    { role: "Regulator", email: "regulator@zenblock.com", password: "password" },
+    { role: "Manufacturer", email: "manufacturer@zenblock.com", password: "createMeds123" },
+    { role: "Distributor", email: "distributor@zenblock.com", password: "shipMeds456" },
+    { role: "Dispenser", email: "dispenser@zenblock.com", password: "provideMeds789" },
+    { role: "Regulator", email: "regulator@zenblock.com", password: "overseeAll321" },
   ];
 
   const setDemoUser = (email: string, password: string) => {
