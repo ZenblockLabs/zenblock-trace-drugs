@@ -1,6 +1,6 @@
 
 import { TrackingEvent } from '../types';
-import { mockEvents, filterEventsByRole } from '../mockData';
+import { mockEvents, filterEventsByRole } from '../mockData/index';
 
 export class MockEventService {
   private events: TrackingEvent[] = [];

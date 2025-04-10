@@ -1,12 +1,17 @@
 
 import { Drug, TrackingEvent, DrugStatus } from '../services/types';
+import { 
+  mockDrugs, 
+  mockEvents, 
+  computeDrugStatus, 
+  filterEventsByRole 
+} from '../services/mockData/index';
 
 // Create a local copy of the mock data to avoid circular imports
-export { mockDrugs, mockEvents, computeDrugStatus, filterEventsByRole } from '../services/mockData';
+export { mockDrugs, mockEvents, computeDrugStatus, filterEventsByRole };
 
 // Utility function to get richer event metadata for a drug
 export function getEnhancedEventDetails(drugId: string) {
-  const { mockEvents } = require('../services/mockData');
   const events = mockEvents.filter((event: TrackingEvent) => event.drugId === drugId);
   
   return events.map((event: TrackingEvent) => {
@@ -42,8 +47,6 @@ export function getEnhancedEventDetails(drugId: string) {
 
 // Utility function to get complete timeline for a drug
 export function getDrugTimeline(sgtin: string) {
-  const { mockDrugs, mockEvents } = require('../services/mockData');
-  
   // Find the drug by SGTIN
   const drug = mockDrugs.find((d: Drug) => d.sgtin === sgtin);
   if (!drug) return null;
@@ -90,12 +93,12 @@ function hasSupplyChainAnomalies(events: TrackingEvent[]): boolean {
   );
   
   // Check for unusual shipping routes (e.g., manufacturer directly to pharmacy)
-  const manufacturerShips = events.filter(event => 
-    event.type === 'ship' && 
-    (typeof event.actor === 'string' ? 
-      false : // Skip if actor is a string
-      (event.actor as any).role === 'manufacturer')
-  );
+  const manufacturerShips = events.filter(event => {
+    if (typeof event.actor === 'string') {
+      return false;
+    }
+    return event.type === 'ship' && event.actor.role === 'manufacturer';
+  });
   
   const directToPharmacy = manufacturerShips.some(event => 
     event.details.destination && 

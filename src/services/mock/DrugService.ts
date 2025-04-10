@@ -1,6 +1,6 @@
 
 import { Drug } from '../types';
-import { mockDrugs, computeDrugStatus } from '../mockData';
+import { mockDrugs, computeDrugStatus } from '../mockData/index';
 
 export class MockDrugService {
   private drugs: Drug[] = [];
