@@ -72,4 +72,7 @@ export interface IFabricService {
   
   // Method to get drug details by SGTIN for public tracking
   getDrugDetailsBySGTIN: (sgtin: string) => Promise<any>;
+  
+  // Compliance methods
+  getLatestComplianceReport: () => Promise<any>;
 }

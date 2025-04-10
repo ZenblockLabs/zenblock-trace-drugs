@@ -29,4 +29,5 @@ export abstract class BaseBlockchainService implements IFabricService {
   abstract initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean>;
   abstract checkRecallStatus(sgtin: string): Promise<any>;
   abstract getDrugDetailsBySGTIN(sgtin: string): Promise<any>;
+  abstract getLatestComplianceReport(): Promise<any>;
 }
