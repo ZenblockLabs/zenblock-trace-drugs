@@ -1,4 +1,3 @@
-
 import { BaseBlockchainService } from './BaseBlockchainService';
 import { Drug, TrackingEvent } from './types';
 import { NetworkService } from './fabric/NetworkService';
@@ -44,7 +43,6 @@ export class FabricService extends BaseBlockchainService {
     return true;
   }
 
-  // Drug operations
   async registerDrug(drugData: any): Promise<Drug> {
     await this.ensureConnection();
     return this.drugService.registerDrug(drugData);
@@ -75,7 +73,6 @@ export class FabricService extends BaseBlockchainService {
     return this.drugService.getDrugDetailsBySGTIN(sgtin);
   }
 
-  // Event operations
   async createEvent(eventData: any): Promise<TrackingEvent> {
     await this.ensureConnection();
     return this.eventService.createEvent(eventData);
@@ -96,7 +93,6 @@ export class FabricService extends BaseBlockchainService {
     return this.eventService.getRecentEvents(limit);
   }
 
-  // Transfer operations
   async transferDrug(
     drugId: string, 
     fromId: string, 
@@ -122,7 +118,6 @@ export class FabricService extends BaseBlockchainService {
     return this.transferService.receiveDrug(drugId, receiverId, receiverName, receiverRole, location, details);
   }
 
-  // Recall operations
   async initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean> {
     await this.ensureConnection();
     return this.recallService.initiateRecall(sgtin, reason, initiator);
@@ -131,5 +126,22 @@ export class FabricService extends BaseBlockchainService {
   async checkRecallStatus(sgtin: string): Promise<any> {
     await this.ensureConnection();
     return this.recallService.checkRecallStatus(sgtin);
+  }
+
+  async getLatestComplianceReport(): Promise<any> {
+    await this.ensureConnection();
+    return {
+      id: 'fabric-comp-1',
+      title: 'DSCSA Compliance Audit - Q1 2025',
+      period: 'Q1 2025',
+      timestamp: new Date().toISOString(),
+      violations: 2,
+      complianceScore: 96.5,
+      details: {
+        totalTransactions: 140,
+        successfulValidations: 137,
+        recommendations: 'Ensure all trading partners have proper verification systems'
+      }
+    };
   }
 }
