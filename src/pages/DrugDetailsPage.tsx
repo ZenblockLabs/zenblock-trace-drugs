@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
@@ -143,7 +142,7 @@ export function DrugDetailsPage() {
                     
                     <div>
                       <h3 className="text-lg font-medium mb-4">Product Description</h3>
-                      <p className="text-gray-700">{data.description || `${data.productName || data.name} is used to treat various conditions including...`}</p>
+                      <p className="text-gray-700">{data.productName || data.name} is used to treat various conditions including...</p>
                     </div>
                     
                     <div>

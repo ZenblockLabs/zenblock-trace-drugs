@@ -345,7 +345,7 @@ export class FabricService extends BaseBlockchainService {
 
   async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
     try {
-      const { data, error } = await this.supabase.functions.invoke('track-drug', {
+      const { data, error } = await supabase.functions.invoke('track-drug', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
