@@ -1,3 +1,4 @@
+
 import { Drug, TrackingEvent, DrugStatus } from './types';
 
 // Mock data for testing
@@ -12,7 +13,6 @@ export const mockDrugs: Drug[] = [
     expiryDate: "2025-12-31",
     productName: "ZenRelief",
     dosage: "10mg",
-    description: "ZenRelief is used to treat various conditions including...",
     status: "manufactured",
     currentOwnerId: "user1",
     currentOwnerName: "ZenPharma Inc.",
@@ -28,7 +28,6 @@ export const mockDrugs: Drug[] = [
     expiryDate: "2026-01-15",
     productName: "CardioZen",
     dosage: "25mg",
-    description: "CardioZen is used to treat various conditions including...",
     status: "shipped",
     currentOwnerId: "user2",
     currentOwnerName: "MediDistribute LLC",
@@ -44,7 +43,6 @@ export const mockDrugs: Drug[] = [
     expiryDate: "2025-06-30",
     productName: "PainEase",
     dosage: "50mg",
-    description: "PainEase is a prescription medication for moderate to severe pain...",
     status: "received",
     currentOwnerId: "user3",
     currentOwnerName: "ZenMed Pharmacy",
@@ -61,7 +59,6 @@ export const mockDrugs: Drug[] = [
     expiryDate: "2025-08-15",
     productName: "AnomalyMed",
     dosage: "100mg",
-    description: "This medication has an irregular supply chain path for testing...",
     status: "dispensed",
     currentOwnerId: "user3",
     currentOwnerName: "ZenMed Pharmacy",
@@ -78,8 +75,7 @@ export const mockDrugs: Drug[] = [
     expiryDate: "2025-10-20",
     productName: "TimeGapMed",
     dosage: "75mg",
-    description: "This medication has a gap in its timeline for testing exception handling...",
-    status: "warehoused",
+    status: "in-transit",
     currentOwnerId: "user2",
     currentOwnerName: "MediDistribute LLC",
     currentOwnerRole: "distributor"
@@ -97,8 +93,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1234",
@@ -122,8 +117,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1234",
@@ -149,8 +143,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1235",
@@ -174,8 +167,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1235",
@@ -199,8 +191,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       destination: "MediDistribute LLC, NV, USA",
@@ -225,8 +216,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user2",
       name: "Jane Distributor",
-      role: "distributor",
-      organization: "MediDistribute LLC"
+      role: "distributor"
     },
     details: {
       shipmentId: "SHP-54321",
@@ -242,7 +232,7 @@ export const mockEvents: TrackingEvent[] = [
     }
   },
 
-  // Rest of the events...
+  // Normal flow - Drug 3 (PainEase) - Full supply chain to pharmacy
   {
     id: "e5",
     timestamp: "2023-04-10T11:30:00Z",
@@ -252,8 +242,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1236",
@@ -272,13 +261,12 @@ export const mockEvents: TrackingEvent[] = [
     id: "e5b",
     timestamp: "2023-04-10T15:15:00Z",
     drugId: "d3",
-    eventType: "qa-passed",
+    type: "qa-passed",
     location: "ZenPharma QA Lab, CA, USA",
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1236",
@@ -302,8 +290,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       destination: "MediDistribute LLC, NV, USA",
@@ -328,8 +315,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user2",
       name: "Jane Distributor",
-      role: "distributor",
-      organization: "MediDistribute LLC"
+      role: "distributor"
     },
     details: {
       shipmentId: "SHP-54322",
@@ -348,13 +334,12 @@ export const mockEvents: TrackingEvent[] = [
     id: "e7b",
     timestamp: "2023-04-15T10:45:00Z",
     drugId: "d3",
-    eventType: "warehouse",
+    type: "warehouse",
     location: "MediDistribute Warehouse, NV, USA",
     actor: {
       id: "user2",
       name: "Jane Distributor",
-      role: "distributor",
-      organization: "MediDistribute LLC"
+      role: "distributor"
     },
     details: {
       storageConditions: "Temperature controlled",
@@ -377,8 +362,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user2",
       name: "Jane Distributor",
-      role: "distributor",
-      organization: "MediDistribute LLC"
+      role: "distributor"
     },
     details: {
       destination: "ZenMed Pharmacy, CA, USA",
@@ -403,8 +387,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user3",
       name: "Sam Pharmacist",
-      role: "dispenser",
-      organization: "ZenMed Pharmacy"
+      role: "dispenser"
     },
     details: {
       shipmentId: "SHP-54323",
@@ -430,8 +413,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1237",
@@ -455,8 +437,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1237",
@@ -480,8 +461,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       destination: "ZenMed Pharmacy, CA, USA", // Direct to pharmacy!
@@ -506,8 +486,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user3",
       name: "Sam Pharmacist",
-      role: "dispenser",
-      organization: "ZenMed Pharmacy"
+      role: "dispenser"
     },
     details: {
       shipmentId: "SHP-99999",
@@ -531,8 +510,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user3",
       name: "Sam Pharmacist",
-      role: "dispenser",
-      organization: "ZenMed Pharmacy"
+      role: "dispenser"
     },
     details: {
       prescription: "RX-12345",
@@ -558,8 +536,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1238",
@@ -583,8 +560,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       batchNumber: "BATCH-1238",
@@ -608,8 +584,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user1",
       name: "John Manufacturer",
-      role: "manufacturer",
-      organization: "ZenPharma Inc."
+      role: "manufacturer"
     },
     details: {
       destination: "MediDistribute LLC, NV, USA",
@@ -635,8 +610,7 @@ export const mockEvents: TrackingEvent[] = [
     actor: {
       id: "user2",
       name: "Jane Distributor",
-      role: "distributor",
-      organization: "MediDistribute LLC"
+      role: "distributor"
     },
     details: {
       storageLocation: "Zone C, Rack 15",
@@ -648,6 +622,173 @@ export const mockEvents: TrackingEvent[] = [
         longitude: -115.1398
       },
       notes: "Product warehoused (MISSING RECEIVING EVENT)"
+    }
+  },
+  
+  // Adding additional events to complete the timelines
+  // Complete Drug 1 timeline - adding shipping and receiving events
+  {
+    id: "e1c",
+    timestamp: "2023-04-05T09:00:00Z",
+    drugId: "d1",
+    type: "ship",
+    location: "ZenPharma Distribution Center, CA, USA",
+    actor: {
+      id: "user1",
+      name: "John Manufacturer",
+      role: "manufacturer"
+    },
+    details: {
+      destination: "MediDistribute LLC, NV, USA",
+      shipmentId: "SHP-54324",
+      carrier: "SecurePharmLogistics",
+      temperatureCheckPassed: true,
+      temperatureLog: [
+        { timestamp: "2023-04-05T09:30:00Z", temperature: 5.2, unit: "Celsius" },
+        { timestamp: "2023-04-05T12:30:00Z", temperature: 5.5, unit: "Celsius" },
+        { timestamp: "2023-04-05T15:30:00Z", temperature: 5.3, unit: "Celsius" }
+      ],
+      digitalSignature: "0xabc123ghi456",
+      isOnChain: true,
+      blockchainHash: "0xf7e8d9c0b1a2345678901234567890abcdef1234",
+      blockHeight: 7845623,
+      verificationTimestamp: "2023-04-05T09:05:23Z",
+      geoCoordinates: {
+        latitude: 37.7749,
+        longitude: -122.4194
+      },
+      humidityPercentage: 45,
+      notes: "Shipped with real-time temperature monitoring"
+    }
+  },
+  {
+    id: "e1d",
+    timestamp: "2023-04-07T11:00:00Z",
+    drugId: "d1",
+    type: "receive",
+    location: "MediDistribute Warehouse, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor"
+    },
+    details: {
+      shipmentId: "SHP-54324",
+      condition: "Good",
+      temperatureCheckPassed: true,
+      temperatureLog: [
+        { timestamp: "2023-04-06T09:30:00Z", temperature: 5.1, unit: "Celsius" },
+        { timestamp: "2023-04-06T15:30:00Z", temperature: 5.4, unit: "Celsius" },
+        { timestamp: "2023-04-07T08:30:00Z", temperature: 5.2, unit: "Celsius" }
+      ],
+      digitalSignature: "0xdef456jkl789",
+      isOnChain: true,
+      blockchainHash: "0xa1b2c3d4e5f67890123456789abcdef0123456",
+      blockHeight: 7845780,
+      verificationTimestamp: "2023-04-07T11:05:13Z",
+      geoCoordinates: {
+        latitude: 36.1699,
+        longitude: -115.1398
+      },
+      humidityPercentage: 42,
+      notes: "All packages verified and temperature compliance confirmed"
+    }
+  },
+  
+  // Additional warehousing event for Drug 2
+  {
+    id: "e4b",
+    timestamp: "2023-04-06T14:15:00Z",
+    drugId: "d2",
+    type: "warehouse",
+    location: "MediDistribute Secure Storage, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor"
+    },
+    details: {
+      storageLocation: "Zone A, Rack 23",
+      temperatureCheckPassed: true,
+      storageConditions: "5°C ± 1°C, 40-60% humidity",
+      digitalSignature: "0xmno345pqr678",
+      isOnChain: true,
+      blockchainHash: "0x123456789abcdef0123456789abcdef012345678",
+      blockHeight: 7846102,
+      verificationTimestamp: "2023-04-06T14:17:05Z",
+      geoCoordinates: {
+        latitude: 36.1699,
+        longitude: -115.1398
+      },
+      humidityPercentage: 45,
+      notes: "Stored in temperature-monitored cold storage facility"
+    }
+  },
+  
+  // Dispense event for Drug 3
+  {
+    id: "e9b",
+    timestamp: "2023-04-20T10:15:00Z",
+    drugId: "d3",
+    type: "dispense",
+    location: "ZenMed Pharmacy, CA, USA",
+    actor: {
+      id: "user3",
+      name: "Sam Pharmacist",
+      role: "dispenser"
+    },
+    details: {
+      prescription: "RX-98765",
+      patientId: "anonymous",
+      digitalSignature: "0xabc789xyz123",
+      isOnChain: true,
+      blockchainHash: "0xfedcba9876543210fedcba9876543210fedcba98",
+      blockHeight: 7847653,
+      verificationTimestamp: "2023-04-20T10:16:22Z",
+      geoCoordinates: {
+        latitude: 34.0522,
+        longitude: -118.2437
+      },
+      notes: "Dispensed to patient with full medication counseling"
+    }
+  },
+  
+  // Ship event for gap flow drug
+  {
+    id: "e19b",
+    timestamp: "2023-06-15T09:45:00Z",
+    drugId: "d5",
+    type: "ship",
+    location: "MediDistribute Warehouse, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor"
+    },
+    details: {
+      destination: "ZenMed Pharmacy, CA, USA",
+      shipmentId: "SHP-88888",
+      carrier: "PharmaTrans",
+      temperatureCheckPassed: true,
+      temperatureLog: [
+        { timestamp: "2023-06-15T10:30:00Z", temperature: 4.9, unit: "Celsius" },
+        { timestamp: "2023-06-15T14:30:00Z", temperature: 5.1, unit: "Celsius" },
+        { timestamp: "2023-06-15T18:30:00Z", temperature: 5.0, unit: "Celsius" }
+      ],
+      digitalSignature: "0xabc012def345",
+      isOnChain: true,
+      blockchainHash: "0x0123456789abcdef0123456789abcdef01234567",
+      blockHeight: 7980213,
+      verificationTimestamp: "2023-06-15T09:47:32Z",
+      geoCoordinates: {
+        latitude: 36.1699,
+        longitude: -115.1398
+      },
+      humidityPercentage: 48,
+      shockEvents: [
+        { timestamp: "2023-06-15T12:32:15Z", gForce: 1.8, location: "Interstate 15" }
+      ],
+      notes: "Shipped to pharmacy with continuous temperature monitoring"
     }
   }
 ];

@@ -167,7 +167,7 @@ export function HistoryPage() {
       
       {/* Role-based filtering notice */}
       {isFiltered && (
-        <Alert variant="outline" className="mb-6 border-blue-200 bg-blue-50">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-700">
             🔐 Filtered view – showing only relevant events for your role ({userRole}).
@@ -245,6 +245,34 @@ export function HistoryPage() {
                             </ul>
                           </div>
                           
+                          {/* Display temperature log if available */}
+                          {event.details.temperatureLog && event.details.temperatureLog.length > 0 && (
+                            <div className="mt-2 p-2 bg-gray-50 rounded">
+                              <p className="text-sm font-medium mb-1">Temperature Log:</p>
+                              <ul className="text-xs space-y-1">
+                                {event.details.temperatureLog.map((log: any, i: number) => (
+                                  <li key={i} className="text-gray-600">
+                                    {new Date(log.timestamp).toLocaleString()}: {log.temperature}°{log.unit}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {/* Display shock events if available */}
+                          {event.details.shockEvents && event.details.shockEvents.length > 0 && (
+                            <div className="mt-2 p-2 bg-yellow-50 rounded">
+                              <p className="text-sm font-medium mb-1 text-yellow-700">Shock Events Detected:</p>
+                              <ul className="text-xs space-y-1">
+                                {event.details.shockEvents.map((shock: any, i: number) => (
+                                  <li key={i} className="text-yellow-800">
+                                    {new Date(shock.timestamp).toLocaleString()}: {shock.gForce}g at {shock.location}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
                           {event.details.notes && (
                             <div className="mt-2 p-2 bg-gray-50 rounded">
                               <p className="text-sm">{event.details.notes}</p>
@@ -257,7 +285,10 @@ export function HistoryPage() {
                       {event.details && event.details.isOnChain && (
                         <div className="mt-3 flex items-center justify-end">
                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                            <ShieldCheck className="h-3 w-3 mr-1" /> Blockchain Verified
+                            <ShieldCheck className="h-3 w-3 mr-1" /> 
+                            {event.details.blockchainHash 
+                              ? `Verified on block ${event.details.blockHeight}` 
+                              : 'Blockchain Verified'}
                           </Badge>
                         </div>
                       )}
