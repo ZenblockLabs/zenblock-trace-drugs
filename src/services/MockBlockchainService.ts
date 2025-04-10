@@ -1,4 +1,3 @@
-
 import { BaseBlockchainService } from './BaseBlockchainService';
 import { Drug, TrackingEvent, DrugStatus } from './types';
 
@@ -7,62 +6,67 @@ const mockDrugs: Drug[] = [
   {
     id: '1',
     name: 'Paracetamol',
-    manufacturer: 'Mock Pharma',
-    batchNumber: 'Batch001',
+    manufacturer: 'ZenPharma Inc.',
+    batchNumber: 'BATCH-001',
     expiryDate: '2024-12-31',
     licenseNumber: 'LP001',
     sgtin: 'SGTIN001',
-    ownerId: 'manufacturer123',
-    ownerName: 'Mock Pharma',
-    ownerRole: 'manufacturer'
+    ownerId: 'user1', // John Manufacturer
+    ownerName: 'ZenPharma Inc.',
+    ownerRole: 'manufacturer',
+    status: 'manufactured'
   },
   {
     id: '2',
     name: 'Amoxicillin',
-    manufacturer: 'Mock Pharma',
-    batchNumber: 'Batch002',
+    manufacturer: 'ZenPharma Inc.',
+    batchNumber: 'BATCH-002',
     expiryDate: '2025-06-30',
     licenseNumber: 'LP002',
     sgtin: 'SGTIN002',
-    ownerId: 'distributor456',
-    ownerName: 'Mock Dist',
-    ownerRole: 'distributor'
+    ownerId: 'user2', // Jane Distributor
+    ownerName: 'MediDistribute LLC',
+    ownerRole: 'distributor',
+    status: 'shipped'
   },
   {
     id: '3',
     name: 'Ibuprofen',
-    manufacturer: 'Another Pharma',
-    batchNumber: 'Batch003',
+    manufacturer: 'ZenPharma Inc.',
+    batchNumber: 'BATCH-003',
     expiryDate: '2024-11-15',
     licenseNumber: 'LP003',
     sgtin: 'SGTIN003',
-    ownerId: 'pharmacy789',
-    ownerName: 'Mock Pharmacy',
-    ownerRole: 'dispenser'
+    ownerId: 'user3', // Sam Pharmacist
+    ownerName: 'ZenMed Pharmacy',
+    ownerRole: 'dispenser',
+    status: 'received'
   },
   {
     id: '4',
     name: 'Aspirin',
-    manufacturer: 'Bayer',
-    batchNumber: 'Batch004',
+    manufacturer: 'ZenPharma Inc.',
+    batchNumber: 'BATCH-004',
     expiryDate: '2025-01-01',
     licenseNumber: 'LP004',
     sgtin: 'SGTIN004',
-    ownerId: 'manufacturer123',
-    ownerName: 'Mock Pharma',
-    ownerRole: 'manufacturer'
+    ownerId: 'user1', // John Manufacturer
+    ownerName: 'ZenPharma Inc.',
+    ownerRole: 'manufacturer',
+    status: 'manufactured'
   },
   {
     id: '5',
     name: 'Vitamin C',
-    manufacturer: 'Healthy Life',
-    batchNumber: 'Batch005',
+    manufacturer: 'ZenPharma Inc.',
+    batchNumber: 'BATCH-005',
     expiryDate: '2026-03-01',
     licenseNumber: 'LP005',
     sgtin: 'SGTIN005',
-    ownerId: 'distributor456',
-    ownerName: 'Mock Dist',
-    ownerRole: 'distributor'
+    ownerId: 'user2', // Jane Distributor
+    ownerName: 'MediDistribute LLC',
+    ownerRole: 'distributor',
+    status: 'in-transit'
   }
 ];
 
@@ -72,90 +76,108 @@ const mockEvents: TrackingEvent[] = [
     drugId: '1',
     type: 'Manufactured',
     timestamp: '2023-01-01T00:00:00.000Z',
-    location: 'Factory A',
-    actor: 'Manufacturer 1',
-    details: { notes: 'Manufacturing completed' }
+    location: 'ZenPharma Manufacturing Facility',
+    actor: 'John Manufacturer',
+    details: { notes: 'Initial production completed' }
   },
   {
     id: 'event2',
-    drugId: '1',
-    type: 'Shipped',
-    timestamp: '2023-01-02T00:00:00.000Z',
-    location: 'Warehouse B',
-    actor: 'Distributor 1',
-    details: { notes: 'Shipped to distributor' }
+    drugId: '2',
+    type: 'Manufactured',
+    timestamp: '2023-01-10T00:00:00.000Z',
+    location: 'ZenPharma Manufacturing Facility',
+    actor: 'John Manufacturer',
+    details: { notes: 'Initial production completed' }
   },
   {
     id: 'event3',
     drugId: '2',
-    type: 'Received',
-    timestamp: '2023-01-05T00:00:00.000Z',
-    location: 'Pharmacy C',
-    actor: 'Pharmacy 1',
-    details: { notes: 'Received at pharmacy' }
+    type: 'Shipped',
+    timestamp: '2023-01-15T00:00:00.000Z',
+    location: 'ZenPharma Distribution Center',
+    actor: 'John Manufacturer',
+    details: { notes: 'Transferred to MediDistribute LLC' }
   },
   {
     id: 'event4',
-    drugId: '3',
-    type: 'Manufactured',
-    timestamp: '2023-02-01T00:00:00.000Z',
-    location: 'Factory D',
-    actor: 'Manufacturer 2',
-    details: { notes: 'Manufacturing completed' }
+    drugId: '2',
+    type: 'Received',
+    timestamp: '2023-01-17T00:00:00.000Z',
+    location: 'MediDistribute Warehouse',
+    actor: 'Jane Distributor',
+    details: { notes: 'Received from ZenPharma Inc.' }
   },
   {
     id: 'event5',
-    drugId: '4',
-    type: 'Shipped',
-    timestamp: '2023-02-03T00:00:00.000Z',
-    location: 'Warehouse E',
-    actor: 'Distributor 2',
-    details: { notes: 'Shipped to distributor' }
+    drugId: '3',
+    type: 'Manufactured',
+    timestamp: '2023-02-01T00:00:00.000Z',
+    location: 'ZenPharma Manufacturing Facility',
+    actor: 'John Manufacturer',
+    details: { notes: 'Initial production completed' }
   },
   {
     id: 'event6',
-    drugId: '5',
-    type: 'Received',
-    timestamp: '2023-02-07T00:00:00.000Z',
-    location: 'Pharmacy F',
-    actor: 'Pharmacy 2',
-    details: { notes: 'Received at pharmacy' }
+    drugId: '3',
+    type: 'Shipped',
+    timestamp: '2023-02-05T00:00:00.000Z',
+    location: 'ZenPharma Distribution Center',
+    actor: 'John Manufacturer',
+    details: { notes: 'Transferred to MediDistribute LLC' }
   },
   {
     id: 'event7',
-    drugId: '1',
-    type: 'Delivered',
-    timestamp: '2023-02-08T00:00:00.000Z',
-    location: 'Patient Home',
-    actor: 'Delivery Service',
-    details: { notes: 'Delivered to patient' }
+    drugId: '3',
+    type: 'Received',
+    timestamp: '2023-02-07T00:00:00.000Z',
+    location: 'MediDistribute Warehouse',
+    actor: 'Jane Distributor',
+    details: { notes: 'Received from ZenPharma Inc.' }
   },
   {
     id: 'event8',
-    drugId: '2',
-    type: 'Sold',
+    drugId: '3',
+    type: 'Shipped',
     timestamp: '2023-02-10T00:00:00.000Z',
-    location: 'Pharmacy C',
-    actor: 'Pharmacist',
-    details: { notes: 'Sold to patient' }
+    location: 'MediDistribute Warehouse',
+    actor: 'Jane Distributor',
+    details: { notes: 'Transferred to ZenMed Pharmacy' }
   },
   {
     id: 'event9',
     drugId: '3',
-    type: 'Delivered',
+    type: 'Received',
     timestamp: '2023-02-12T00:00:00.000Z',
-    location: 'Patient Home',
-    actor: 'Delivery Service',
-    details: { notes: 'Delivered to patient' }
+    location: 'ZenMed Pharmacy',
+    actor: 'Sam Pharmacist',
+    details: { notes: 'Received from MediDistribute LLC' }
   },
   {
     id: 'event10',
-    drugId: '4',
-    type: 'Sold',
-    timestamp: '2023-02-15T00:00:00.000Z',
-    location: 'Pharmacy F',
-    actor: 'Pharmacist',
-    details: { notes: 'Sold to patient' }
+    drugId: '5',
+    type: 'Manufactured',
+    timestamp: '2023-03-01T00:00:00.000Z',
+    location: 'ZenPharma Manufacturing Facility',
+    actor: 'John Manufacturer',
+    details: { notes: 'Initial production completed' }
+  },
+  {
+    id: 'event11',
+    drugId: '5',
+    type: 'Shipped',
+    timestamp: '2023-03-05T00:00:00.000Z',
+    location: 'ZenPharma Distribution Center',
+    actor: 'John Manufacturer',
+    details: { notes: 'Transferred to MediDistribute LLC' }
+  },
+  {
+    id: 'event12',
+    drugId: '5',
+    type: 'In Transit',
+    timestamp: '2023-03-07T00:00:00.000Z',
+    location: 'Shipping Carrier',
+    actor: 'Logistics System',
+    details: { notes: 'Package in transit to MediDistribute LLC' }
   }
 ];
 
@@ -216,7 +238,6 @@ export class MockBlockchainService extends BaseBlockchainService {
     return true;
   }
 
-  // Drug management methods
   async registerDrug(drugData: Omit<Drug, 'id'>): Promise<Drug> {
     const newDrug: Drug = {
       id: Math.random().toString(36).substring(2, 15), // Generate a random ID
@@ -242,7 +263,6 @@ export class MockBlockchainService extends BaseBlockchainService {
     return mockDrugs.find(drug => drug.sgtin === sgtin) || null;
   }
 
-  // Event tracking methods
   async createEvent(eventData: Omit<TrackingEvent, 'id'>): Promise<TrackingEvent> {
     const newEvent: TrackingEvent = {
       id: Math.random().toString(36).substring(2, 15), // Generate a random ID
@@ -264,7 +284,6 @@ export class MockBlockchainService extends BaseBlockchainService {
     return mockEvents.slice(-limit);
   }
 
-  // Drug transfer methods
   async transferDrug(drugId: string, fromId: string, toId: string, toName: string, toRole: string, location: string, details: Record<string, any>): Promise<boolean> {
     const drugIndex = mockDrugs.findIndex(drug => drug.id === drugId);
     if (drugIndex === -1) {
@@ -315,7 +334,6 @@ export class MockBlockchainService extends BaseBlockchainService {
     return true;
   }
 
-  // Recall methods
   async initiateRecall(sgtin: string, reason: string, initiator: any): Promise<boolean> {
     const status = mockDrugStatuses.find(status => status.sgtin === sgtin);
     if (!status) {
@@ -382,7 +400,6 @@ export class MockBlockchainService extends BaseBlockchainService {
     };
   }
 
-  // Additional method for ComplianceReport
   async getLatestComplianceReport(): Promise<any> {
     return {
       id: 'comp1',
@@ -400,5 +417,4 @@ export class MockBlockchainService extends BaseBlockchainService {
   }
 }
 
-// Create and export the singleton instance
 export const mockBlockchainService = new MockBlockchainService();

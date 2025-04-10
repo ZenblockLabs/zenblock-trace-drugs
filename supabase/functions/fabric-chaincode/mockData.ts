@@ -8,14 +8,14 @@ export const mockDrugs: Drug[] = [
     gtin: "01234567890123",
     sgtin: "sgtin:01234567890123.123456",
     batchNumber: "BATCH-1234",
-    manufacturerId: "manu1",
+    manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
     expiryDate: "2025-12-31",
     productName: "ZenRelief",
     dosage: "10mg",
     description: "ZenRelief is used to treat various conditions including...",
     status: "manufactured",
-    currentOwnerId: "manu1",
+    currentOwnerId: "user1",
     currentOwnerName: "ZenPharma Inc.",
     currentOwnerRole: "manufacturer"
   },
@@ -24,14 +24,14 @@ export const mockDrugs: Drug[] = [
     gtin: "01234567890124",
     sgtin: "sgtin:01234567890124.123457",
     batchNumber: "BATCH-1235",
-    manufacturerId: "manu2",
-    manufacturerName: "MediCorp Pharmaceuticals",
+    manufacturerId: "user1",
+    manufacturerName: "ZenPharma Inc.",
     expiryDate: "2026-01-15",
     productName: "CardioZen",
     dosage: "25mg",
     description: "CardioZen is used to treat various conditions including...",
     status: "shipped",
-    currentOwnerId: "dist1",
+    currentOwnerId: "user2",
     currentOwnerName: "MediDistribute LLC",
     currentOwnerRole: "distributor"
   },
@@ -40,16 +40,16 @@ export const mockDrugs: Drug[] = [
     gtin: "01234567890125",
     sgtin: "sgtin:01234567890125.123458",
     batchNumber: "BATCH-1236",
-    manufacturerId: "manu1",
+    manufacturerId: "user1",
     manufacturerName: "ZenPharma Inc.",
-    expiryDate: "2024-06-30", // Note: Expired date
+    expiryDate: "2025-06-30",
     productName: "PainEase",
     dosage: "50mg",
     description: "PainEase is a prescription medication for moderate to severe pain...",
-    status: "recalled",
-    currentOwnerId: "manu1",
-    currentOwnerName: "ZenPharma Inc.",
-    currentOwnerRole: "manufacturer"
+    status: "received",
+    currentOwnerId: "user3",
+    currentOwnerName: "ZenMed Pharmacy",
+    currentOwnerRole: "dispenser"
   }
 ];
 
@@ -59,10 +59,10 @@ export const mockEvents: TrackingEvent[] = [
     timestamp: "2023-04-01T10:00:00Z",
     drugId: "d1",
     eventType: "commission",
-    location: "Manufacturing Facility, CA, USA",
+    location: "ZenPharma Manufacturing Facility, CA, USA",
     actor: {
-      id: "manu1",
-      name: "ZenPharma Inc.",
+      id: "user1",
+      name: "John Manufacturer",
       role: "manufacturer",
       organization: "ZenPharma Inc."
     },
@@ -76,16 +76,16 @@ export const mockEvents: TrackingEvent[] = [
     timestamp: "2023-04-02T14:30:00Z",
     drugId: "d2",
     eventType: "commission",
-    location: "Manufacturing Facility, NY, USA",
+    location: "ZenPharma Manufacturing Facility, CA, USA",
     actor: {
-      id: "manu2",
-      name: "MediCorp Pharmaceuticals",
+      id: "user1",
+      name: "John Manufacturer",
       role: "manufacturer",
-      organization: "MediCorp Pharmaceuticals"
+      organization: "ZenPharma Inc."
     },
     details: {
       batchNumber: "BATCH-1235",
-      productionLine: "Line-3"
+      productionLine: "Line-2"
     }
   },
   {
@@ -93,12 +93,12 @@ export const mockEvents: TrackingEvent[] = [
     timestamp: "2023-04-03T09:15:00Z",
     drugId: "d2",
     eventType: "ship",
-    location: "Manufacturing Facility, NY, USA",
+    location: "ZenPharma Distribution Center, CA, USA",
     actor: {
-      id: "manu2",
-      name: "MediCorp Pharmaceuticals",
+      id: "user1",
+      name: "John Manufacturer",
       role: "manufacturer",
-      organization: "MediCorp Pharmaceuticals"
+      organization: "ZenPharma Inc."
     },
     details: {
       destination: "MediDistribute LLC, NV, USA",
@@ -108,38 +108,109 @@ export const mockEvents: TrackingEvent[] = [
   },
   {
     id: "e4",
+    timestamp: "2023-04-05T11:30:00Z",
+    drugId: "d2",
+    eventType: "receive",
+    location: "MediDistribute Warehouse, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor",
+      organization: "MediDistribute LLC"
+    },
+    details: {
+      shipmentId: "SHP-54321",
+      condition: "Good",
+      notes: "All packages received in good condition"
+    }
+  },
+  {
+    id: "e5",
     timestamp: "2023-04-10T11:30:00Z",
     drugId: "d3",
     eventType: "commission",
-    location: "Manufacturing Facility, CA, USA",
+    location: "ZenPharma Manufacturing Facility, CA, USA",
     actor: {
-      id: "manu1",
-      name: "ZenPharma Inc.",
+      id: "user1",
+      name: "John Manufacturer",
       role: "manufacturer",
       organization: "ZenPharma Inc."
     },
     details: {
       batchNumber: "BATCH-1236",
-      productionLine: "Line-2"
+      productionLine: "Line-3"
     }
   },
   {
-    id: "e5",
-    timestamp: "2023-06-15T16:45:00Z",
+    id: "e6",
+    timestamp: "2023-04-12T09:15:00Z",
     drugId: "d3",
-    eventType: "recall",
-    location: "Quality Control Department, CA, USA",
+    eventType: "ship",
+    location: "ZenPharma Distribution Center, CA, USA",
     actor: {
-      id: "manu1",
-      name: "ZenPharma Inc.",
+      id: "user1",
+      name: "John Manufacturer",
       role: "manufacturer",
       organization: "ZenPharma Inc."
     },
     details: {
-      reason: "Quality control issues identified in post-market surveillance",
-      severity: "Class II",
-      instructions: "Return to manufacturer for proper disposal",
-      referenceNumber: "RC-2023-061501"
+      destination: "MediDistribute LLC, NV, USA",
+      shipmentId: "SHP-54322",
+      carrier: "SecurePharmLogistics"
+    }
+  },
+  {
+    id: "e7",
+    timestamp: "2023-04-14T11:30:00Z",
+    drugId: "d3",
+    eventType: "receive",
+    location: "MediDistribute Warehouse, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor",
+      organization: "MediDistribute LLC"
+    },
+    details: {
+      shipmentId: "SHP-54322",
+      condition: "Good",
+      notes: "All packages received in good condition"
+    }
+  },
+  {
+    id: "e8",
+    timestamp: "2023-04-16T09:15:00Z",
+    drugId: "d3",
+    eventType: "ship",
+    location: "MediDistribute Warehouse, NV, USA",
+    actor: {
+      id: "user2",
+      name: "Jane Distributor",
+      role: "distributor",
+      organization: "MediDistribute LLC"
+    },
+    details: {
+      destination: "ZenMed Pharmacy, CA, USA",
+      shipmentId: "SHP-54323",
+      carrier: "MedExpress Delivery"
+    }
+  },
+  {
+    id: "e9",
+    timestamp: "2023-04-18T14:30:00Z",
+    drugId: "d3",
+    eventType: "receive",
+    location: "ZenMed Pharmacy, CA, USA",
+    actor: {
+      id: "user3",
+      name: "Sam Pharmacist",
+      role: "dispenser",
+      organization: "ZenMed Pharmacy"
+    },
+    details: {
+      shipmentId: "SHP-54323",
+      condition: "Good",
+      notes: "Received and stored in controlled environment"
     }
   }
 ];
