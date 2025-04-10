@@ -1,16 +1,14 @@
+
 import { useState, useEffect } from "react";
-import { Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { useAuth } from "@/context/AuthContext";
-import { ComplianceStatus } from "@/components/compliance/ComplianceStatus";
-import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { AuditReportsList } from "@/components/compliance/AuditReportsList";
-import { ComplianceReportGenerator } from "@/components/compliance/ComplianceReportGenerator";
 import { ComplianceReport } from "@/services/types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import { ComplianceReportButton } from "@/components/compliance/ComplianceReportButton";
+import { CompliancePageHeader } from "@/components/compliance/CompliancePageHeader";
+import { ComplianceOverview } from "@/components/compliance/ComplianceOverview";
+import { CustomReportSection } from "@/components/compliance/CustomReportSection";
+import { LoadingState } from "@/components/compliance/LoadingState";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -136,45 +134,20 @@ export function CompliancePage() {
   };
 
   if (isReportLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <Loader className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading compliance data...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Compliance Management</h1>
-        <p className="text-muted-foreground">
-          Monitor DSCSA compliance and access audit reports
-        </p>
-      </div>
+      <CompliancePageHeader isComplianceUser={isComplianceUser} />
       
-      {!isComplianceUser && (
-        <Alert className="bg-amber-50 border-amber-200">
-          <Info className="h-4 w-4 text-amber-800" />
-          <AlertDescription className="text-amber-800">
-            Some compliance features are only visible to compliance officers and regulators.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <ComplianceStatus 
-          complianceData={complianceData}
-          selectedPeriod={selectedPeriod}
-          onPeriodChange={setSelectedPeriod}
-          onGenerateReport={handleGenerateReport}
-          isLoading={isLoading}
-        />
-
-        <ProductTraceability 
-          traceabilityData={complianceData.traceability}
-        />
-      </div>
+      <ComplianceOverview 
+        complianceData={complianceData}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={setSelectedPeriod}
+        onGenerateReport={handleGenerateReport}
+        isLoading={isLoading}
+      />
 
       <AuditReportsList 
         reports={filteredReports}
@@ -185,32 +158,7 @@ export function CompliancePage() {
         onDownload={handleDownloadReport}
       />
       
-      {isComplianceUser && (
-        <div className="mt-8 p-6 border rounded-lg bg-slate-50">
-          <h2 className="text-xl font-semibold mb-4">Generate Custom Compliance Report</h2>
-          <p className="text-gray-600 mb-6">
-            Generate a detailed compliance report for any specific product by entering its SGTIN (Serialized Global Trade Item Number).
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-            <div className="w-full sm:w-auto">
-              <label htmlFor="sgtin" className="block text-sm font-medium text-gray-700 mb-1">
-                Product SGTIN
-              </label>
-              <input
-                type="text"
-                id="sgtin"
-                placeholder="Enter product SGTIN"
-                className="px-3 py-2 border rounded-md w-full sm:w-80"
-              />
-            </div>
-            
-            <ComplianceReportButton 
-              drugSgtin="10012345678903" // Example SGTIN - in a real app this would come from the input
-            />
-          </div>
-        </div>
-      )}
+      <CustomReportSection isComplianceUser={isComplianceUser} />
     </div>
   );
 }
