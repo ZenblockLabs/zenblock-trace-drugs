@@ -14,6 +14,7 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
+import { QRCodeScanDialog } from "@/components/compliance/QRCodeScanDialog";
 
 export const Layout = () => {
   const { isAuthenticated, user } = useAuth();
@@ -28,7 +29,7 @@ export const Layout = () => {
 
   const canScanBarcodes = user?.role === 'manufacturer' || 
                           user?.role === 'distributor' || 
-                          user?.role === 'dispenser'; // Changed 'pharmacy' to 'dispenser' to match the Role type
+                          user?.role === 'dispenser';
 
   const handleBarcodeDetected = (barcode: string) => {
     setBarcodeResult(barcode);
@@ -136,6 +137,8 @@ export const Layout = () => {
                   </Dialog>
                 </>
               )}
+              {/* Add QR Code scanner for all users */}
+              <QRCodeScanDialog variant="outline" size="sm" className="ml-2" />
             </div>
             <NetworkStatusIndicator />
           </div>

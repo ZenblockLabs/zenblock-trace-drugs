@@ -8,12 +8,30 @@ import { DrugInformation } from "@/components/tracking/DrugInformation";
 import { SupplyChainJourney } from "@/components/tracking/SupplyChainJourney";
 import { ActionButtons } from "@/components/tracking/ActionButtons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { QRCodeScanner } from "@/components/compliance/QRCodeScanner";
 import { Info } from "lucide-react";
 
 export function TrackPage() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
   const { data, loading, error, formatDate, isFiltered } = useDrugTracking(code);
+
+  // If no code is provided, show the scanner
+  if (!code) {
+    return (
+      <div className="container max-w-3xl mx-auto py-8 px-4">
+        <div className="flex justify-center mb-8">
+          <img 
+            src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
+            alt="Zenblock Labs Logo" 
+            className="h-16 w-16" 
+          />
+        </div>
+        <h1 className="text-2xl font-bold text-center mb-6">Drug Verification</h1>
+        <QRCodeScanner />
+      </div>
+    );
+  }
 
   if (loading) {
     return <TrackingLoader />;

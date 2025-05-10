@@ -3,14 +3,20 @@ import React, { useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Printer } from 'lucide-react';
+import { Download, Printer, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface QRCodeGeneratorProps {
   drugCode: string;
   trackingBaseUrl?: string;
+  productName?: string;
 }
 
-export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zenblocklabs.com/track' }: QRCodeGeneratorProps) {
+export function QRCodeGenerator({ 
+  drugCode, 
+  trackingBaseUrl = 'https://trace.zenblocklabs.com/track',
+  productName = 'Drug'
+}: QRCodeGeneratorProps) {
   const [size, setSize] = useState(200);
   
   const trackingUrl = `${trackingBaseUrl}?code=${encodeURIComponent(drugCode)}`;
@@ -19,7 +25,10 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
     const canvas = document.getElementById('qr-code-canvas') as HTMLElement;
     const svg = canvas.querySelector('svg');
     
-    if (!svg) return;
+    if (!svg) {
+      toast.error("Could not generate QR code for download");
+      return;
+    }
     
     // Create a canvas to convert SVG to image
     const tempCanvas = document.createElement('canvas');
@@ -29,7 +38,10 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
     tempCanvas.width = size;
     tempCanvas.height = size;
     
-    if (!ctx) return;
+    if (!ctx) {
+      toast.error("Could not create canvas context");
+      return;
+    }
     
     // Fill with white background
     ctx.fillStyle = 'white';
@@ -47,12 +59,14 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
       
       // Create a link to download the canvas as an image
       const link = document.createElement('a');
-      link.download = `zenblock-${drugCode}.png`;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      link.download = `zenblock-${drugCode}-${timestamp}.png`;
       link.href = tempCanvas.toDataURL('image/png');
       link.click();
       
       // Clean up
       URL.revokeObjectURL(svgUrl);
+      toast.success("QR code downloaded successfully");
     };
     
     img.src = svgUrl;
@@ -63,7 +77,7 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
     const printWindow = window.open('', '_blank');
     
     if (!printWindow) {
-      alert('Please allow pop-ups to print the QR code');
+      toast.error("Please allow pop-ups to print the QR code");
       return;
     }
     
@@ -89,8 +103,14 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
               padding: 20px;
               border-radius: 8px;
             }
+            .product-name {
+              margin-top: 10px;
+              font-size: 18px;
+              font-weight: bold;
+              color: #333;
+            }
             .code {
-              margin-top: 15px;
+              margin-top: 5px;
               font-size: 16px;
               color: #333;
             }
@@ -104,6 +124,7 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
         <body>
           <div class="container">
             ${canvas.innerHTML}
+            <div class="product-name">${productName}</div>
             <div class="code">Drug Code: ${drugCode}</div>
             <div class="url">Scan to verify at trace.zenblocklabs.com</div>
           </div>
@@ -118,7 +139,27 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
     // Wait for content to load then print
     printWindow.onload = function() {
       printWindow.print();
+      toast.success("Print dialog opened");
     };
+  };
+
+  const handleShare = async () => {
+    if (!navigator.share) {
+      toast.error("Sharing is not supported on this device");
+      return;
+    }
+
+    try {
+      await navigator.share({
+        title: `Drug Traceability QR Code - ${productName}`,
+        text: `Scan this QR code to verify the authenticity of ${productName} (${drugCode})`,
+        url: trackingUrl
+      });
+      toast.success("Shared successfully");
+    } catch (error) {
+      console.error("Error sharing:", error);
+      toast.error("Failed to share QR code");
+    }
   };
   
   return (
@@ -135,7 +176,7 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
           <p>Scan to verify the authenticity of this drug</p>
           <p className="text-xs mt-1 break-all">{trackingUrl}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
           <Button size="sm" onClick={handleDownload} className="flex gap-2">
             <Download className="h-4 w-4" />
             Download
@@ -144,6 +185,12 @@ export function QRCodeGenerator({ drugCode, trackingBaseUrl = 'https://trace.zen
             <Printer className="h-4 w-4" />
             Print
           </Button>
+          {navigator.share && (
+            <Button size="sm" variant="secondary" onClick={handleShare} className="flex gap-2">
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

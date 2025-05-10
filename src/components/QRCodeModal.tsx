@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { QrCode } from "lucide-react";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface QRCodeModalProps {
   drugId: string;
@@ -20,12 +21,13 @@ interface QRCodeModalProps {
 
 export function QRCodeModal({ drugId, sgtin, productName }: QRCodeModalProps) {
   const [open, setOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 640px)");
   
   // Use window.location to determine the base URL for tracking
   // In production, this would be a fixed domain
   const getTrackingBaseUrl = () => {
-    const { protocol, host } = window.location;
-    return `${protocol}//${host}/track`;
+    // For production, use the actual domain
+    return "https://trace.zenblocklabs.com/track";
   };
   
   return (
@@ -36,7 +38,7 @@ export function QRCodeModal({ drugId, sgtin, productName }: QRCodeModalProps) {
           Generate QR Code
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={isMobile ? "w-[90vw] max-w-md" : "sm:max-w-md"}>
         <DialogHeader>
           <DialogTitle>Drug Traceability QR Code</DialogTitle>
           <DialogDescription>
@@ -48,6 +50,7 @@ export function QRCodeModal({ drugId, sgtin, productName }: QRCodeModalProps) {
           <QRCodeGenerator 
             drugCode={sgtin} 
             trackingBaseUrl={getTrackingBaseUrl()} 
+            productName={productName}
           />
         </div>
       </DialogContent>
