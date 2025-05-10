@@ -6,21 +6,26 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { SgtinInput } from './SgtinInput';
-import { QrCode, ScanBarcode } from 'lucide-react';
+import { QrCode, ScanBarcode, AlertTriangle, Shield } from 'lucide-react';
 import { BarcodeScanner } from '@/components/BarcodeScanner';
+import { useAuth } from '@/context/AuthContext';
 
 interface QRCodeScannerProps {
   onClose?: () => void;
+  onScanComplete?: (code: string) => void;
 }
 
-export function QRCodeScanner({ onClose }: QRCodeScannerProps) {
+export function QRCodeScanner({ onClose, onScanComplete }: QRCodeScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [manualCode, setManualCode] = useState("");
   const [validCode, setValidCode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleScanResult = (result: string) => {
     setIsScanning(false);
+    setError(null);
     
     try {
       // Check if result is a URL
@@ -45,6 +50,13 @@ export function QRCodeScanner({ onClose }: QRCodeScannerProps) {
     // First ensure the code is not empty
     if (!code || code.trim() === '') {
       toast.error('Invalid QR code or SGTIN');
+      setError('Invalid QR code or SGTIN');
+      return;
+    }
+    
+    // Execute the onScanComplete callback if provided
+    if (onScanComplete) {
+      onScanComplete(code.trim());
       return;
     }
 
@@ -53,6 +65,34 @@ export function QRCodeScanner({ onClose }: QRCodeScannerProps) {
     
     if (onClose) {
       onClose();
+    }
+  };
+  
+  // Display role-specific instructions
+  const getRoleSpecificInstructions = () => {
+    if (!user) return null;
+    
+    switch (user.role) {
+      case 'distributor':
+        return (
+          <div className="mt-2 p-2 bg-blue-50 text-blue-700 rounded-md text-sm">
+            <Shield className="h-4 w-4 inline mr-1" /> Scan to verify authenticity before receiving shipments
+          </div>
+        );
+      case 'dispenser':
+        return (
+          <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
+            <Shield className="h-4 w-4 inline mr-1" /> Scan to confirm drug history before dispensing
+          </div>
+        );
+      case 'regulator':
+        return (
+          <div className="mt-2 p-2 bg-purple-50 text-purple-700 rounded-md text-sm">
+            <Shield className="h-4 w-4 inline mr-1" /> Scan for full compliance verification and reporting
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -85,7 +125,15 @@ export function QRCodeScanner({ onClose }: QRCodeScannerProps) {
                 <p className="text-sm text-muted-foreground">
                   Scan a drug QR code to verify its authenticity and track its journey
                 </p>
+                {getRoleSpecificInstructions()}
               </div>
+              
+              {error && (
+                <div className="p-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm flex items-center">
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  {error}
+                </div>
+              )}
               
               <Button 
                 variant="default" 

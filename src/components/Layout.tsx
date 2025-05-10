@@ -3,11 +3,10 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuth } from "@/context/AuthContext";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode, QrCode } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
@@ -27,6 +26,7 @@ export const Layout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // User can scan barcodes if they're manufacturer, distributor, or dispenser
   const canScanBarcodes = user?.role === 'manufacturer' || 
                           user?.role === 'distributor' || 
                           user?.role === 'dispenser';
@@ -66,19 +66,43 @@ export const Layout = () => {
     }
   };
 
+  // Handle QR code scan based on user role
+  const handleQRScan = (code: string) => {
+    if (!code) return;
+    
+    // For all roles, when scanning a QR, redirect to the track page
+    navigate(`/track?code=${encodeURIComponent(code)}`);
+    toast.info("QR code detected. Loading verification info...");
+  };
+
+  // Get appropriate button text based on role
+  const getQrButtonText = () => {
+    switch (user?.role) {
+      case 'manufacturer':
+        return "QR Verification";
+      case 'distributor': 
+        return "Scan Shipment";
+      case 'dispenser':
+        return "Verify Product";
+      case 'regulator':
+        return "Compliance Check";
+      default:
+        return "Scan QR Code";
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <main className="flex-1 p-6 overflow-auto">
           <div className="flex justify-between items-center mb-4 bg-muted/20 rounded-lg p-2">
-            <div className="flex items-center">
+            <div className="flex items-center flex-wrap gap-2">
               {canScanBarcodes && (
                 <>
                   <Button 
                     variant="outline" 
-                    size="sm" 
-                    className="mr-2"
+                    size="sm"
                     onClick={() => navigate('/batch-processing')}
                   >
                     <ScanBarcode className="h-4 w-4 mr-1" />
@@ -137,8 +161,14 @@ export const Layout = () => {
                   </Dialog>
                 </>
               )}
-              {/* Add QR Code scanner for all users */}
-              <QRCodeScanDialog variant="outline" size="sm" className="ml-2" />
+              
+              {/* Universal QR Code scanner with role-specific behavior */}
+              <QRCodeScanDialog 
+                variant="outline" 
+                size="sm" 
+                className="ml-0 sm:ml-2" 
+                onScanComplete={handleQRScan} 
+              />
             </div>
             <NetworkStatusIndicator />
           </div>

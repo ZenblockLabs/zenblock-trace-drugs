@@ -10,11 +10,82 @@ import { ActionButtons } from "@/components/tracking/ActionButtons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { QRCodeScanner } from "@/components/compliance/QRCodeScanner";
 import { Info } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { ComplianceReportButton } from "@/components/compliance/ComplianceReportButton";
 
 export function TrackPage() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
   const { data, loading, error, formatDate, isFiltered } = useDrugTracking(code);
+  const { user } = useAuth();
+
+  // Role-specific action component
+  const RoleSpecificActions = () => {
+    if (!data || !code) return null;
+    
+    switch (user?.role) {
+      case 'regulator':
+        return (
+          <div className="mt-6">
+            <ComplianceReportButton 
+              drugSgtin={code}
+              variant="default" 
+              className="w-full md:w-auto"
+            />
+          </div>
+        );
+      case 'distributor':
+      case 'dispenser':
+        // Only show "Mark as Received" for drugs that haven't been received by current user
+        const canReceive = data.events.every(event => 
+          !(event.handler?.includes(user.organization || '') && event.step === 'received')
+        );
+        
+        if (canReceive) {
+          return (
+            <div className="mt-6">
+              <Button 
+                variant="default" 
+                className="w-full md:w-auto"
+                onClick={handleReceiveDrug}
+              >
+                Mark as Received
+              </Button>
+            </div>
+          );
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+  
+  // Function to handle "Mark as Received" action
+  const handleReceiveDrug = async () => {
+    if (!user || !code) return;
+    
+    try {
+      const service = await getBlockchainService();
+      
+      // Call the receiveDrug method with appropriate parameters
+      await service.receiveDrug(
+        code, // Using code as drugId
+        user.id,
+        user.organization || user.email || 'Unknown',
+        user.role || 'Unknown',
+        'Current location', // Ideally this would be fetched or entered
+        { notes: `Received by ${user.role}` }
+      );
+      
+      toast.success("Drug marked as received successfully");
+      
+      // Refresh the page to show the updated status
+      window.location.reload();
+    } catch (error) {
+      console.error("Error marking drug as received:", error);
+      toast.error("Failed to mark drug as received");
+    }
+  };
 
   // If no code is provided, show the scanner
   if (!code) {
@@ -72,6 +143,9 @@ export function TrackPage() {
 
       {/* Action Buttons */}
       <ActionButtons />
+      
+      {/* Role-specific Actions */}
+      <RoleSpecificActions />
 
       {/* Footer */}
       <div className="mt-8 text-center text-sm text-gray-500">
@@ -81,3 +155,8 @@ export function TrackPage() {
     </div>
   );
 }
+
+// Need to import these dependencies
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { getBlockchainService } from "@/services/blockchainServiceFactory";
