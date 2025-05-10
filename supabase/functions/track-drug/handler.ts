@@ -123,6 +123,8 @@ export async function getTraceabilityData(code: string, userRole?: string): Prom
 
 // Add handler for the edge function request
 export async function handleRequest(req: Request): Promise<Response> {
+  console.log("Received track-drug request:", req.method);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -138,18 +140,28 @@ export async function handleRequest(req: Request): Promise<Response> {
       const url = new URL(req.url);
       code = url.searchParams.get("code");
       userRole = url.searchParams.get("role");
+      console.log("GET request with code:", code, "role:", userRole);
     } else if (req.method === "POST") {
       // Get the code from the request body
       try {
         const body = await req.json();
         code = body.code || null;
         userRole = body.role || null;
+        console.log("POST request with body:", { code, role: userRole });
       } catch (e) {
         console.error("Error parsing JSON body:", e);
+        return new Response(
+          JSON.stringify({ error: "Invalid JSON in request body" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
       }
     }
 
     if (!code) {
+      console.error("No tracking code provided");
       return new Response(
         JSON.stringify({ error: "No tracking code provided" }),
         {

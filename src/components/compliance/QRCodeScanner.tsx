@@ -24,29 +24,46 @@ export function QRCodeScanner({ onClose, onScanComplete }: QRCodeScannerProps) {
   const { user } = useAuth();
 
   const handleScanResult = (result: string) => {
+    console.log("QR scan result:", result);
     setIsScanning(false);
     setError(null);
     
     try {
       // Check if result is a URL
-      const url = new URL(result);
+      let code: string | null = null;
       
-      // Extract the code parameter from the URL
-      const code = url.searchParams.get('code');
-      
-      if (code) {
-        handleVerification(code);
-      } else {
-        // If no code parameter found, try using the entire result as a SGTIN
-        handleVerification(result);
+      if (result.includes('?code=')) {
+        // Extract code from URL parameter
+        try {
+          const url = new URL(result);
+          code = url.searchParams.get('code');
+          console.log("Extracted code from URL:", code);
+        } catch (e) {
+          // If URL parsing fails, try regex
+          const match = result.match(/[?&]code=([^&]+)/);
+          if (match) {
+            code = match[1];
+            console.log("Extracted code using regex:", code);
+          }
+        }
       }
+      
+      // If no code parameter found, use the entire result as a SGTIN
+      if (!code) {
+        code = result;
+        console.log("Using full result as code:", code);
+      }
+      
+      handleVerification(code);
     } catch (e) {
+      console.error("Error processing scan result:", e);
       // If not a URL, try using the entire result as a SGTIN
       handleVerification(result);
     }
   };
 
   const handleVerification = (code: string) => {
+    console.log("Verifying code:", code);
     // First ensure the code is not empty
     if (!code || code.trim() === '') {
       toast.error('Invalid QR code or SGTIN');

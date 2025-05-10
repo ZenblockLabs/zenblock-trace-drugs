@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DrugTraceability } from "@/services/types/TrackingTypes";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export function useDrugTracking(code: string | null) {
   const [data, setData] = useState<DrugTraceability | null>(null);
@@ -39,6 +40,8 @@ export function useDrugTracking(code: string | null) {
         
         setIsFiltered(role !== null && role !== 'regulator');
         
+        console.log("Fetching drug data with code:", code, "role:", role);
+        
         // Using correctly formatted Supabase Edge Function invocation
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
           method: 'POST',
@@ -49,14 +52,23 @@ export function useDrugTracking(code: string | null) {
           body: { code, role }
         });
 
+        console.log("Edge function response:", responseData, responseError);
+
         if (responseError) {
-          throw new Error(responseError.message);
+          console.error("Edge function error:", responseError);
+          throw new Error(responseError.message || "Failed to fetch drug data");
+        }
+
+        if (!responseData) {
+          throw new Error("No data returned from the server");
         }
 
         setData(responseData);
       } catch (err) {
         console.error("Error fetching drug traceability data:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch drug data");
+        const errorMessage = err instanceof Error ? err.message : "Failed to fetch drug data";
+        setError(errorMessage);
+        toast.error("Error: " + errorMessage);
       } finally {
         setLoading(false);
       }
@@ -76,6 +88,7 @@ export function useDrugTracking(code: string | null) {
         minute: '2-digit' 
       });
     } catch (e) {
+      console.error("Error formatting date:", e);
       return dateString;
     }
   };
