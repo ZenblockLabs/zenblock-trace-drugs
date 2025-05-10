@@ -22,6 +22,7 @@ export function useDrugTracking(code: string | null) {
 
       try {
         setLoading(true);
+        setError(null);
         
         // Determine user role for filtering
         let role = null;
@@ -42,17 +43,34 @@ export function useDrugTracking(code: string | null) {
         
         console.log("Fetching drug data with code:", code, "role:", role);
         
-        // Using correctly formatted Supabase Edge Function invocation
+        // Try GET request first
+        try {
+          const params = new URLSearchParams();
+          params.append('code', code);
+          if (role) params.append('role', role);
+          
+          const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
+            method: 'GET',
+            queryParams: { code, role: role || undefined },
+          });
+          
+          if (responseData && !responseError) {
+            console.log("Edge function GET response:", responseData);
+            setData(responseData);
+            return;
+          }
+        } catch (getError) {
+          console.log("GET request failed, trying POST:", getError);
+          // Continue to try POST if GET fails
+        }
+        
+        // Using POST request as backup
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          // Pass the code and role as body parameters
           body: { code, role }
         });
 
-        console.log("Edge function response:", responseData, responseError);
+        console.log("Edge function POST response:", responseData, responseError);
 
         if (responseError) {
           console.error("Edge function error:", responseError);

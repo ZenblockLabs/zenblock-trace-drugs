@@ -2,7 +2,9 @@
 // Define CORS headers directly instead of importing them
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json',
 };
 
 // Define DrugTraceability type inline to avoid import problems
@@ -125,11 +127,6 @@ export async function getTraceabilityData(code: string, userRole?: string): Prom
 export async function handleRequest(req: Request): Promise<Response> {
   console.log("Received track-drug request:", req.method);
   
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
   try {
     let code: string | null = null;
     let userRole: string | null = null;
@@ -144,16 +141,26 @@ export async function handleRequest(req: Request): Promise<Response> {
     } else if (req.method === "POST") {
       // Get the code from the request body
       try {
-        const body = await req.json();
-        code = body.code || null;
-        userRole = body.role || null;
-        console.log("POST request with body:", { code, role: userRole });
+        const contentType = req.headers.get("content-type") || "";
+        
+        if (contentType.includes("application/json")) {
+          const body = await req.json();
+          code = body.code || null;
+          userRole = body.role || null;
+          console.log("POST request with JSON body:", { code, role: userRole });
+        } else {
+          // Handle form data or other content types if needed
+          const formData = await req.formData();
+          code = formData.get("code") as string;
+          userRole = formData.get("role") as string;
+          console.log("POST request with form data:", { code, role: userRole });
+        }
       } catch (e) {
-        console.error("Error parsing JSON body:", e);
+        console.error("Error parsing request body:", e);
         return new Response(
-          JSON.stringify({ error: "Invalid JSON in request body" }),
+          JSON.stringify({ error: "Invalid request body" }),
           {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: corsHeaders,
             status: 400,
           }
         );
@@ -165,7 +172,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       return new Response(
         JSON.stringify({ error: "No tracking code provided" }),
         {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: corsHeaders,
           status: 400,
         }
       );
@@ -177,7 +184,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     return new Response(
       JSON.stringify(data),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: corsHeaders,
         status: 200,
       }
     );
@@ -186,7 +193,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     return new Response(
       JSON.stringify({ error: error.message || "An error occurred" }),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: corsHeaders,
         status: 500,
       }
     );
