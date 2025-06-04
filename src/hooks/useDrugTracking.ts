@@ -43,34 +43,12 @@ export function useDrugTracking(code: string | null) {
         
         console.log("Fetching drug data with code:", code, "role:", role);
         
-        // Try GET request first
-        try {
-          const params = new URLSearchParams();
-          params.append('code', code);
-          if (role) params.append('role', role);
-          
-          const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
-            method: 'GET',
-            queryParams: { code, role: role || undefined },
-          });
-          
-          if (responseData && !responseError) {
-            console.log("Edge function GET response:", responseData);
-            setData(responseData);
-            return;
-          }
-        } catch (getError) {
-          console.log("GET request failed, trying POST:", getError);
-          // Continue to try POST if GET fails
-        }
-        
-        // Using POST request as backup
+        // Use POST request to call the edge function
         const { data: responseData, error: responseError } = await supabase.functions.invoke('track-drug', {
-          method: 'POST',
           body: { code, role }
         });
 
-        console.log("Edge function POST response:", responseData, responseError);
+        console.log("Edge function response:", responseData, responseError);
 
         if (responseError) {
           console.error("Edge function error:", responseError);
