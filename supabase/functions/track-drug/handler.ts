@@ -31,9 +31,57 @@ interface DrugTraceability {
   };
 }
 
-// Mock data for demo purposes
+// Connect to external pharma flow API
 export async function getTraceabilityData(code: string, userRole?: string): Promise<DrugTraceability> {
-  // In a real implementation, this would query the blockchain
+  const apiBaseUrl = 'https://pharma-flow-sim.lovable.app';
+  
+  try {
+    console.log(`Fetching data from external API for code: ${code}, role: ${userRole || 'none'}`);
+    
+    // Try to fetch data from the external API
+    const apiUrl = new URL(`${apiBaseUrl}/api/track`);
+    apiUrl.searchParams.set('code', code);
+    if (userRole) {
+      apiUrl.searchParams.set('role', userRole);
+    }
+    
+    console.log(`Making request to: ${apiUrl.toString()}`);
+    
+    const response = await fetch(apiUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    console.log(`API response status: ${response.status}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('API response data:', data);
+      
+      // Return the data if it matches our expected structure
+      if (data && data.drug && data.events && data.status) {
+        return data;
+      }
+    }
+    
+    // If API call fails or returns unexpected data, log and fall back
+    console.log('API call failed or returned unexpected data, falling back to mock data');
+    
+  } catch (error) {
+    console.error('Error calling external API:', error);
+    console.log('Falling back to mock data due to API error');
+  }
+  
+  // Fallback to mock data if API fails
+  return getMockData(code, userRole);
+}
+
+// Fallback mock data function
+function getMockData(code: string, userRole?: string): DrugTraceability {
+  console.log('Using fallback mock data');
   
   // Check if the drug is recalled
   const isRecalled = code.includes("RECALL") || Math.random() < 0.1;
