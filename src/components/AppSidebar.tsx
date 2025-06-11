@@ -1,219 +1,102 @@
-
-import { useAuth } from "@/context/AuthContext";
-import { 
-  Sidebar, 
-  SidebarHeader, 
-  SidebarContent,
-  SidebarMenu, 
-  SidebarMenuButton, 
-  SidebarMenuItem,
-  SidebarFooter,
-  SidebarMenuSub
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { 
-  LayoutDashboard, 
-  Package, 
-  History, 
-  LogOut, 
-  Users, 
-  Settings,
-  FileText,
-  Database,
-  Package2,
-  Link,
+import {
+  Home,
+  Search,
+  Package,
+  Plus,
+  History,
   ShieldCheck,
   AlertTriangle,
-  LucideIcon
-} from "lucide-react";
-import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+  Package2,
+  Globe,
+  Shield,
+  Settings,
+} from "lucide-react"
 
-// Define a consistent type for sidebar menu items
-interface SidebarItem {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-  roles?: string[];
-}
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+
+// Menu items.
+const items = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Track Product",
+    url: "/track",
+    icon: Search,
+  },
+  {
+    title: "Drug Registry",
+    url: "/drugs",
+    icon: Package,
+  },
+  {
+    title: "Register Drug",
+    url: "/register-drug",
+    icon: Plus,
+  },
+  {
+    title: "History",
+    url: "/history",
+    icon: History,
+  },
+  {
+    title: "Compliance",
+    url: "/compliance",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Recall Reports",
+    url: "/recall-reports",
+    icon: AlertTriangle,
+  },
+  {
+    title: "Batch Processing", 
+    url: "/batch-processing",
+    icon: Package2,
+  },
+  {
+    title: "Network Explorer",
+    url: "/explorer",
+    icon: Globe,
+  },
+  {
+    title: "Verify Drug",
+    url: "/verify", 
+    icon: Shield,
+  },
+  {
+    title: "API Test",
+    url: "/api-test",
+    icon: Settings,
+  },
+]
 
 export function AppSidebar() {
-  const { user, logout } = useAuth();
-  const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  // Define sidebar items based on user role
-  const getRoleBasedItems = (): SidebarItem[] => {
-    if (!user) return [];
-    
-    const commonItems: SidebarItem[] = [
-      {
-        title: "Dashboard",
-        url: "/dashboard",
-        icon: LayoutDashboard,
-      },
-      {
-        title: "Drugs",
-        url: "/drugs",
-        icon: Package,
-      },
-      {
-        title: "History",
-        url: "/history",
-        icon: History,
-      },
-      {
-        title: "Explorer",
-        url: "/explorer",
-        icon: Link,
-      },
-      {
-        title: "Compliance",
-        url: "/compliance",
-        icon: ShieldCheck,
-      }
-    ];
-    
-    // Role-specific items
-    switch (user.role) {
-      case "manufacturer":
-        return [
-          ...commonItems,
-          {
-            title: "Register Drug",
-            url: "/register-drug",
-            icon: Package2,
-          },
-          {
-            title: "Recalls",
-            url: "/recalls",
-            icon: AlertTriangle,
-            roles: ["manufacturer", "regulator"]
-          }
-        ];
-      case "distributor":
-        return commonItems;
-      case "dispenser":
-        return commonItems;
-      case "regulator":
-        return [
-          ...commonItems,
-          {
-            title: "Reports",
-            url: "/reports",
-            icon: FileText,
-          },
-          {
-            title: "Recalls",
-            url: "/recalls",
-            icon: AlertTriangle,
-            roles: ["regulator", "manufacturer"]
-          }
-        ];
-      default:
-        return commonItems;
-    }
-  };
-  
-  const items = getRoleBasedItems();
-
-  // Function to get initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase();
-  };
-
-  // Role badge color
-  const getRoleBadgeColor = () => {
-    if (!user) return "bg-gray-200";
-    
-    switch (user.role) {
-      case "manufacturer":
-        return "bg-blue-100 text-blue-800";
-      case "distributor":
-        return "bg-green-100 text-green-800";
-      case "dispenser":
-        return "bg-purple-100 text-purple-800";
-      case "regulator":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
-    <Sidebar collapsible="offcanvas">
-      <SidebarHeader>
-        <RouterLink to="/dashboard" className="flex items-center gap-2">
-          <img 
-            src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
-            alt="Zenblock Labs Logo" 
-            className="h-8 w-8" 
-          />
-          <span className="font-bold text-xl">Zenblock</span>
-        </RouterLink>
-      </SidebarHeader>
-      
+    <Sidebar>
       <SidebarContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton isActive={isActive(item.url)} asChild>
-                <RouterLink to={item.url}>
-                  {/* Use the icon as a component properly */}
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </RouterLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title} title={item.title} url={item.url} icon={item.icon} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
-      
-      <SidebarFooter>
-        {user && (
-          <div className="px-3 py-2">
-            <div className="flex items-center gap-3 rounded-md border p-2">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-              </Avatar>
-              
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-medium leading-none truncate">
-                  {user.name}
-                </span>
-                <span className={`mt-1 text-xs px-1.5 py-0.5 rounded-sm inline-block ${getRoleBadgeColor()}`}>
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                </span>
-              </div>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="ml-auto h-8 w-8"
-                    onClick={logout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="sr-only">Log out</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Log out</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-        )}
-      </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

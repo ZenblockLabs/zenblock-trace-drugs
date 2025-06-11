@@ -1,67 +1,56 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Layout } from "@/components/Layout";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
-import { LoginPage } from "@/pages/LoginPage";
-import { DashboardPage } from "@/pages/DashboardPage";
-import { DrugsPage } from "@/pages/DrugsPage";
-import { DrugDetailsPage } from "@/pages/DrugDetailsPage";
-import { RegisterDrugPage } from "@/pages/RegisterDrugPage";
-import { HistoryPage } from "@/pages/HistoryPage";
-import { ExplorerPage } from "@/pages/ExplorerPage";
-import { CompliancePage } from "@/pages/CompliancePage";
-import { VerifyDrugPage } from "@/pages/VerifyDrugPage";
-import { BatchProcessingPage } from "@/pages/BatchProcessingPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { RecallReportsPage } from "./pages/RecallReportsPage";
-import { TrackPage } from "./pages/TrackPage";
+import Layout from "@/components/Layout";
+import Index from "./pages/Index";
+import TrackPage from "./pages/TrackPage";
+import DrugsPage from "./pages/DrugsPage";
+import RegisterDrugPage from "./pages/RegisterDrugPage";
+import HistoryPage from "./pages/HistoryPage";
+import CompliancePage from "./pages/CompliancePage";
+import RecallReportsPage from "./pages/RecallReportsPage";
+import BatchProcessingPage from "./pages/BatchProcessingPage";
+import DashboardPage from "./pages/DashboardPage";
+import ExplorerPage from "./pages/ExplorerPage";
+import VerifyDrugPage from "./pages/VerifyDrugPage";
+import DrugDetailsPage from "./pages/DrugDetailsPage";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import ApiTestPage from "./pages/ApiTestPage";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
         <BrowserRouter>
-          <Toaster />
-          <Sonner />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            
-            {/* Public tracking page - accessible without login */}
-            <Route path="/track" element={<TrackPage />} />
-            
-            {/* Protected Routes */}
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/drugs" element={<DrugsPage />} />
-              <Route path="/drugs/:id" element={<DrugDetailsPage />} />
-              <Route path="/register-drug" element={<RegisterDrugPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/explorer" element={<ExplorerPage />} />
-              <Route path="/compliance" element={<CompliancePage />} />
-              <Route path="/verify" element={<VerifyDrugPage />} />
-              <Route path="/batch-processing" element={<BatchProcessingPage />} />
-              <Route path="/recalls" element={<RecallReportsPage />} />
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Index />} />
+              <Route path="track" element={<TrackPage />} />
+              <Route path="drugs" element={<DrugsPage />} />
+              <Route path="register-drug" element={<RegisterDrugPage />} />
+              <Route path="history" element={<HistoryPage />} />
+              <Route path="compliance" element={<CompliancePage />} />
+              <Route path="recall-reports" element={<RecallReportsPage />} />
+              <Route path="batch-processing" element={<BatchProcessingPage />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="explorer" element={<ExplorerPage />} />
+              <Route path="verify" element={<VerifyDrugPage />} />
+              <Route path="drug/:id" element={<DrugDetailsPage />} />
+              <Route path="api-test" element={<ApiTestPage />} />
             </Route>
-            
-            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
