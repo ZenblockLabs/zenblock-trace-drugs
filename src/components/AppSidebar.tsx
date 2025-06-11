@@ -12,6 +12,9 @@ import {
   Shield,
   Settings,
   Database,
+  Truck,
+  Activity,
+  Cog,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -49,6 +52,11 @@ const items = [
     icon: Plus,
   },
   {
+    title: "Shipments",
+    url: "/shipments",
+    icon: Truck,
+  },
+  {
     title: "History",
     url: "/history",
     icon: History,
@@ -82,6 +90,16 @@ const items = [
     title: "ERP Integration",
     url: "/erp-integration",
     icon: Database,
+  },
+  {
+    title: "Blockchain Status",
+    url: "/blockchain-status",
+    icon: Activity,
+  },
+  {
+    title: "Configuration",
+    url: "/configuration",
+    icon: Cog,
   },
   {
     title: "API Test",

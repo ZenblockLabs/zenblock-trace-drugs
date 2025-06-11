@@ -20,6 +20,9 @@ import { DrugDetailsPage } from "./pages/DrugDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ERPIntegrationPage } from "./pages/ERPIntegrationPage";
+import { ShipmentsPage } from "./pages/ShipmentsPage";
+import { BlockchainStatusPage } from "./pages/BlockchainStatusPage";
+import { ConfigurationPage } from "./pages/ConfigurationPage";
 import ApiTestPage from "./pages/ApiTestPage";
 
 const queryClient = new QueryClient();
@@ -47,6 +50,9 @@ const App = () => (
               <Route path="drug/:id" element={<DrugDetailsPage />} />
               <Route path="erp-integration" element={<ERPIntegrationPage />} />
               <Route path="api-test" element={<ApiTestPage />} />
+              <Route path="shipments" element={<ShipmentsPage />} />
+              <Route path="blockchain-status" element={<BlockchainStatusPage />} />
+              <Route path="configuration" element={<ConfigurationPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
