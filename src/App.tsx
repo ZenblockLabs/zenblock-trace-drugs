@@ -19,7 +19,7 @@ import { VerifyDrugPage } from "./pages/VerifyDrugPage";
 import { DrugDetailsPage } from "./pages/DrugDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { ApiTestPage } from "./pages/ApiTestPage";
+import ApiTestPage from "./pages/ApiTestPage";
 
 const queryClient = new QueryClient();
 
