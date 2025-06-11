@@ -12,6 +12,7 @@ import {
   Shield,
   Settings,
 } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import {
   Sidebar,
@@ -94,10 +95,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
