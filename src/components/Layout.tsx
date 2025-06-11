@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { Button } from "@/components/ui/button";
-import { ScanBarcode, QrCode } from "lucide-react";
+import { ScanBarcode, QrCode, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
@@ -16,7 +16,7 @@ import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { QRCodeScanDialog } from "@/components/compliance/QRCodeScanDialog";
 
 export const Layout = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
   const [barcodeResult, setBarcodeResult] = useState("");
@@ -89,6 +89,11 @@ export const Layout = () => {
       default:
         return "Scan QR Code";
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -170,7 +175,22 @@ export const Layout = () => {
                 onScanComplete={handleQRScan} 
               />
             </div>
-            <NetworkStatusIndicator />
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {user?.name} ({user?.role})
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-1"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+              <NetworkStatusIndicator />
+            </div>
           </div>
           <Outlet />
         </main>
