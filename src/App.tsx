@@ -19,6 +19,7 @@ import { VerifyDrugPage } from "./pages/VerifyDrugPage";
 import { DrugDetailsPage } from "./pages/DrugDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ERPIntegrationPage } from "./pages/ERPIntegrationPage";
 import ApiTestPage from "./pages/ApiTestPage";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="explorer" element={<ExplorerPage />} />
               <Route path="verify" element={<VerifyDrugPage />} />
               <Route path="drug/:id" element={<DrugDetailsPage />} />
+              <Route path="erp-integration" element={<ERPIntegrationPage />} />
               <Route path="api-test" element={<ApiTestPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />

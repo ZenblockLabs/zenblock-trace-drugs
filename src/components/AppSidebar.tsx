@@ -11,6 +11,7 @@ import {
   Globe,
   Shield,
   Settings,
+  Database,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -76,6 +77,11 @@ const items = [
     title: "Verify Drug",
     url: "/verify", 
     icon: Shield,
+  },
+  {
+    title: "ERP Integration",
+    url: "/erp-integration",
+    icon: Database,
   },
   {
     title: "API Test",
