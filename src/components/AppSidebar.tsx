@@ -1,3 +1,4 @@
+
 import {
   Home,
   Search,
@@ -91,7 +92,14 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title} title={item.title} url={item.url} icon={item.icon} />
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
