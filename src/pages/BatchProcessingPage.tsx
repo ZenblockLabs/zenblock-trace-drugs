@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarcodeScanner } from '@/components/BarcodeScanner';
 import { BatchImportModal } from '@/components/BatchImportModal';
+import { ERPBatchDetails } from '@/components/batch/ERPBatchDetails';
 import { toast } from 'sonner';
 import { Package, Upload, BarChart3, ArrowRight, CheckCircle } from 'lucide-react';
 
@@ -16,6 +16,9 @@ export const BatchProcessingPage = () => {
     timestamp: string;
     status: 'verified' | 'pending' | 'error';
   }[]>([]);
+
+  // Mock user role - in production this would come from auth context
+  const userRole = 'Manufacturer'; // This could be 'Distributor', 'Dispenser', 'Regulator'
 
   const handleDemoScan = () => {
     // Simulate batch scanning
@@ -93,7 +96,7 @@ export const BatchProcessingPage = () => {
           <TabsTrigger value="results">Results</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="scan" className="mt-6">
+        <TabsContent value="scan" className="mt-6 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Scan Individual Barcodes</CardTitle>
@@ -127,6 +130,9 @@ export const BatchProcessingPage = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* New ERP Batch Details Section */}
+          <ERPBatchDetails userRole={userRole} />
         </TabsContent>
         
         <TabsContent value="batch" className="mt-6">
