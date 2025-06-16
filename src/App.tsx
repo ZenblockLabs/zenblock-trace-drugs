@@ -23,6 +23,7 @@ import { ERPIntegrationPage } from "./pages/ERPIntegrationPage";
 import { ShipmentsPage } from "./pages/ShipmentsPage";
 import { BlockchainStatusPage } from "./pages/BlockchainStatusPage";
 import { ConfigurationPage } from "./pages/ConfigurationPage";
+import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="shipments" element={<ShipmentsPage />} />
               <Route path="blockchain-status" element={<BlockchainStatusPage />} />
               <Route path="configuration" element={<ConfigurationPage />} />
+              <Route path="network-admin" element={<NetworkAdminPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

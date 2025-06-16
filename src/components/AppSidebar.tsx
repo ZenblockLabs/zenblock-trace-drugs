@@ -15,6 +15,7 @@ import {
   Truck,
   Activity,
   Cog,
+  Network,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -100,6 +101,11 @@ const items = [
     title: "Configuration",
     url: "/configuration",
     icon: Cog,
+  },
+  {
+    title: "Network Admin",
+    url: "/network-admin",
+    icon: Network,
   },
   {
     title: "API Test",

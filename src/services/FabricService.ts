@@ -1,3 +1,4 @@
+
 import { BaseBlockchainService } from './BaseBlockchainService';
 import { Drug, TrackingEvent, ComplianceReport } from './types';
 import { NetworkService } from './fabric/NetworkService';
@@ -5,12 +6,12 @@ import { DrugService } from './fabric/DrugService';
 import { EventService } from './fabric/EventService';
 import { TransferService } from './fabric/TransferService';
 import { RecallService } from './fabric/RecallService';
-import { FabricGateway } from './fabric/FabricGateway';
+import { EnhancedFabricGateway } from './fabric/EnhancedFabricGateway';
 
 export class FabricService extends BaseBlockchainService {
   private endpoint: string;
   private token: string | null;
-  private gateway: FabricGateway;
+  private gateway: EnhancedFabricGateway;
   
   private networkService: NetworkService;
   private drugService: DrugService;
@@ -24,8 +25,8 @@ export class FabricService extends BaseBlockchainService {
     this.token = token;
     this.gatewayConnected = false;
     
-    // Initialize Fabric gateway
-    this.gateway = new FabricGateway();
+    // Initialize Enhanced Fabric gateway
+    this.gateway = new EnhancedFabricGateway();
     
     // Initialize services
     this.networkService = new NetworkService();
@@ -39,17 +40,17 @@ export class FabricService extends BaseBlockchainService {
     try {
       console.log('FabricService: Attempting to connect to Hyperledger Fabric...');
       
-      // Try to connect via the new gateway first
+      // Try to connect via the enhanced gateway first
       const gatewayConnected = await this.gateway.connect();
       
       if (gatewayConnected) {
-        console.log('FabricService: Connected via Fabric Gateway');
+        console.log('FabricService: Connected via Enhanced Fabric Gateway');
         this.gatewayConnected = true;
         return true;
       }
       
       // Fallback to network service
-      console.log('FabricService: Gateway failed, trying network service...');
+      console.log('FabricService: Enhanced gateway failed, trying network service...');
       const networkConnected = await this.networkService.connect();
       this.gatewayConnected = networkConnected;
       
@@ -78,9 +79,12 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      console.log('FabricService: Using gateway for drug registration');
-      const transaction = await this.gateway.submitTransaction('RegisterDrug', [JSON.stringify(drugData)]);
-      return transaction.payload.result as Drug;
+      console.log('FabricService: Using enhanced gateway for drug registration');
+      const transaction = await this.gateway.submitTransaction({
+        fcn: 'RegisterDrug',
+        args: [JSON.stringify(drugData)]
+      });
+      return transaction.payload as Drug;
     }
     
     return this.drugService.registerDrug(drugData);
@@ -90,7 +94,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetAllDrugs', []);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetAllDrugs', args: [] });
     }
     
     return this.drugService.getAllDrugs();
@@ -100,7 +104,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetDrugsByOwner', [ownerId]);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetDrugsByOwner', args: [ownerId] });
     }
     
     return this.drugService.getDrugsByOwner(ownerId);
@@ -110,7 +114,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('ReadDrug', [id]);
+      return await this.gateway.evaluateTransaction({ fcn: 'ReadDrug', args: [id] });
     }
     
     return this.drugService.getDrugById(id);
@@ -120,7 +124,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetDrugBySGTIN', [sgtin]);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetDrugBySGTIN', args: [sgtin] });
     }
     
     return this.drugService.getDrugBySGTIN(sgtin);
@@ -130,7 +134,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetDrugDetails', [sgtin]);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetDrugDetails', args: [sgtin] });
     }
     
     return this.drugService.getDrugDetailsBySGTIN(sgtin);
@@ -140,8 +144,11 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      const transaction = await this.gateway.submitTransaction('CreateEvent', [JSON.stringify(eventData)]);
-      return transaction.payload.result as TrackingEvent;
+      const transaction = await this.gateway.submitTransaction({
+        fcn: 'CreateEvent',
+        args: [JSON.stringify(eventData)]
+      });
+      return transaction.payload as TrackingEvent;
     }
     
     return this.eventService.createEvent(eventData);
@@ -151,7 +158,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetEventsByDrug', [drugId]);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetEventsByDrug', args: [drugId] });
     }
     
     return this.eventService.getEventsByDrug(drugId);
@@ -161,7 +168,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetAllEvents', []);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetAllEvents', args: [] });
     }
     
     return this.eventService.getAllEvents();
@@ -171,7 +178,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('GetRecentEvents', [limit.toString()]);
+      return await this.gateway.evaluateTransaction({ fcn: 'GetRecentEvents', args: [limit.toString()] });
     }
     
     return this.eventService.getRecentEvents(limit);
@@ -190,8 +197,11 @@ export class FabricService extends BaseBlockchainService {
     
     if (this.gateway.isConnected()) {
       const transferData = { drugId, fromId, toId, toName, toRole, location, details };
-      const transaction = await this.gateway.submitTransaction('TransferDrug', [JSON.stringify(transferData)]);
-      return transaction.payload.result as boolean;
+      const transaction = await this.gateway.submitTransaction({
+        fcn: 'TransferDrug',
+        args: [JSON.stringify(transferData)]
+      });
+      return transaction.payload as boolean;
     }
     
     return this.transferService.transferDrug(drugId, fromId, toId, toName, toRole, location, details);
@@ -209,8 +219,11 @@ export class FabricService extends BaseBlockchainService {
     
     if (this.gateway.isConnected()) {
       const receiveData = { drugId, receiverId, receiverName, receiverRole, location, details };
-      const transaction = await this.gateway.submitTransaction('ReceiveDrug', [JSON.stringify(receiveData)]);
-      return transaction.payload.result as boolean;
+      const transaction = await this.gateway.submitTransaction({
+        fcn: 'ReceiveDrug',
+        args: [JSON.stringify(receiveData)]
+      });
+      return transaction.payload as boolean;
     }
     
     return this.transferService.receiveDrug(drugId, receiverId, receiverName, receiverRole, location, details);
@@ -221,8 +234,11 @@ export class FabricService extends BaseBlockchainService {
     
     if (this.gateway.isConnected()) {
       const recallData = { sgtin, reason, initiator, timestamp: new Date().toISOString() };
-      const transaction = await this.gateway.submitTransaction('InitiateRecall', [JSON.stringify(recallData)]);
-      return transaction.payload.result as boolean;
+      const transaction = await this.gateway.submitTransaction({
+        fcn: 'InitiateRecall',
+        args: [JSON.stringify(recallData)]
+      });
+      return transaction.payload as boolean;
     }
     
     return this.recallService.initiateRecall(sgtin, reason, initiator);
@@ -232,7 +248,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      return await this.gateway.evaluateTransaction('IsRecalled', [sgtin]);
+      return await this.gateway.evaluateTransaction({ fcn: 'IsRecalled', args: [sgtin] });
     }
     
     return this.recallService.checkRecallStatus(sgtin);
@@ -242,7 +258,7 @@ export class FabricService extends BaseBlockchainService {
     await this.ensureConnection();
     
     if (this.gateway.isConnected()) {
-      const report = await this.gateway.evaluateTransaction('GetComplianceReport', []);
+      const report = await this.gateway.evaluateTransaction({ fcn: 'GetComplianceReport', args: [] });
       return report as ComplianceReport;
     }
     
@@ -261,11 +277,17 @@ export class FabricService extends BaseBlockchainService {
     };
   }
 
-  // New method to get gateway connection status
-  getGatewayStatus(): { connected: boolean; mode: string } {
+  // Enhanced method to get gateway connection status
+  getGatewayStatus(): { connected: boolean; mode: string; networkInfo?: any } {
     return {
       connected: this.gateway.isConnected(),
-      mode: this.gateway.isConnected() ? 'fabric-gateway' : 'mock-service'
+      mode: this.gateway.isConnected() ? 'enhanced-fabric-gateway' : 'mock-service',
+      networkInfo: this.gateway.isConnected() ? this.gateway.getNetworkInfo() : null
     };
+  }
+
+  // New method to get the enhanced gateway instance for admin purposes
+  getEnhancedGateway(): EnhancedFabricGateway {
+    return this.gateway;
   }
 }
