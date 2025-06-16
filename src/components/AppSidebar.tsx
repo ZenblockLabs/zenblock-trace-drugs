@@ -1,4 +1,3 @@
-
 import {
   Home,
   Search,
@@ -66,6 +65,11 @@ const items = [
     title: "Compliance",
     url: "/compliance",
     icon: ShieldCheck,
+  },
+  {
+    title: "Compliance Integration",
+    url: "/compliance-integration",
+    icon: Globe,
   },
   {
     title: "Recall Reports",

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,6 +24,7 @@ import { BlockchainStatusPage } from "./pages/BlockchainStatusPage";
 import { ConfigurationPage } from "./pages/ConfigurationPage";
 import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
+import ComplianceIntegrationPage from "./pages/ComplianceIntegrationPage";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +55,7 @@ const App = () => (
               <Route path="blockchain-status" element={<BlockchainStatusPage />} />
               <Route path="configuration" element={<ConfigurationPage />} />
               <Route path="network-admin" element={<NetworkAdminPage />} />
+              <Route path="compliance-integration" element={<ComplianceIntegrationPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
