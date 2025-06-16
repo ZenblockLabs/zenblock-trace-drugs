@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Loader2, RefreshCw, AlertCircle, Link2, CloudUpload } from 'lucide-react';
 import { toast } from 'sonner';
+import { useERPBlockchainSync } from '@/hooks/useERPBlockchainSync';
 
 interface ERPBatch {
   batchId: string;
@@ -24,6 +24,12 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
   const [batches, setBatches] = useState<ERPBatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { 
+    syncBatchToBlockchain, 
+    syncAllBatchesToBlockchain, 
+    isBatchSyncing 
+  } = useERPBlockchainSync();
 
   const fetchERPBatches = async () => {
     setLoading(true);
@@ -120,6 +126,14 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
     }
   };
 
+  const handleSyncBatch = async (batch: ERPBatch) => {
+    await syncBatchToBlockchain(batch.batchId, batch);
+  };
+
+  const handleSyncAllBatches = async () => {
+    await syncAllBatchesToBlockchain(batches);
+  };
+
   useEffect(() => {
     fetchERPBatches();
   }, [userRole]);
@@ -155,24 +169,43 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Batch Details from ERP</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Batch Details from ERP
+            <Badge variant="outline" className="text-xs">
+              <Link2 className="h-3 w-3 mr-1" />
+              Blockchain Sync Available
+            </Badge>
+          </CardTitle>
           <CardDescription>
             {getRoleSpecificTitle(userRole)} - Real-time data from external ERP system
           </CardDescription>
         </div>
-        <Button 
-          onClick={fetchERPBatches} 
-          disabled={loading}
-          variant="outline" 
-          size="sm"
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
+        <div className="flex gap-2">
+          <Button 
+            onClick={fetchERPBatches} 
+            disabled={loading}
+            variant="outline" 
+            size="sm"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Refresh Data
+          </Button>
+          {batches.length > 0 && (
+            <Button 
+              onClick={handleSyncAllBatches}
+              disabled={loading}
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <CloudUpload className="h-4 w-4 mr-1" />
+              Sync All to Blockchain
+            </Button>
           )}
-          Refresh Data
-        </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {error && (
@@ -198,6 +231,7 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Facility</TableHead>
+                  <TableHead className="text-center">Blockchain Sync</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -214,11 +248,26 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
                       </TableCell>
                       <TableCell>{new Date(batch.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>{batch.facility}</TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          onClick={() => handleSyncBatch(batch)}
+                          disabled={isBatchSyncing(batch.batchId)}
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2"
+                        >
+                          {isBatchSyncing(batch.batchId) ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <CloudUpload className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       No batch data available for {userRole.toLowerCase()}
                     </TableCell>
                   </TableRow>
