@@ -24,7 +24,7 @@ import { BlockchainStatusPage } from "./pages/BlockchainStatusPage";
 import { ConfigurationPage } from "./pages/ConfigurationPage";
 import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
-import ComplianceIntegrationPage from "./pages/ComplianceIntegrationPage";
+import { ComplianceIntegrationPage } from "./pages/ComplianceIntegrationPage";
 
 const queryClient = new QueryClient();
 
