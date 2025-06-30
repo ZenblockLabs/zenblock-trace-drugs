@@ -22,7 +22,7 @@ export const useSecurityAudit = () => {
         p_resource_type: event.resourceType,
         p_resource_id: event.resourceId || null,
         p_details: event.details || null
-      });
+      } as any);
       
       if (error) {
         console.error('Failed to log security event:', error);
