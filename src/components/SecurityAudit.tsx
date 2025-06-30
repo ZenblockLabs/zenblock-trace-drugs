@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/AuthContext';
 import { getOrganizationFromEmail } from '@/hooks/useAuth';
 
 interface SecurityEvent {
@@ -18,12 +18,16 @@ export const useSecurityAudit = () => {
     if (!user) return;
 
     try {
-      await supabase.rpc('log_security_event', {
+      const { error } = await supabase.rpc('log_security_event', {
         p_action: event.action,
         p_resource_type: event.resourceType,
         p_resource_id: event.resourceId || null,
         p_details: event.details || null
       });
+      
+      if (error) {
+        console.error('Failed to log security event:', error);
+      }
     } catch (error) {
       console.error('Failed to log security event:', error);
     }

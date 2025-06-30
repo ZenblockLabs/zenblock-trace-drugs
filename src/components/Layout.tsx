@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { QRCodeScanDialog } from "@/components/compliance/QRCodeScanDialog";
 
-export const Layout = () => {
+const Layout = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
@@ -199,3 +199,5 @@ export const Layout = () => {
     </SidebarProvider>
   );
 };
+
+export default Layout;
