@@ -1,13 +1,16 @@
-
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getBlockchainService, isUsingMockService } from '@/services/blockchainServiceFactory';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainConfig } from '@/components/BlockchainConfig';
 import { Activity, DollarSign, Package, TrendingUp, AlertTriangle } from 'lucide-react';
+import { usePageAccessLog } from '@/components/SecurityAudit';
 
 export const DashboardPage = () => {
   const [usingMock, setUsingMock] = useState(false);
+  
+  // Log page access for security audit
+  usePageAccessLog('dashboard');
   
   // Get blockchain service status
   useEffect(() => {

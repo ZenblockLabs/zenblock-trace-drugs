@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
@@ -12,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Truck, Package, MapPin, Clock, Plus, Eye, CheckCircle, AlertTriangle } from "lucide-react";
+import { usePageAccessLog, useSecurityAudit } from "@/components/SecurityAudit";
+import { validateInput, drugIdSchema, organizationIdSchema, safeTextSchema } from "@/components/InputValidator";
 
 interface Shipment {
   id: string;
@@ -34,6 +35,11 @@ interface Shipment {
 export const ShipmentsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { logSecurityEvent } = useSecurityAudit();
+  
+  // Log page access for security audit
+  usePageAccessLog('shipments');
+  
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -126,6 +132,17 @@ export const ShipmentsPage = () => {
           return shipment.fromId === userOrgId || shipment.toId === userOrgId;
         });
         setShipments(filteredShipments);
+        
+        // Log shipments access
+        logSecurityEvent({
+          action: 'shipments_viewed',
+          resourceType: 'shipments',
+          details: { 
+            userRole, 
+            userOrgId, 
+            shipmentsCount: filteredShipments.length 
+          }
+        });
       } catch (error) {
         console.error("Failed to load shipments:", error);
         toast({
@@ -141,7 +158,7 @@ export const ShipmentsPage = () => {
     if (userOrgId) {
       loadShipments();
     }
-  }, [userOrgId, userRole, toast]);
+  }, [userOrgId, userRole, toast, logSecurityEvent]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -157,24 +174,43 @@ export const ShipmentsPage = () => {
     try {
       const service = await getBlockchainService(user?.email);
       
+      // Validate form inputs
+      const drugsInput = formData.get('drugs') as string;
+      const toName = formData.get('toName') as string;
+      const toId = formData.get('toId') as string;
+      const notes = formData.get('notes') as string;
+      
+      // Validate inputs
+      const drugsValidation = validateInput(safeTextSchema, drugsInput);
+      const toNameValidation = validateInput(safeTextSchema, toName);
+      const toIdValidation = validateInput(organizationIdSchema, toId);
+      
+      if (!drugsValidation.isValid || !toNameValidation.isValid || !toIdValidation.isValid) {
+        toast({
+          title: "Validation Error",
+          description: "Please check your input for invalid characters",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       const newShipment: Shipment = {
         id: `S-${Date.now()}`,
-        drugs: (formData.get('drugs') as string).split(',').map(d => d.trim()),
+        drugs: drugsInput.split(',').map(d => d.trim()),
         fromName: formData.get('fromName') as string,
         fromId: userOrgId,
         fromRole: userRole,
-        toName: formData.get('toName') as string,
-        toId: formData.get('toId') as string,
+        toName: toName,
+        toId: toId,
         toRole: formData.get('toRole') as string,
         status: 'created',
         createdAt: new Date().toISOString(),
         estimatedDelivery: formData.get('estimatedDelivery') as string,
-        notes: formData.get('notes') as string || undefined,
+        notes: notes || undefined,
       };
 
-      // Create blockchain event for shipment creation
       await service.createEvent({
-        drugId: newShipment.drugs[0], // Use first drug as primary
+        drugId: newShipment.drugs[0],
         type: 'shipment-created',
         timestamp: new Date().toISOString(),
         location: 'Origin Facility',
@@ -194,12 +230,28 @@ export const ShipmentsPage = () => {
       setShipments(prev => [newShipment, ...prev]);
       setCreateDialogOpen(false);
       
+      // Log shipment creation
+      logSecurityEvent({
+        action: 'shipment_created',
+        resourceType: 'shipment',
+        resourceId: newShipment.id,
+        details: { 
+          drugs: newShipment.drugs,
+          toOrganization: newShipment.toName
+        }
+      });
+      
       toast({
         title: "Shipment Created",
         description: `Shipment ${newShipment.id} has been created and recorded on blockchain`,
       });
     } catch (error) {
       console.error("Failed to create shipment:", error);
+      logSecurityEvent({
+        action: 'shipment_creation_failed',
+        resourceType: 'shipment',
+        details: { error: String(error) }
+      });
       toast({
         title: "Error",
         description: "Failed to create shipment",
@@ -215,7 +267,6 @@ export const ShipmentsPage = () => {
       
       if (!shipment) return;
 
-      // Create blockchain events for each drug in the shipment
       for (const drugId of shipment.drugs) {
         await service.createEvent({
           drugId,
@@ -234,7 +285,6 @@ export const ShipmentsPage = () => {
           }
         });
 
-        // Transfer ownership of each drug
         await service.transferDrug(
           drugId,
           shipment.fromId,
@@ -250,12 +300,22 @@ export const ShipmentsPage = () => {
         );
       }
 
-      // Update shipment status
       setShipments(prev => prev.map(s => 
         s.id === shipmentId 
           ? { ...s, status: 'delivered' as const, location: 'Delivered' }
           : s
       ));
+      
+      // Log receipt confirmation
+      logSecurityEvent({
+        action: 'shipment_receipt_confirmed',
+        resourceType: 'shipment',
+        resourceId: shipmentId,
+        details: { 
+          drugs: shipment.drugs,
+          fromOrganization: shipment.fromName
+        }
+      });
       
       toast({
         title: "Receipt Confirmed",
@@ -278,7 +338,6 @@ export const ShipmentsPage = () => {
       
       if (!shipment) return;
 
-      // Create blockchain event for delay resolution
       await service.createEvent({
         drugId: shipment.drugs[0],
         type: 'shipment-resumed',
@@ -297,7 +356,6 @@ export const ShipmentsPage = () => {
         }
       });
 
-      // Update shipment status
       setShipments(prev => prev.map(s => 
         s.id === shipmentId 
           ? { 
@@ -307,6 +365,14 @@ export const ShipmentsPage = () => {
             }
           : s
       ));
+      
+      // Log delay resolution
+      logSecurityEvent({
+        action: 'shipment_delay_resolved',
+        resourceType: 'shipment',
+        resourceId: shipmentId,
+        details: { location: shipment.location }
+      });
       
       toast({
         title: "Delay Resolved",
