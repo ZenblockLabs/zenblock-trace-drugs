@@ -1,3 +1,4 @@
+
 import {
   Home,
   Search,
@@ -15,6 +16,10 @@ import {
   Activity,
   Cog,
   Network,
+  Pills,
+  ScanLine,
+  Bell,
+  Eye,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -118,10 +123,37 @@ const items = [
   },
 ]
 
+// Pharma Traceability section items
+const pharmaItems = [
+  {
+    title: "Pharma Traceability",
+    url: "/pharma-traceability",
+    icon: Pills,
+  }
+]
+
 export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Pharma Traceability</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {pharmaItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
         <SidebarGroup>
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>

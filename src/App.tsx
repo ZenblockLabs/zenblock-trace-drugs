@@ -26,6 +26,7 @@ import { ConfigurationPage } from "./pages/ConfigurationPage";
 import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
 import { ComplianceIntegrationPage } from "./pages/ComplianceIntegrationPage";
+import { PharmaTraceabilityPage } from "./pages/PharmaTraceabilityPage";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,13 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <DashboardPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/pharma-traceability" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PharmaTraceabilityPage />
                   </Layout>
                 </ProtectedRoute>
               } />
