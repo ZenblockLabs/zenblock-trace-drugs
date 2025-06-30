@@ -1,125 +1,61 @@
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { toast } from "sonner";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Role = 'manufacturer' | 'distributor' | 'dispenser' | 'regulator';
-
-interface UserData {
+interface User {
   id: string;
-  name: string;
-  role: Role;
-  organization: string;
-  email: string; // Add email property to fix type errors
+  email: string;
+  name?: string;
 }
 
 interface AuthContextType {
-  user: UserData | null;
+  user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo users for the MVP with more distinctive passwords
-const DEMO_USERS = [
-  {
-    email: 'manufacturer@zenblock.com',
-    password: 'createMeds123',
-    userData: {
-      id: 'user1',
-      name: 'John Manufacturer',
-      role: 'manufacturer' as Role,
-      organization: 'ZenPharma Inc.',
-      email: 'manufacturer@zenblock.com' // Add email to the user data
-    }
-  },
-  {
-    email: 'distributor@zenblock.com',
-    password: 'shipMeds456',
-    userData: {
-      id: 'user2',
-      name: 'Jane Distributor',
-      role: 'distributor' as Role,
-      organization: 'MediDistribute LLC',
-      email: 'distributor@zenblock.com' // Add email to the user data
-    }
-  },
-  {
-    email: 'dispenser@zenblock.com',
-    password: 'provideMeds789',
-    userData: {
-      id: 'user3',
-      name: 'Sam Pharmacist',
-      role: 'dispenser' as Role,
-      organization: 'ZenMed Pharmacy',
-      email: 'dispenser@zenblock.com' // Add email to the user data
-    }
-  },
-  {
-    email: 'regulator@zenblock.com',
-    password: 'overseeAll321',
-    userData: {
-      id: 'user4',
-      name: 'Alex Regulator',
-      role: 'regulator' as Role,
-      organization: 'FDA',
-      email: 'regulator@zenblock.com' // Add email to the user data
-    }
-  }
-];
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserData | null>(null);
-  
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
-    // Check for stored login on mount
-    const storedUser = localStorage.getItem('zenblock_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse stored user', error);
-        localStorage.removeItem('zenblock_user');
-      }
+    // Check for existing session
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      setIsAuthenticated(true);
     }
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // For MVP, we're using a simple in-memory authentication
-    const user = DEMO_USERS.find(u => 
-      u.email.toLowerCase() === email.toLowerCase() && 
-      u.password === password
-    );
-
-    if (user) {
-      setUser(user.userData);
-      localStorage.setItem('zenblock_user', JSON.stringify(user.userData));
-      toast.success(`Welcome, ${user.userData.name}`);
-      return true;
-    } else {
-      toast.error('Invalid credentials');
-      return false;
-    }
+  const login = async (email: string, password: string) => {
+    // Mock authentication - in real app, this would call an API
+    const userData: User = {
+      id: '1',
+      email,
+      name: email.split('@')[0]
+    };
+    
+    setUser(userData);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('zenblock_user');
-    toast.info('You have been logged out');
+    setIsAuthenticated(false);
+    localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

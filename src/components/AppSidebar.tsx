@@ -16,7 +16,7 @@ import {
   Activity,
   Cog,
   Network,
-  Pills,
+  Pill,
   ScanLine,
   Bell,
   Eye,
@@ -128,7 +128,7 @@ const pharmaItems = [
   {
     title: "Pharma Traceability",
     url: "/pharma-traceability",
-    icon: Pills,
+    icon: Pill,
   }
 ]
 
