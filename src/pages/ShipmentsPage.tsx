@@ -11,19 +11,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Truck, Package, MapPin, Clock, Plus, Eye } from "lucide-react";
+import { Truck, Package, MapPin, Clock, Plus, Eye, CheckCircle, AlertTriangle } from "lucide-react";
 
 interface Shipment {
   id: string;
   drugs: string[];
   fromName: string;
+  fromId: string;
+  fromRole: string;
   toName: string;
+  toId: string;
+  toRole: string;
   status: 'created' | 'in-transit' | 'delivered' | 'delayed';
   createdAt: string;
   estimatedDelivery: string;
   location?: string;
   temperature?: number;
   humidity?: number;
+  notes?: string;
 }
 
 export const ShipmentsPage = () => {
@@ -33,14 +38,43 @@ export const ShipmentsPage = () => {
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
+  const [userOrgId, setUserOrgId] = useState<string>('');
 
-  // Mock shipments data
+  // Get user role and organization from email
+  useEffect(() => {
+    if (user?.email) {
+      const email = user.email.toLowerCase();
+      if (email.includes('manufacturer')) {
+        setUserRole('manufacturer');
+        setUserOrgId('medico-pharmaceuticals');
+      } else if (email.includes('distributor')) {
+        setUserRole('distributor');
+        setUserOrgId('lifeline-distributors');
+      } else if (email.includes('dispenser')) {
+        setUserRole('dispenser');
+        setUserOrgId('city-pharmacy');
+      } else if (email.includes('regulator')) {
+        setUserRole('regulator');
+        setUserOrgId('regulatory-authority');
+      } else {
+        setUserRole('manufacturer');
+        setUserOrgId('medico-pharmaceuticals');
+      }
+    }
+  }, [user]);
+
+  // Mock shipments data with proper role filtering
   const mockShipments: Shipment[] = [
     {
       id: "S-001",
       drugs: ["D-101", "D-102", "D-103"],
       fromName: "Medico Pharmaceuticals",
+      fromId: "medico-pharmaceuticals",
+      fromRole: "manufacturer",
       toName: "Lifeline Distributors",
+      toId: "lifeline-distributors",
+      toRole: "distributor",
       status: "in-transit",
       createdAt: "2024-01-15T10:30:00Z",
       estimatedDelivery: "2024-01-16T14:00:00Z",
@@ -52,7 +86,11 @@ export const ShipmentsPage = () => {
       id: "S-002",
       drugs: ["D-104", "D-105"],
       fromName: "Lifeline Distributors",
+      fromId: "lifeline-distributors",
+      fromRole: "distributor",
       toName: "City Pharmacy",
+      toId: "city-pharmacy",
+      toRole: "dispenser",
       status: "delivered",
       createdAt: "2024-01-14T08:15:00Z",
       estimatedDelivery: "2024-01-15T12:00:00Z",
@@ -64,7 +102,11 @@ export const ShipmentsPage = () => {
       id: "S-003",
       drugs: ["D-106"],
       fromName: "Medico Pharmaceuticals",
+      fromId: "medico-pharmaceuticals",
+      fromRole: "manufacturer",
       toName: "Regional Hospital",
+      toId: "regional-hospital",
+      toRole: "dispenser",
       status: "delayed",
       createdAt: "2024-01-13T16:45:00Z",
       estimatedDelivery: "2024-01-14T10:00:00Z",
@@ -78,8 +120,12 @@ export const ShipmentsPage = () => {
     const loadShipments = async () => {
       try {
         setLoading(true);
-        // In a real implementation, this would fetch from blockchain/ERP
-        setShipments(mockShipments);
+        // Filter shipments based on user role and organization
+        const filteredShipments = mockShipments.filter(shipment => {
+          if (userRole === 'regulator') return true; // Regulators see all
+          return shipment.fromId === userOrgId || shipment.toId === userOrgId;
+        });
+        setShipments(filteredShipments);
       } catch (error) {
         console.error("Failed to load shipments:", error);
         toast({
@@ -92,8 +138,10 @@ export const ShipmentsPage = () => {
       }
     };
 
-    loadShipments();
-  }, [toast]);
+    if (userOrgId) {
+      loadShipments();
+    }
+  }, [userOrgId, userRole, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -107,24 +155,51 @@ export const ShipmentsPage = () => {
 
   const handleCreateShipment = async (formData: FormData) => {
     try {
+      const service = await getBlockchainService(user?.email);
+      
       const newShipment: Shipment = {
         id: `S-${Date.now()}`,
         drugs: (formData.get('drugs') as string).split(',').map(d => d.trim()),
         fromName: formData.get('fromName') as string,
+        fromId: userOrgId,
+        fromRole: userRole,
         toName: formData.get('toName') as string,
+        toId: formData.get('toId') as string,
+        toRole: formData.get('toRole') as string,
         status: 'created',
         createdAt: new Date().toISOString(),
         estimatedDelivery: formData.get('estimatedDelivery') as string,
+        notes: formData.get('notes') as string || undefined,
       };
+
+      // Create blockchain event for shipment creation
+      await service.createEvent({
+        drugId: newShipment.drugs[0], // Use first drug as primary
+        type: 'shipment-created',
+        timestamp: new Date().toISOString(),
+        location: 'Origin Facility',
+        actor: {
+          id: userOrgId,
+          name: newShipment.fromName,
+          role: userRole
+        },
+        details: {
+          shipmentId: newShipment.id,
+          drugs: newShipment.drugs,
+          destination: newShipment.toName,
+          estimatedDelivery: newShipment.estimatedDelivery
+        }
+      });
 
       setShipments(prev => [newShipment, ...prev]);
       setCreateDialogOpen(false);
       
       toast({
         title: "Shipment Created",
-        description: `Shipment ${newShipment.id} has been created successfully`,
+        description: `Shipment ${newShipment.id} has been created and recorded on blockchain`,
       });
     } catch (error) {
+      console.error("Failed to create shipment:", error);
       toast({
         title: "Error",
         description: "Failed to create shipment",
@@ -135,6 +210,47 @@ export const ShipmentsPage = () => {
 
   const handleConfirmReceipt = async (shipmentId: string) => {
     try {
+      const service = await getBlockchainService(user?.email);
+      const shipment = shipments.find(s => s.id === shipmentId);
+      
+      if (!shipment) return;
+
+      // Create blockchain events for each drug in the shipment
+      for (const drugId of shipment.drugs) {
+        await service.createEvent({
+          drugId,
+          type: 'receive',
+          timestamp: new Date().toISOString(),
+          location: shipment.toName,
+          actor: {
+            id: userOrgId,
+            name: shipment.toName,
+            role: shipment.toRole
+          },
+          details: {
+            shipmentId: shipment.id,
+            fromOrganization: shipment.fromName,
+            receivedBy: user?.email || 'Unknown'
+          }
+        });
+
+        // Transfer ownership of each drug
+        await service.transferDrug(
+          drugId,
+          shipment.fromId,
+          shipment.toId,
+          shipment.toName,
+          shipment.toRole,
+          shipment.toName,
+          {
+            shipmentId: shipment.id,
+            confirmedBy: user?.email,
+            timestamp: new Date().toISOString()
+          }
+        );
+      }
+
+      // Update shipment status
       setShipments(prev => prev.map(s => 
         s.id === shipmentId 
           ? { ...s, status: 'delivered' as const, location: 'Delivered' }
@@ -143,15 +259,94 @@ export const ShipmentsPage = () => {
       
       toast({
         title: "Receipt Confirmed",
-        description: `Shipment ${shipmentId} has been marked as delivered`,
+        description: `Shipment ${shipmentId} confirmed and ownership transferred on blockchain`,
       });
     } catch (error) {
+      console.error("Failed to confirm receipt:", error);
       toast({
         title: "Error",
         description: "Failed to confirm receipt",
         variant: "destructive"
       });
     }
+  };
+
+  const handleResolveDelay = async (shipmentId: string) => {
+    try {
+      const service = await getBlockchainService(user?.email);
+      const shipment = shipments.find(s => s.id === shipmentId);
+      
+      if (!shipment) return;
+
+      // Create blockchain event for delay resolution
+      await service.createEvent({
+        drugId: shipment.drugs[0],
+        type: 'shipment-resumed',
+        timestamp: new Date().toISOString(),
+        location: shipment.location || 'Unknown',
+        actor: {
+          id: userOrgId,
+          name: shipment.fromName,
+          role: shipment.fromRole
+        },
+        details: {
+          shipmentId: shipment.id,
+          previousStatus: 'delayed',
+          resolvedBy: user?.email,
+          newEstimatedDelivery: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        }
+      });
+
+      // Update shipment status
+      setShipments(prev => prev.map(s => 
+        s.id === shipmentId 
+          ? { 
+              ...s, 
+              status: 'in-transit' as const,
+              estimatedDelivery: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            }
+          : s
+      ));
+      
+      toast({
+        title: "Delay Resolved",
+        description: `Shipment ${shipmentId} is now back in transit`,
+      });
+    } catch (error) {
+      console.error("Failed to resolve delay:", error);
+      toast({
+        title: "Error",
+        description: "Failed to resolve delay",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Filter shipments based on role permissions
+  const getFilteredShipments = (status?: string) => {
+    let filtered = shipments;
+    
+    if (status) {
+      if (status === 'active') {
+        filtered = shipments.filter(s => ['created', 'in-transit', 'delayed'].includes(s.status));
+      } else if (status === 'delivered') {
+        filtered = shipments.filter(s => s.status === 'delivered');
+      }
+    }
+    
+    return filtered;
+  };
+
+  const canConfirmReceipt = (shipment: Shipment) => {
+    return shipment.status === 'in-transit' && shipment.toId === userOrgId;
+  };
+
+  const canResolveDelay = (shipment: Shipment) => {
+    return shipment.status === 'delayed' && shipment.fromId === userOrgId;
+  };
+
+  const canCreateShipment = () => {
+    return ['manufacturer', 'distributor'].includes(userRole);
   };
 
   if (loading) {
@@ -172,47 +367,71 @@ export const ShipmentsPage = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Shipments</h1>
-          <p className="text-muted-foreground">Manage pharmaceutical shipments and logistics</p>
+          <p className="text-muted-foreground">
+            Manage pharmaceutical shipments and logistics ({userRole})
+          </p>
         </div>
         
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Shipment
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Shipment</DialogTitle>
-              <DialogDescription>
-                Create a new shipment to track pharmaceutical products
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleCreateShipment(new FormData(e.target as HTMLFormElement));
-            }} className="space-y-4">
-              <div>
-                <Label htmlFor="drugs">Drug IDs (comma-separated)</Label>
-                <Input id="drugs" name="drugs" placeholder="D-101, D-102" required />
-              </div>
-              <div>
-                <Label htmlFor="fromName">From</Label>
-                <Input id="fromName" name="fromName" placeholder="Sender name" required />
-              </div>
-              <div>
-                <Label htmlFor="toName">To</Label>
-                <Input id="toName" name="toName" placeholder="Receiver name" required />
-              </div>
-              <div>
-                <Label htmlFor="estimatedDelivery">Estimated Delivery</Label>
-                <Input id="estimatedDelivery" name="estimatedDelivery" type="datetime-local" required />
-              </div>
-              <Button type="submit" className="w-full">Create Shipment</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {canCreateShipment() && (
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Shipment
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Shipment</DialogTitle>
+                <DialogDescription>
+                  Create a new shipment to track pharmaceutical products
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleCreateShipment(new FormData(e.target as HTMLFormElement));
+              }} className="space-y-4">
+                <div>
+                  <Label htmlFor="drugs">Drug IDs (comma-separated)</Label>
+                  <Input id="drugs" name="drugs" placeholder="D-101, D-102" required />
+                </div>
+                <div>
+                  <Label htmlFor="fromName">From Organization</Label>
+                  <Input id="fromName" name="fromName" value={user?.email?.split('@')[0] || ''} readOnly />
+                </div>
+                <div>
+                  <Label htmlFor="toName">To Organization</Label>
+                  <Input id="toName" name="toName" placeholder="Receiver organization name" required />
+                </div>
+                <div>
+                  <Label htmlFor="toId">To Organization ID</Label>
+                  <Input id="toId" name="toId" placeholder="receiver-org-id" required />
+                </div>
+                <div>
+                  <Label htmlFor="toRole">To Role</Label>
+                  <Select name="toRole" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select receiver role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="distributor">Distributor</SelectItem>
+                      <SelectItem value="dispenser">Dispenser</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="estimatedDelivery">Estimated Delivery</Label>
+                  <Input id="estimatedDelivery" name="estimatedDelivery" type="datetime-local" required />
+                </div>
+                <div>
+                  <Label htmlFor="notes">Notes (optional)</Label>
+                  <Input id="notes" name="notes" placeholder="Additional notes" />
+                </div>
+                <Button type="submit" className="w-full">Create Shipment</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Tabs defaultValue="active" className="space-y-4">
@@ -223,7 +442,7 @@ export const ShipmentsPage = () => {
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          {shipments.filter(s => ['created', 'in-transit', 'delayed'].includes(s.status)).map((shipment) => (
+          {getFilteredShipments('active').map((shipment) => (
             <Card key={shipment.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
@@ -268,10 +487,16 @@ export const ShipmentsPage = () => {
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  {shipment.status === 'in-transit' && (
+                  {canConfirmReceipt(shipment) && (
                     <Button size="sm" onClick={() => handleConfirmReceipt(shipment.id)}>
-                      <Truck className="h-4 w-4 mr-2" />
+                      <CheckCircle className="h-4 w-4 mr-2" />
                       Confirm Receipt
+                    </Button>
+                  )}
+                  {canResolveDelay(shipment) && (
+                    <Button size="sm" variant="outline" onClick={() => handleResolveDelay(shipment.id)}>
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Resolve Delay
                     </Button>
                   )}
                 </div>
@@ -281,7 +506,7 @@ export const ShipmentsPage = () => {
         </TabsContent>
 
         <TabsContent value="delivered" className="space-y-4">
-          {shipments.filter(s => s.status === 'delivered').map((shipment) => (
+          {getFilteredShipments('delivered').map((shipment) => (
             <Card key={shipment.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
@@ -307,7 +532,7 @@ export const ShipmentsPage = () => {
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
-          {shipments.map((shipment) => (
+          {getFilteredShipments().map((shipment) => (
             <Card key={shipment.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
@@ -383,6 +608,13 @@ export const ShipmentsPage = () => {
                     <Label>Humidity</Label>
                     <p className="font-medium">{selectedShipment.humidity}%</p>
                   </div>
+                </div>
+              )}
+              
+              {selectedShipment.notes && (
+                <div>
+                  <Label>Notes</Label>
+                  <p className="font-medium">{selectedShipment.notes}</p>
                 </div>
               )}
             </div>
