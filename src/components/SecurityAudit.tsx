@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { getOrganizationFromEmail } from '@/hooks/useAuth';
 
 interface SecurityEvent {
   action: string;

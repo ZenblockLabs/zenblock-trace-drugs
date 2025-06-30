@@ -7,7 +7,7 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode, QrCode, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,11 @@ import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { QRCodeScanDialog } from "@/components/compliance/QRCodeScanDialog";
 
-const Layout = () => {
+interface LayoutProps {
+  children?: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
@@ -192,7 +196,7 @@ const Layout = () => {
               <NetworkStatusIndicator />
             </div>
           </div>
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
       <Toaster />
