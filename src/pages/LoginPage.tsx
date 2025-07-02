@@ -50,82 +50,97 @@ export const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Pharma Traceability</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="Enter your email"
-              />
+      <div className="w-full max-w-md space-y-6">
+        {/* Zenblock Labs Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">Z</span>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-              />
-            </div>
-            
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-2">
-            <p className="text-sm text-muted-foreground text-center">Quick login options:</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
-              >
-                Manufacturer
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
-              >
-                Distributor
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
-              >
-                Dispenser
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => quickLogin('regulator@authority.gov', 'password123')}
-              >
-                Regulator
-              </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Zenblock Labs</h1>
+              <p className="text-sm text-gray-600">Blockchain Innovation</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <Card className="w-full">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold">Pharma Traceability</CardTitle>
+            <CardDescription>Sign in to your account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Enter your email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                />
+              </div>
+              
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
+
+            <div className="mt-6 space-y-2">
+              <p className="text-sm text-muted-foreground text-center">Quick login options:</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
+                >
+                  Manufacturer
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
+                >
+                  Distributor
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
+                >
+                  Dispenser
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('regulator@authority.gov', 'password123')}
+                >
+                  Regulator
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
