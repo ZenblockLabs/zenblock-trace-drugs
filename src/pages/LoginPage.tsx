@@ -1,115 +1,131 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [error, setError] = useState('');
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const success = await login(email, password);
-    setIsLoading(false);
-    if (success) {
-      navigate("/dashboard");
+    setError('');
+
+    try {
+      const success = await login(email, password);
+      if (success) {
+        toast.success('Login successful!');
+        navigate('/dashboard');
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (err) {
+      setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Demo credentials with updated passwords
-  const demoCredentials = [
-    { role: "Manufacturer", email: "manufacturer@zenblock.com", password: "createMeds123" },
-    { role: "Distributor", email: "distributor@zenblock.com", password: "shipMeds456" },
-    { role: "Dispenser", email: "dispenser@zenblock.com", password: "provideMeds789" },
-    { role: "Regulator", email: "regulator@zenblock.com", password: "overseeAll321" },
-  ];
-
-  const setDemoUser = (email: string, password: string) => {
-    setEmail(email);
-    setPassword(password);
+  const quickLogin = (userEmail: string, userPassword: string) => {
+    setEmail(userEmail);
+    setPassword(userPassword);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-zenblue-500 to-zenblue-700 p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-4">
-            <img 
-              src="/lovable-uploads/45b0e393-a331-4b63-9f6b-e590813b266e.png" 
-              alt="Zenblock Labs Logo" 
-              className="h-24 w-24" 
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-white">Zenblock Labs</h1>
-          <p className="text-zenblue-100 mt-2">Pharmaceutical Supply Chain Tracking</p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Sign in to access the supply chain portal
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col">
-              <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-              
-              <div className="mt-6 w-full">
-                <p className="text-sm text-center mb-2">Demo Accounts:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {demoCredentials.map((cred) => (
-                    <Button
-                      key={cred.role}
-                      variant="outline"
-                      size="sm"
-                      type="button"
-                      onClick={() => setDemoUser(cred.email, cred.password)}
-                      className="text-xs"
-                    >
-                      {cred.role}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </CardFooter>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Pharma Traceability</CardTitle>
+          <CardDescription>Sign in to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+              />
+            </div>
+            
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </Button>
           </form>
-        </Card>
-      </div>
+
+          <div className="mt-6 space-y-2">
+            <p className="text-sm text-muted-foreground text-center">Quick login options:</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
+              >
+                Manufacturer
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
+              >
+                Distributor
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
+              >
+                Dispenser
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => quickLogin('regulator@authority.gov', 'password123')}
+              >
+                Regulator
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
