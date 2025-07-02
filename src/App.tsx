@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -5,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Layout from "./components/Layout";
-import Index from "./pages/Index";
 import { TrackPage } from "./pages/TrackPage";
 import { DrugsPage } from "./pages/DrugsPage";
 import { RegisterDrugPage } from "./pages/RegisterDrugPage";
@@ -49,9 +49,7 @@ function App() {
               } />
               <Route path="/" element={
                 <ProtectedRoute>
-                  <Layout>
-                    <Index />
-                  </Layout>
+                  <Navigate to="/dashboard" replace />
                 </ProtectedRoute>
               } />
               <Route path="/dashboard" element={
@@ -75,7 +73,7 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/register" element={
+              <Route path="/register-drug" element={
                 <ProtectedRoute requiredRole={['manufacturer']}>
                   <Layout>
                     <RegisterDrugPage />
@@ -93,6 +91,13 @@ function App() {
                 <ProtectedRoute requiredRole={['manufacturer', 'distributor', 'dispenser', 'regulator']}>
                   <Layout>
                     <ShipmentsPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <HistoryPage />
                   </Layout>
                 </ProtectedRoute>
               } />
