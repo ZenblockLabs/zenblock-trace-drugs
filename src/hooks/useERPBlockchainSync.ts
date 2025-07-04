@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { erpBlockchainIntegration } from '@/services/integration/ERPBlockchainIntegration';
+import { getBlockchainService } from '@/services/blockchainServiceFactory';
 import { toast } from 'sonner';
 
 export const useERPBlockchainSync = () => {
@@ -10,34 +10,35 @@ export const useERPBlockchainSync = () => {
     setSyncingBatches(prev => new Set(prev).add(batchId));
     
     try {
-      // Create a mock order from batch data to sync
-      const mockOrder = {
-        id: `order-${batchId}`,
-        customerName: 'ERP System',
-        items: [{
-          drugId: batchData.drugName.replace(/\s+/g, '-').toLowerCase(),
+      console.log(`Syncing batch ${batchId} to blockchain...`, batchData);
+      
+      const blockchainService = await getBlockchainService();
+      
+      // Create a blockchain event directly for the batch
+      await blockchainService.createEvent({
+        drugId: batchData.drugName.replace(/\s+/g, '-').toLowerCase(),
+        eventType: 'manufactured',
+        actorId: 'erp-system',
+        actorName: 'ERP System',
+        actorRole: 'manufacturer',
+        location: batchData.facility || 'Manufacturing Facility',
+        details: {
+          batchId: batchData.batchId,
           drugName: batchData.drugName,
           quantity: batchData.quantity,
-          batchId: batchData.batchId,
-          unitPrice: 0
-        }],
-        status: 'processing' as const,
-        totalAmount: 0
-      };
-
-      // Sync to blockchain via integration service
-      const success = await erpBlockchainIntegration.syncOrderToBlockchain(mockOrder.id);
+          status: batchData.status,
+          createdAt: batchData.createdAt,
+          facility: batchData.facility,
+          syncedFromERP: true,
+          syncTimestamp: new Date().toISOString()
+        }
+      });
       
-      if (success) {
-        toast.success(`Batch ${batchId} synced to blockchain successfully`);
-        return true;
-      } else {
-        toast.error(`Failed to sync batch ${batchId} to blockchain`);
-        return false;
-      }
+      toast.success(`Batch ${batchId} synced to blockchain successfully`);
+      return true;
     } catch (error) {
       console.error('Error syncing batch to blockchain:', error);
-      toast.error(`Error syncing batch ${batchId}: ${error.message}`);
+      toast.error(`Failed to sync batch ${batchId}: ${error.message}`);
       return false;
     } finally {
       setSyncingBatches(prev => {
