@@ -54,8 +54,12 @@ export const LoginPage = () => {
         {/* Zenblock Labs Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">Z</span>
+            <div className="w-16 h-16 flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/fd76e0b7-8d5a-4483-97be-efb53405f021.png" 
+                alt="Zenblock Labs Logo" 
+                className="w-16 h-16 object-contain"
+              />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Zenblock Labs</h1>
