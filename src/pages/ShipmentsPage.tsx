@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Truck, Package, MapPin, Clock, Plus, Eye, CheckCircle, AlertTriangle } from "lucide-react";
 import { usePageAccessLog, useSecurityAudit } from "@/components/SecurityAudit";
@@ -446,55 +447,57 @@ export const ShipmentsPage = () => {
                 Create Shipment
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-md max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Create New Shipment</DialogTitle>
                 <DialogDescription>
                   Create a new shipment to track pharmaceutical products
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                handleCreateShipment(new FormData(e.target as HTMLFormElement));
-              }} className="space-y-4">
-                <div>
-                  <Label htmlFor="drugs">Drug IDs (comma-separated)</Label>
-                  <Input id="drugs" name="drugs" placeholder="D-101, D-102" required />
-                </div>
-                <div>
-                  <Label htmlFor="fromName">From Organization</Label>
-                  <Input id="fromName" name="fromName" value={user?.email?.split('@')[0] || ''} readOnly />
-                </div>
-                <div>
-                  <Label htmlFor="toName">To Organization</Label>
-                  <Input id="toName" name="toName" placeholder="Receiver organization name" required />
-                </div>
-                <div>
-                  <Label htmlFor="toId">To Organization ID</Label>
-                  <Input id="toId" name="toId" placeholder="receiver-org-id" required />
-                </div>
-                <div>
-                  <Label htmlFor="toRole">To Role</Label>
-                  <Select name="toRole" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select receiver role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="distributor">Distributor</SelectItem>
-                      <SelectItem value="dispenser">Dispenser</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="estimatedDelivery">Estimated Delivery</Label>
-                  <Input id="estimatedDelivery" name="estimatedDelivery" type="datetime-local" required />
-                </div>
-                <div>
-                  <Label htmlFor="notes">Notes (optional)</Label>
-                  <Input id="notes" name="notes" placeholder="Additional notes" />
-                </div>
-                <Button type="submit" className="w-full">Create Shipment</Button>
-              </form>
+              <ScrollArea className="max-h-[70vh] pr-4">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCreateShipment(new FormData(e.target as HTMLFormElement));
+                }} className="space-y-4">
+                  <div>
+                    <Label htmlFor="drugs">Drug IDs (comma-separated)</Label>
+                    <Input id="drugs" name="drugs" placeholder="D-101, D-102" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="fromName">From Organization</Label>
+                    <Input id="fromName" name="fromName" value={user?.email?.split('@')[0] || ''} readOnly />
+                  </div>
+                  <div>
+                    <Label htmlFor="toName">To Organization</Label>
+                    <Input id="toName" name="toName" placeholder="Receiver organization name" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="toId">To Organization ID</Label>
+                    <Input id="toId" name="toId" placeholder="receiver-org-id" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="toRole">To Role</Label>
+                    <Select name="toRole" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select receiver role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="distributor">Distributor</SelectItem>
+                        <SelectItem value="dispenser">Dispenser</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="estimatedDelivery">Estimated Delivery</Label>
+                    <Input id="estimatedDelivery" name="estimatedDelivery" type="datetime-local" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="notes">Notes (optional)</Label>
+                    <Input id="notes" name="notes" placeholder="Additional notes" />
+                  </div>
+                  <Button type="submit" className="w-full">Create Shipment</Button>
+                </form>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         )}
