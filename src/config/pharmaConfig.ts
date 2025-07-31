@@ -1,7 +1,7 @@
 
 // Pharma Traceability API Configuration
 export const PHARMA_API_CONFIG = {
-  baseUrl: process.env.REACT_APP_PHARMA_API_URL || 'http://localhost:3000',
+  baseUrl: import.meta.env.VITE_PHARMA_API_URL || 'http://localhost:3000',
   endpoints: {
     verify: '/verify',
     trace: '/trace',

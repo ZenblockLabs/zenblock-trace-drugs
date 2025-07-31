@@ -60,8 +60,8 @@ export class FabricNetworkConfigService {
         certificateAuthorities: {}
       },
       credentials: {
-        certificate: process.env.FABRIC_USER_CERT || "",
-        privateKey: process.env.FABRIC_USER_KEY || ""
+        certificate: import.meta.env.VITE_FABRIC_USER_CERT || "",
+        privateKey: import.meta.env.VITE_FABRIC_USER_KEY || ""
       }
     };
 
