@@ -785,6 +785,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_public_event_images: {
+        Args: { p_batch_id?: string }
+        Returns: {
+          id: string
+          batch_id: string
+          event_id: string
+          step_name: string
+          image_url: string
+          image_path: string
+          note: string
+          event_timestamp: string
+          created_at: string
+        }[]
+      }
     }
     Enums: {
       organization_type: "pharmaceutical" | "agriculture"
