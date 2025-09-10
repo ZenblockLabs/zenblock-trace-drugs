@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -781,22 +781,70 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_old_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_old_qr_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_analytics_summary: {
+        Args: { p_batch_id?: string }
+        Returns: {
+          batch_id: string
+          browser_family: string
+          city: string
+          country_code: string
+          device_type: string
+          id: string
+          scan_date: string
+          scan_hour: number
+          scan_timestamp: string
+        }[]
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_public_batch_events: {
+        Args: { p_batch_id: string }
+        Returns: {
+          batch_id: string
+          description: string
+          event_timestamp: string
+          event_type: string
+          id: string
+          location: string
+          title: string
+        }[]
+      }
+      get_public_batch_info: {
+        Args: { p_batch_id: string }
+        Returns: {
+          batch_number: string
+          description: string
+          harvest_period: string
+          id: string
+          origin_region: string
+          product_name: string
+          product_type: string
+          status: string
+          unit: string
+        }[]
+      }
       get_public_event_images: {
         Args: { p_batch_id?: string }
         Returns: {
-          id: string
           batch_id: string
-          event_id: string
-          step_name: string
-          image_url: string
-          image_path: string
-          note: string
-          event_timestamp: string
           created_at: string
+          event_id: string
+          event_timestamp: string
+          id: string
+          image_path: string
+          image_url: string
+          note: string
+          step_name: string
         }[]
       }
     }
