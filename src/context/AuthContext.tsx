@@ -51,6 +51,14 @@ const MOCK_USERS = [
     name: 'Lisa Regulator',
     role: 'regulator',
     organization: 'Regulatory Authority'
+  },
+  {
+    id: '5',
+    email: 'brandmanager@zenblock.com',
+    password: 'password123',
+    name: 'Emma Brand Manager',
+    role: 'brand_manager',
+    organization: 'Zenblock Labs'
   }
 ];
 

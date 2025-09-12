@@ -140,6 +140,14 @@ export const LoginPage = () => {
                 >
                   Regulator
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('brandmanager@zenblock.com', 'password123')}
+                  className="col-span-2 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 hover:from-pink-100 hover:to-purple-100"
+                >
+                  🎯 Brand Manager (Kadha Access)
+                </Button>
               </div>
             </div>
           </CardContent>
