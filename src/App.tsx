@@ -27,6 +27,8 @@ import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
 import { ComplianceIntegrationPage } from "./pages/ComplianceIntegrationPage";
 import { PharmaTraceabilityPage } from "./pages/PharmaTraceabilityPage";
+import { KadhaCapsulesPage } from "./pages/KadhaCapsulesPage";
+import { PublicKadhaPage } from "./pages/PublicKadhaPage";
 
 const queryClient = new QueryClient();
 
@@ -192,6 +194,14 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
+              <Route path="/kadha-capsules" element={
+                <ProtectedRoute requiredRole={['brand_manager', 'admin']}>
+                  <Layout>
+                    <KadhaCapsulesPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/kadha/:shortLink" element={<PublicKadhaPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </BrowserRouter>

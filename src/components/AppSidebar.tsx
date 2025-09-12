@@ -20,6 +20,7 @@ import {
   ScanLine,
   Bell,
   Eye,
+  Heart,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -120,6 +121,11 @@ const items = [
     title: "API Test",
     url: "/api-test",
     icon: Settings,
+  },
+  {
+    title: "Kadha Capsules",
+    url: "/kadha-capsules",
+    icon: Heart,
   },
 ]
 
