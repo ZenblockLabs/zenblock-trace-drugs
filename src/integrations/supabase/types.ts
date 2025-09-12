@@ -136,13 +136,6 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "batches_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       capsule_analytics: {
@@ -723,13 +716,6 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "user_profiles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -748,34 +734,6 @@ export type Database = {
           slug: string | null
           status: string | null
           updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          industry?: string | null
-          logo_url?: string | null
-          name?: string | null
-          organization_type?:
-            | Database["public"]["Enums"]["organization_type"]
-            | null
-          slug?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          industry?: string | null
-          logo_url?: string | null
-          name?: string | null
-          organization_type?:
-            | Database["public"]["Enums"]["organization_type"]
-            | null
-          slug?: string | null
-          status?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -845,6 +803,21 @@ export type Database = {
           image_url: string
           note: string
           step_name: string
+        }[]
+      }
+      get_public_organizations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          description: string
+          id: string
+          industry: string
+          logo_url: string
+          name: string
+          organization_type: Database["public"]["Enums"]["organization_type"]
+          slug: string
+          status: string
+          updated_at: string
         }[]
       }
     }
