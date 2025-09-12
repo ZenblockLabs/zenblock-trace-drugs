@@ -847,21 +847,6 @@ export type Database = {
           step_name: string
         }[]
       }
-      get_public_organizations: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          created_at: string
-          description: string
-          id: string
-          industry: string
-          logo_url: string
-          name: string
-          organization_type: Database["public"]["Enums"]["organization_type"]
-          slug: string
-          status: string
-          updated_at: string
-        }[]
-      }
     }
     Enums: {
       organization_type: "pharmaceutical" | "agriculture"
