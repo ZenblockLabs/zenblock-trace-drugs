@@ -301,7 +301,7 @@ export class KadhaService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as KadhaAnalytics[];
   }
 
   // Get available batches for capsule creation
