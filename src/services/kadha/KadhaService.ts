@@ -326,8 +326,31 @@ export class KadhaService {
         throw error;
       }
       
-      console.log('Available batches fetched:', data?.length || 0, 'batches');
-      return data || [];
+      // Filter to only pharma/Kadha-related batches
+      const pharmaBatches = (data || []).filter(batch => {
+        const productName = batch.product_name?.toLowerCase() || '';
+        const batchNumber = batch.batch_number?.toLowerCase() || '';
+        
+        // Include batches that are pharma/Kadha related
+        return (
+          batchNumber.startsWith('bth-') || // BTH prefix for Kadha batches
+          productName.includes('capsule') ||
+          productName.includes('extract') ||
+          productName.includes('blend') ||
+          productName.includes('kadha') ||
+          productName.includes('turmeric') ||
+          productName.includes('ashwagandha') ||
+          productName.includes('immunity')
+        ) && (
+          // Exclude non-pharma products
+          !productName.includes('tomato') &&
+          !productName.includes('ibuprofen') &&
+          !batchNumber.startsWith('org') // Exclude organic farming batches
+        );
+      });
+      
+      console.log('Available pharma batches fetched:', pharmaBatches.length, 'of', data?.length || 0, 'total batches');
+      return pharmaBatches;
     } catch (error) {
       console.error('Failed to fetch available batches:', error);
       // Return mock batches as fallback for demo
