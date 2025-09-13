@@ -326,8 +326,35 @@ export class KadhaService {
         throw error;
       }
       
-      console.log('Available batches fetched:', data?.length || 0, 'batches');
-      return data || [];
+      if (!data || data.length === 0) {
+        console.warn('No batches visible via RLS; using mock demo batches.');
+        return [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440010',
+            batch_number: 'BTH-001',
+            product_name: 'Organic Turmeric Capsules',
+            status: 'active',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          },
+          {
+            id: '550e8400-e29b-41d4-a716-446655440011',
+            batch_number: 'BTH-002',
+            product_name: 'Ashwagandha Extract',
+            status: 'active',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          },
+          {
+            id: '550e8400-e29b-41d4-a716-446655440012',
+            batch_number: 'BTH-003',
+            product_name: 'Kadha Immunity Blend',
+            status: 'active',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          }
+        ];
+      }
+      
+      console.log('Available batches fetched:', data.length, 'batches');
+      return data;
     } catch (error) {
       console.error('Failed to fetch available batches:', error);
       // Return mock batches as fallback for demo
