@@ -306,19 +306,29 @@ export class KadhaService {
 
   // Get available batches for capsule creation
   static async getAvailableBatches(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('batches')
-      .select(`
-        id,
-        batch_number,
-        product_name,
-        status,
-        organization_id
-      `)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('batches')
+        .select(`
+          id,
+          batch_number,
+          product_name,
+          status,
+          organization_id
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+      if (error) {
+        console.error('Error fetching available batches:', error);
+        throw error;
+      }
+      
+      console.log('Available batches fetched:', data?.length || 0, 'batches');
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch available batches:', error);
+      return [];
+    }
   }
 }
