@@ -78,14 +78,18 @@ export class KadhaService {
   // Get all capsules for the user's organization
   static async getCapsules(): Promise<KadhaCapsule[]> {
     const { data, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .select(`
         *,
-        batches!inner(
+        pharma_batches!inner(
           id,
           batch_number,
           product_name,
-          organization_id
+          organization_id,
+          pharma_organizations(
+            name,
+            slug
+          )
         )
       `)
       .order('created_at', { ascending: false });
@@ -97,14 +101,18 @@ export class KadhaService {
   // Get capsule by ID
   static async getCapsuleById(id: string): Promise<KadhaCapsule | null> {
     const { data, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .select(`
         *,
-        batches!inner(
+        pharma_batches!inner(
           id,
           batch_number,
           product_name,
-          organization_id
+          organization_id,
+          pharma_organizations(
+            name,
+            slug
+          )
         )
       `)
       .eq('id', id)
@@ -117,10 +125,10 @@ export class KadhaService {
   // Get published capsule by batch ID (public access)
   static async getPublishedCapsuleByBatch(batchId: string): Promise<KadhaCapsule | null> {
     const { data, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .select(`
         *,
-        batches!inner(
+        pharma_batches!inner(
           id,
           batch_number,
           product_name,
@@ -128,7 +136,11 @@ export class KadhaService {
           description,
           origin_location,
           harvest_date,
-          status
+          status,
+          pharma_organizations(
+            name,
+            slug
+          )
         )
       `)
       .eq('batch_id', batchId)
@@ -143,10 +155,10 @@ export class KadhaService {
   // Get published capsule by short link (public access)
   static async getPublishedCapsuleByShortLink(shortLink: string): Promise<KadhaCapsule | null> {
     const { data, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .select(`
         *,
-        batches!inner(
+        pharma_batches!inner(
           id,
           batch_number,
           product_name,
@@ -154,7 +166,11 @@ export class KadhaService {
           description,
           origin_location,
           harvest_date,
-          status
+          status,
+          pharma_organizations(
+            name,
+            slug
+          )
         )
       `)
       .eq('short_link', shortLink)
@@ -169,7 +185,7 @@ export class KadhaService {
   // Create new capsule
   static async createCapsule(data: CreateCapsuleData): Promise<KadhaCapsule> {
     const { data: result, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .insert(data)
       .select()
       .single();
@@ -181,7 +197,7 @@ export class KadhaService {
   // Update capsule
   static async updateCapsule(id: string, data: UpdateCapsuleData): Promise<KadhaCapsule> {
     const { data: result, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .update(data)
       .eq('id', id)
       .select()
@@ -194,7 +210,7 @@ export class KadhaService {
   // Delete capsule
   static async deleteCapsule(id: string): Promise<void> {
     const { error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .delete()
       .eq('id', id);
 
@@ -208,14 +224,14 @@ export class KadhaService {
     if (!capsule) throw new Error('Capsule not found');
 
     await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .update({ is_active: false })
       .eq('batch_id', capsule.batch_id)
       .eq('is_active', true);
 
     // Then activate and publish this capsule
     const { data: result, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .update({
         is_published: true,
         is_active: true,
@@ -232,7 +248,7 @@ export class KadhaService {
   // Unpublish capsule
   static async unpublishCapsule(id: string): Promise<KadhaCapsule> {
     const { data: result, error } = await supabase
-      .from('kadha_capsules')
+      .from('pharma_kadha_capsules')
       .update({
         is_published: false,
         is_active: false
@@ -272,7 +288,7 @@ export class KadhaService {
     } = {}
   ): Promise<void> {
     const { error } = await supabase
-      .from('kadha_analytics')
+      .from('pharma_kadha_analytics')
       .insert({
         capsule_id: capsuleId,
         event_type: eventType,
@@ -295,7 +311,7 @@ export class KadhaService {
   // Get analytics for capsule
   static async getCapsuleAnalytics(capsuleId: string): Promise<KadhaAnalytics[]> {
     const { data, error } = await supabase
-      .from('kadha_analytics')
+      .from('pharma_kadha_analytics')
       .select('*')
       .eq('capsule_id', capsuleId)
       .order('created_at', { ascending: false });
@@ -304,77 +320,72 @@ export class KadhaService {
     return (data || []) as KadhaAnalytics[];
   }
 
-  // Get available batches for capsule creation - updated for mock auth
+  // Get available pharmaceutical batches for capsule creation
   static async getAvailableBatches(): Promise<any[]> {
     try {
-      // For now, return all active batches since we're using mock authentication
-      // In production, this would be filtered by organization via RLS
       const { data, error } = await supabase
-        .from('batches')
+        .from('pharma_batches')
         .select(`
           id,
           batch_number,
           product_name,
+          product_type,
+          description,
+          quantity,
+          unit,
           status,
-          organization_id
+          origin_location,
+          harvest_date,
+          pharma_organizations(
+            name,
+            slug
+          )
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching available batches:', error);
+        console.error('Error fetching pharmaceutical batches:', error);
         throw error;
       }
       
-      // Filter to only pharma/Kadha-related batches
-      const pharmaBatches = (data || []).filter(batch => {
-        const productName = batch.product_name?.toLowerCase() || '';
-        const batchNumber = batch.batch_number?.toLowerCase() || '';
-        
-        // Include batches that are pharma/Kadha related
-        return (
-          batchNumber.startsWith('bth-') || // BTH prefix for Kadha batches
-          productName.includes('capsule') ||
-          productName.includes('extract') ||
-          productName.includes('blend') ||
-          productName.includes('kadha') ||
-          productName.includes('turmeric') ||
-          productName.includes('ashwagandha') ||
-          productName.includes('immunity')
-        ) && (
-          // Exclude non-pharma products
-          !productName.includes('tomato') &&
-          !productName.includes('ibuprofen') &&
-          !batchNumber.startsWith('org') // Exclude organic farming batches
-        );
-      });
-      
-      console.log('Available pharma batches fetched:', pharmaBatches.length, 'of', data?.length || 0, 'total batches');
-      return pharmaBatches;
+      console.log('Available pharmaceutical batches fetched:', data?.length || 0);
+      return data || [];
     } catch (error) {
-      console.error('Failed to fetch available batches:', error);
-      // Return mock batches as fallback for demo
+      console.error('Failed to fetch pharmaceutical batches:', error);
+      // Return mock pharmaceutical batches as fallback for demo
       return [
         {
-          id: '550e8400-e29b-41d4-a716-446655440010',
-          batch_number: 'BTH-001',
-          product_name: 'Organic Turmeric Capsules',
+          id: '550e8400-e29b-41d4-a716-446655441001',
+          batch_number: 'BATCH-1234',
+          product_name: 'ZenRelief 10mg',
+          product_type: 'pharmaceutical',
+          description: 'Advanced pain relief medication with controlled release formula',
+          quantity: 10000,
+          unit: 'tablets',
           status: 'active',
-          organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          origin_location: 'ZenPharma Manufacturing Facility, New Jersey',
+          harvest_date: '2024-01-15',
+          pharma_organizations: {
+            name: 'ZenPharma Inc.',
+            slug: 'zenpharma-inc'
+          }
         },
         {
-          id: '550e8400-e29b-41d4-a716-446655440011',
-          batch_number: 'BTH-002',
-          product_name: 'Ashwagandha Extract',
+          id: '550e8400-e29b-41d4-a716-446655441002',
+          batch_number: 'BATCH-1235',
+          product_name: 'CardioZen 25mg',
+          product_type: 'pharmaceutical',
+          description: 'Cardiovascular medication for heart health management',
+          quantity: 5000,
+          unit: 'tablets',
           status: 'active',
-          organization_id: '550e8400-e29b-41d4-a716-446655440000'
-        },
-        {
-          id: '550e8400-e29b-41d4-a716-446655440012',
-          batch_number: 'BTH-003',
-          product_name: 'Kadha Immunity Blend',
-          status: 'active',
-          organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          origin_location: 'ZenPharma Manufacturing Facility, New Jersey',
+          harvest_date: '2024-01-20',
+          pharma_organizations: {
+            name: 'ZenPharma Inc.',
+            slug: 'zenpharma-inc'
+          }
         }
       ];
     }

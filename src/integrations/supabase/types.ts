@@ -730,6 +730,250 @@ export type Database = {
         }
         Relationships: []
       }
+      pharma_batches: {
+        Row: {
+          batch_number: string
+          created_at: string
+          description: string | null
+          harvest_date: string | null
+          id: string
+          images: Json | null
+          metadata: Json | null
+          organization_id: string
+          origin_location: string | null
+          product_name: string
+          product_type: string
+          qr_code: string | null
+          quantity: number | null
+          status: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch_number: string
+          created_at?: string
+          description?: string | null
+          harvest_date?: string | null
+          id?: string
+          images?: Json | null
+          metadata?: Json | null
+          organization_id: string
+          origin_location?: string | null
+          product_name: string
+          product_type?: string
+          qr_code?: string | null
+          quantity?: number | null
+          status?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch_number?: string
+          created_at?: string
+          description?: string | null
+          harvest_date?: string | null
+          id?: string
+          images?: Json | null
+          metadata?: Json | null
+          organization_id?: string
+          origin_location?: string | null
+          product_name?: string
+          product_type?: string
+          qr_code?: string | null
+          quantity?: number | null
+          status?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_batches_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_kadha_analytics: {
+        Row: {
+          capsule_id: string
+          created_at: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          location_data: Json | null
+          metadata: Json | null
+          referrer: string | null
+          scroll_depth: number | null
+          session_id: string | null
+          user_agent: string | null
+          view_duration: number | null
+        }
+        Insert: {
+          capsule_id: string
+          created_at?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          location_data?: Json | null
+          metadata?: Json | null
+          referrer?: string | null
+          scroll_depth?: number | null
+          session_id?: string | null
+          user_agent?: string | null
+          view_duration?: number | null
+        }
+        Update: {
+          capsule_id?: string
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          location_data?: Json | null
+          metadata?: Json | null
+          referrer?: string | null
+          scroll_depth?: number | null
+          session_id?: string | null
+          user_agent?: string | null
+          view_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_kadha_analytics_capsule_id_fkey"
+            columns: ["capsule_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_kadha_capsules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_kadha_capsules: {
+        Row: {
+          batch_id: string
+          brand_message: string | null
+          created_at: string | null
+          created_by: string
+          gmp_certifications: Json | null
+          id: string
+          is_active: boolean | null
+          is_published: boolean | null
+          key_ingredients: string | null
+          metadata: Json | null
+          organization_id: string
+          origin_story: string
+          product_name: string
+          published_at: string | null
+          qr_code: string | null
+          scan_count: number | null
+          short_link: string | null
+          supporting_images: Json | null
+          updated_at: string | null
+          version_number: number | null
+        }
+        Insert: {
+          batch_id: string
+          brand_message?: string | null
+          created_at?: string | null
+          created_by: string
+          gmp_certifications?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_published?: boolean | null
+          key_ingredients?: string | null
+          metadata?: Json | null
+          organization_id: string
+          origin_story: string
+          product_name: string
+          published_at?: string | null
+          qr_code?: string | null
+          scan_count?: number | null
+          short_link?: string | null
+          supporting_images?: Json | null
+          updated_at?: string | null
+          version_number?: number | null
+        }
+        Update: {
+          batch_id?: string
+          brand_message?: string | null
+          created_at?: string | null
+          created_by?: string
+          gmp_certifications?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_published?: boolean | null
+          key_ingredients?: string | null
+          metadata?: Json | null
+          organization_id?: string
+          origin_story?: string
+          product_name?: string
+          published_at?: string | null
+          qr_code?: string | null
+          scan_count?: number | null
+          short_link?: string | null
+          supporting_images?: Json | null
+          updated_at?: string | null
+          version_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharma_kadha_capsules_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pharma_kadha_capsules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharma_organizations: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          description: string | null
+          id: string
+          industry: string
+          logo_url: string | null
+          name: string
+          organization_type: string
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string
+          logo_url?: string | null
+          name: string
+          organization_type?: string
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string
+          logo_url?: string | null
+          name?: string
+          organization_type?: string
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       qr_analytics: {
         Row: {
           batch_id: string
