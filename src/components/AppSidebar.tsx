@@ -35,17 +35,17 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-// Menu items.
-const items = [
+// Pharma Operations section
+const pharmaOperations = [
   {
     title: "Dashboard",
     url: "/dashboard",
     icon: Home,
   },
   {
-    title: "Track Product",
-    url: "/track",
-    icon: Search,
+    title: "Operations Hub",
+    url: "/pharma-traceability",
+    icon: Pill,
   },
   {
     title: "Drug Registry",
@@ -53,34 +53,18 @@ const items = [
     icon: Package,
   },
   {
-    title: "Register Drug",
-    url: "/register-drug",
-    icon: Plus,
-  },
-  {
     title: "Shipments",
     url: "/shipments",
     icon: Truck,
   },
+]
+
+// Supply Chain section (role-specific)
+const supplyChain = [
   {
-    title: "History",
-    url: "/history",
-    icon: History,
-  },
-  {
-    title: "Compliance",
-    url: "/compliance",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Compliance Integration",
-    url: "/compliance-integration",
-    icon: Globe,
-  },
-  {
-    title: "Recall Reports",
-    url: "/recall-reports",
-    icon: AlertTriangle,
+    title: "Register Drug",
+    url: "/register-drug",
+    icon: Plus,
   },
   {
     title: "Batch Processing", 
@@ -88,20 +72,28 @@ const items = [
     icon: Package2,
   },
   {
-    title: "Network Explorer",
-    url: "/explorer",
-    icon: Globe,
-  },
-  {
-    title: "Verify Drug",
-    url: "/verify", 
-    icon: Shield,
-  },
-  {
     title: "ERP Integration",
     url: "/erp-integration",
     icon: Database,
   },
+]
+
+// Compliance & Security section
+const complianceSecurity = [
+  {
+    title: "Compliance Hub",
+    url: "/compliance",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Network Explorer",
+    url: "/explorer",
+    icon: Globe,
+  },
+]
+
+// System section
+const system = [
   {
     title: "Blockchain Status",
     url: "/blockchain-status",
@@ -117,11 +109,10 @@ const items = [
     url: "/network-admin",
     icon: Network,
   },
-  {
-    title: "API Test",
-    url: "/api-test",
-    icon: Settings,
-  },
+]
+
+// Brand Engagement section
+const brandEngagement = [
   {
     title: "Kadha Capsules",
     url: "/kadha-capsules",
@@ -129,24 +120,15 @@ const items = [
   },
 ]
 
-// Pharma Traceability section items
-const pharmaItems = [
-  {
-    title: "Pharma Traceability",
-    url: "/pharma-traceability",
-    icon: Pill,
-  }
-]
-
 export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Pharma Traceability</SidebarGroupLabel>
+          <SidebarGroupLabel>PHARMA OPERATIONS</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {pharmaItems.map((item) => (
+              {pharmaOperations.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>
@@ -161,10 +143,64 @@ export function AppSidebar() {
         </SidebarGroup>
         
         <SidebarGroup>
-          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>SUPPLY CHAIN</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {supplyChain.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>COMPLIANCE & SECURITY</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {complianceSecurity.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>SYSTEM</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {system.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>BRAND ENGAGEMENT</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {brandEngagement.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>

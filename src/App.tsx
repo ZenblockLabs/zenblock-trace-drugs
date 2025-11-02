@@ -124,13 +124,8 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/verify" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <VerifyDrugPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              {/* Redirect /verify to pharma-traceability */}
+              <Route path="/verify" element={<Navigate to="/pharma-traceability" replace />} />
               <Route path="/explorer" element={
                 <ProtectedRoute requiredRole={['regulator']}>
                   <Layout>
@@ -152,13 +147,8 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/compliance-integration" element={
-                <ProtectedRoute requiredRole={['regulator', 'compliance']}>
-                  <Layout>
-                    <ComplianceIntegrationPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              {/* Redirect /compliance-integration to compliance with tabs */}
+              <Route path="/compliance-integration" element={<Navigate to="/compliance" replace />} />
               <Route path="/network-admin" element={
                 <ProtectedRoute requiredRole={['regulator']}>
                   <Layout>
@@ -180,20 +170,8 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/recall-reports" element={
-                <ProtectedRoute requiredRole={['regulator']}>
-                  <Layout>
-                    <RecallReportsPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/api-test" element={
-                <ProtectedRoute requiredRole={['regulator']}>
-                  <Layout>
-                    <ApiTestPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              {/* Recall reports now accessible via compliance hub */}
+              <Route path="/recall-reports" element={<Navigate to="/compliance" replace />} />
               <Route path="/kadha-capsules" element={
                 <ProtectedRoute requiredRole={['brand_manager', 'admin']}>
                   <Layout>
