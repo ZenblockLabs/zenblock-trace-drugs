@@ -18,7 +18,8 @@ export class RecallService extends ChainCodeService {
     
     try {
       // Invoke chaincode to initiate recall
-      const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
+      const { data, error } = await this.invokeFunction<any>('fabric-chaincode', {
+        method: 'POST',
         body: { 
           action: 'invoke',
           chaincodeFcn: 'InitiateRecall',
@@ -31,7 +32,7 @@ export class RecallService extends ChainCodeService {
         throw new Error(`Failed to initiate recall: ${error.message}`);
       }
       
-      return data.success as boolean;
+      return (data as any)?.success as boolean;
     } catch (err) {
       console.error('Error initiating recall:', err);
       throw err;
@@ -46,7 +47,8 @@ export class RecallService extends ChainCodeService {
     
     try {
       // Query chaincode for recall status
-      const { data, error } = await supabase.functions.invoke('fabric-chaincode', {
+      const { data, error } = await this.invokeFunction<any>('fabric-chaincode', {
+        method: 'POST',
         body: { 
           action: 'query',
           chaincodeFcn: 'IsRecalled',

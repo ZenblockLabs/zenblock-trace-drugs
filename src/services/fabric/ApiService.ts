@@ -23,13 +23,15 @@ export class ApiService {
       // This prevents the Supabase client from not sending a body at all
       const requestBody = options.body !== undefined ? options.body : {};
       
+      const payloadString = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
+      
       const { data, error } = await supabase.functions.invoke(functionName, {
         method: options.method || 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(options.headers || {})
         },
-        body: requestBody
+        body: payloadString
       });
       
       if (error) {
