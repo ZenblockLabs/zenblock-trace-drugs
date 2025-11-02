@@ -22,8 +22,11 @@ export class ApiService {
       // Ensure body is always defined (use empty object if undefined)
       // This prevents the Supabase client from not sending a body at all
       const requestBody = options.body !== undefined ? options.body : {};
-      
-      const payloadString = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
+
+      // Debug: log function invocation payload (safe)
+      try {
+        console.debug(`[ApiService] Invoking ${functionName} with body:`, requestBody);
+      } catch {}
       
       const { data, error } = await supabase.functions.invoke(functionName, {
         method: options.method || 'POST',
@@ -31,7 +34,7 @@ export class ApiService {
           'Content-Type': 'application/json',
           ...(options.headers || {})
         },
-        body: payloadString
+        body: requestBody
       });
       
       if (error) {
