@@ -13,8 +13,13 @@ serve(async (req) => {
   }
 
   try {
-    // Parse the request body
-    const { action } = await req.json();
+    // Handle GET requests (no body) and POST requests (with body)
+    let action = 'ping'; // Default action for GET requests
+    
+    if (req.method === 'POST') {
+      const body = await req.json();
+      action = body.action || 'ping';
+    }
 
     if (action === 'ping') {
       // In a real implementation, this would check the connection to the Fabric network
