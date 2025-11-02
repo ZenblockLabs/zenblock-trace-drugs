@@ -12,7 +12,7 @@ export class NetworkService extends ApiService {
     try {
       // Check if the Fabric service is accessible via Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('fabric-ping', {
-        method: 'GET'
+        body: { action: 'ping' }
       });
 
       if (error) {
