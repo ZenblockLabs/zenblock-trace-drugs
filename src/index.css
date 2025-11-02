@@ -7,44 +7,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 217 30% 17%;
+    --background: 210 20% 98%;
+    --foreground: 210 6% 13%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 217 30% 17%;
+    --card: 150 14% 96%;
+    --card-foreground: 210 6% 13%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 217 30% 17%;
+    --popover: 150 14% 96%;
+    --popover-foreground: 210 6% 13%;
 
-    --primary: 145 77% 27%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 173 78% 18%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 210 40% 98%;
-    --secondary-foreground: 217 30% 17%;
+    --secondary: 195 18% 24%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 210 40% 98%;
-    --muted-foreground: 217 10% 46%;
+    --muted: 150 14% 96%;
+    --muted-foreground: 195 18% 24%;
 
-    --accent: 158 64% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 158 69% 39%;
+    --accent-foreground: 210 20% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 210 17% 93%;
-    --input: 210 17% 93%;
-    --ring: 145 77% 27%;
+    --border: 150 14% 90%;
+    --input: 150 14% 90%;
+    --ring: 173 78% 18%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 150 78% 18%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 145 77% 27%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 158 64% 52%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 150 78% 25%;
-    --sidebar-ring: 158 64% 52%;
+    --sidebar-background: 173 78% 18%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 158 69% 39%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 158 69% 45%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 173 78% 25%;
+    --sidebar-ring: 158 69% 39%;
+
+    --success: 145 60% 78%;
+    --success-foreground: 173 78% 18%;
 
     --deep-forest: 150 78% 18%;
     --professional-green: 145 77% 27%;
@@ -55,6 +58,13 @@
     --border-grey: 210 17% 93%;
     --charcoal: 217 30% 17%;
     --medium-grey: 217 10% 46%;
+    
+    --deep-teal: 173 78% 18%;
+    --emerald: 158 69% 39%;
+    --slate-gray: 195 18% 24%;
+    --soft-white-gray: 210 20% 98%;
+    --light-mist: 150 14% 96%;
+    --mint-green: 145 60% 78%;
   }
 }
 
