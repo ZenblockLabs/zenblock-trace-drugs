@@ -19,13 +19,17 @@ export class ApiService {
     } = {}
   ): Promise<ApiResponse<T>> {
     try {
+      // Ensure body is always defined (use empty object if undefined)
+      // This prevents the Supabase client from not sending a body at all
+      const requestBody = options.body !== undefined ? options.body : {};
+      
       const { data, error } = await supabase.functions.invoke(functionName, {
         method: options.method || 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(options.headers || {})
         },
-        body: options.body
+        body: requestBody
       });
       
       if (error) {

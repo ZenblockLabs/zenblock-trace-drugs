@@ -29,7 +29,7 @@ export class EventService extends ChainCodeService {
   async getAllEvents(): Promise<TrackingEvent[]> {
     console.log('EventService.getAllEvents called');
     
-    const data = await this.callChaincode('GetAllEvents');
+    const data = await this.callChaincode('GetAllEvents', []);
     return data as TrackingEvent[];
   }
 

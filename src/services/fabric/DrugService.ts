@@ -19,7 +19,7 @@ export class DrugService extends ChainCodeService {
   async getAllDrugs(): Promise<Drug[]> {
     console.log('DrugService.getAllDrugs called');
     
-    const data = await this.callChaincode('GetAllDrugs');
+    const data = await this.callChaincode('GetAllDrugs', []);
     return data as Drug[];
   }
 

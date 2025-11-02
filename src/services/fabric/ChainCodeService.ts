@@ -5,13 +5,14 @@ export class ChainCodeService extends ApiService {
   /**
    * Calls a chaincode function on the Fabric network
    */
-  async callChaincode(functionName: string, args: any = {}): Promise<any> {
+  async callChaincode(functionName: string, args: any[] = []): Promise<any> {
     try {
       const response = await this.invokeFunction('fabric-chaincode', {
         method: 'POST',
         body: {
-          functionName,
-          args
+          chaincodeFcn: functionName,
+          action: 'query',
+          args: Array.isArray(args) ? args : []
         }
       });
       
