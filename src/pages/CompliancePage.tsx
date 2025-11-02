@@ -13,7 +13,8 @@ import { InteroperabilityPanel } from "@/components/compliance/InteroperabilityP
 import { ComplianceConfigPanel } from "@/components/compliance/ComplianceConfigPanel";
 import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Settings, FileText, Activity } from "lucide-react";
+import { Globe, Settings, FileText, Activity, AlertTriangle } from "lucide-react";
+import { RecallReportsTab } from "@/components/compliance/RecallReportsTab";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -147,7 +148,7 @@ export function CompliancePage() {
       <CompliancePageHeader isComplianceUser={isComplianceUser} />
       
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Overview
@@ -159,6 +160,10 @@ export function CompliancePage() {
           <TabsTrigger value="traceability" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Traceability
+          </TabsTrigger>
+          <TabsTrigger value="recalls" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Recall Reports
           </TabsTrigger>
           <TabsTrigger value="configuration" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -195,6 +200,10 @@ export function CompliancePage() {
         
         <TabsContent value="traceability" className="mt-6">
           <ProductTraceability traceabilityData={complianceData.traceability} />
+        </TabsContent>
+        
+        <TabsContent value="recalls" className="mt-6">
+          <RecallReportsTab />
         </TabsContent>
         
         <TabsContent value="configuration" className="mt-6">

@@ -90,16 +90,37 @@ export function TrackPage() {
   // If no code is provided, show the scanner
   if (!code) {
     return (
-      <div className="container max-w-3xl mx-auto py-8 px-4">
-        <div className="flex justify-center mb-8">
-          <img 
-            src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
-            alt="Zenblock Labs Logo" 
-            className="h-16 w-16" 
-          />
+      <div className="container max-w-3xl mx-auto py-12 px-4">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/7f80b1a9-32ff-4729-bd56-1245ed723387.png" 
+              alt="Zenblock Labs Logo" 
+              className="h-20 w-20" 
+            />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold">Verify Your Medicine</h1>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Scan the QR code on your pharmaceutical product to verify authenticity 
+              and trace its complete journey through the supply chain
+            </p>
+          </div>
+          <Alert className="max-w-md mx-auto text-left">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Every scan is recorded on an immutable blockchain ledger, 
+              ensuring complete transparency and security
+            </AlertDescription>
+          </Alert>
         </div>
-        <h1 className="text-2xl font-bold text-center mb-6">Drug Verification</h1>
-        <QRCodeScanner />
+        <div className="mt-8">
+          <QRCodeScanner />
+        </div>
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p>🔒 Powered by Hyperledger Fabric blockchain technology</p>
+          <p className="mt-1">© 2025 Zenblock Labs. All rights reserved.</p>
+        </div>
       </div>
     );
   }

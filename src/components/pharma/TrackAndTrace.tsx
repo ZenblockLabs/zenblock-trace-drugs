@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Package, Truck, Building, CheckCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Loader2, Package, Truck, Building, CheckCircle, List, Table2 } from 'lucide-react';
 import { pharmaTraceabilityService, TraceResponse } from '@/services/PharmaTraceabilityService';
 import { toast } from 'sonner';
 
@@ -166,45 +167,120 @@ export function TrackAndTrace() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Supply Chain Timeline</CardTitle>
+              <CardTitle>Supply Chain Journey</CardTitle>
               <CardDescription>
-                Blockchain-verified events in chronological order
+                Blockchain-verified events with multiple view options
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {traceData.events.map((event, index) => (
-                  <div key={event.id} className="flex items-start space-x-4">
-                    <div className={`rounded-full p-2 ${getEventColor(event.type)} text-white`}>
-                      {getEventIcon(event.type)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium capitalize">{event.type}</h4>
-                        <Badge variant="secondary">{event.role}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {event.organization} - {event.location}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(event.timestamp).toLocaleString()}
-                      </p>
-                      {event.details && Object.keys(event.details).length > 0 && (
-                        <div className="mt-2 p-2 bg-muted rounded text-xs">
-                          {Object.entries(event.details).map(([key, value]) => (
-                            <div key={key}>
-                              <strong>{key}:</strong> {String(value)}
+              <Tabs defaultValue="timeline" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="timeline" className="flex items-center gap-2">
+                    <List className="h-4 w-4" />
+                    Timeline View
+                  </TabsTrigger>
+                  <TabsTrigger value="table" className="flex items-center gap-2">
+                    <Table2 className="h-4 w-4" />
+                    Table View
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="timeline" className="mt-6">
+                  <div className="space-y-6">
+                    {traceData.events.map((event, index) => (
+                      <div key={event.id} className="relative">
+                        <div className="flex items-start gap-4">
+                          <div className={`rounded-full p-3 ${getEventColor(event.type)} text-white flex-shrink-0`}>
+                            {getEventIcon(event.type)}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold text-lg capitalize">{event.type}</h4>
+                              <Badge variant="secondary">{event.role}</Badge>
                             </div>
-                          ))}
+                            <div className="text-sm space-y-1">
+                              <p className="font-medium">{event.organization}</p>
+                              <p className="text-muted-foreground">{event.location}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(event.timestamp).toLocaleString()}
+                              </p>
+                            </div>
+                            {event.details && Object.keys(event.details).length > 0 && (
+                              <div className="mt-3 p-3 bg-muted rounded-lg">
+                                <p className="text-xs font-medium mb-2">Event Details:</p>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  {Object.entries(event.details).map(([key, value]) => (
+                                    <div key={key}>
+                                      <span className="text-muted-foreground">{key}:</span>{' '}
+                                      <span className="font-medium">{String(value)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    {index < traceData.events.length - 1 && (
-                      <div className="ml-4 mt-4 h-8 w-px bg-border" />
-                    )}
+                        {index < traceData.events.length - 1 && (
+                          <div className="ml-6 mt-4 h-8 w-0.5 bg-border" />
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </TabsContent>
+
+                <TabsContent value="table" className="mt-6">
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Organization</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Timestamp</TableHead>
+                          <TableHead>Details</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {traceData.events.map((event) => (
+                          <TableRow key={event.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className={`rounded-full p-1.5 ${getEventColor(event.type)} text-white`}>
+                                  {getEventIcon(event.type)}
+                                </div>
+                                <span className="capitalize font-medium">{event.type}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">{event.organization}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{event.role}</Badge>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">{event.location}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {new Date(event.timestamp).toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              {event.details && Object.keys(event.details).length > 0 ? (
+                                <div className="text-xs space-y-1">
+                                  {Object.entries(event.details).map(([key, value]) => (
+                                    <div key={key}>
+                                      <span className="text-muted-foreground">{key}:</span>{' '}
+                                      {String(value)}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">No details</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
