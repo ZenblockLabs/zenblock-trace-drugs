@@ -104,6 +104,8 @@ export default {
 				'mint-green': 'hsl(var(--mint-green))',
 				success: 'hsl(var(--success))',
 				'success-foreground': 'hsl(var(--success-foreground))',
+				'login-bg': 'hsl(var(--login-bg))',
+				'login-border': 'hsl(var(--login-border))',
 			},
 			fontFamily: {
 				sans: ['IBM Plex Sans', 'sans-serif'],

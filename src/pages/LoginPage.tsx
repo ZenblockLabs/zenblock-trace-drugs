@@ -49,7 +49,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAF9]">
       <div className="w-full max-w-md space-y-6">
         {/* Zenblock Labs Header */}
         <div className="text-center space-y-2">
@@ -62,16 +62,16 @@ export const LoginPage = () => {
               />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Zenblock Labs</h1>
-              <p className="text-sm text-gray-600">Blockchain Innovation</p>
+              <h1 className="text-3xl font-bold text-charcoal">Zenblock Labs</h1>
+              <p className="text-sm text-slate-gray">Blockchain Innovation</p>
             </div>
           </div>
         </div>
 
-        <Card className="w-full">
+        <Card className="w-full bg-white border-[#E6EBE9] shadow-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Pharma Traceability</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-charcoal">Pharma Traceability</CardTitle>
+            <CardDescription className="text-slate-gray">Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,6 +84,7 @@ export const LoginPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="Enter your email"
+                  className="border-[#E6EBE9]"
                 />
               </div>
               <div className="space-y-2">
@@ -95,6 +96,7 @@ export const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Enter your password"
+                  className="border-[#E6EBE9]"
                 />
               </div>
               
@@ -104,18 +106,23 @@ export const LoginPage = () => {
                 </Alert>
               )}
               
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-deep-teal hover:bg-emerald" 
+                disabled={isLoading}
+              >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="mt-6 space-y-2">
-              <p className="text-sm text-muted-foreground text-center">Quick login options:</p>
+              <p className="text-sm text-slate-gray text-center">Quick login options:</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
+                  className="border-[#E6EBE9] hover:bg-light-mist"
                 >
                   Manufacturer
                 </Button>
@@ -123,6 +130,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
+                  className="border-[#E6EBE9] hover:bg-light-mist"
                 >
                   Distributor
                 </Button>
@@ -130,6 +138,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
+                  className="border-[#E6EBE9] hover:bg-light-mist"
                 >
                   Dispenser
                 </Button>
@@ -137,6 +146,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('regulator@authority.gov', 'password123')}
+                  className="border-[#E6EBE9] hover:bg-light-mist"
                 >
                   Regulator
                 </Button>
