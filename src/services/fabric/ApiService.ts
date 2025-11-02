@@ -13,28 +13,20 @@ export class ApiService {
   protected async invokeFunction<T>(
     functionName: string, 
     options: {
-      method?: 'POST' | 'GET' | 'PUT' | 'PATCH' | 'DELETE';
-      headers?: Record<string, string>;
       body?: any;
     } = {}
   ): Promise<ApiResponse<T>> {
     try {
-      // Ensure body is always defined (use empty object if undefined)
-      // This prevents the Supabase client from not sending a body at all
-      const requestBody = options.body !== undefined ? options.body : {};
+      // Always provide a body; use minimal placeholder if none provided
+      // This guarantees the edge function receives a JSON body
+      const payload = options.body ?? { _noop: true };
 
-      // Debug: log function invocation payload (safe)
-      try {
-        console.debug(`[ApiService] Invoking ${functionName} with body:`, requestBody);
-      } catch {}
+      // Debug: log function invocation payload
+      console.debug(`[ApiService] Invoking ${functionName} with body:`, payload);
       
+      // Let supabase-js handle method (defaults to POST) and headers
       const { data, error } = await supabase.functions.invoke(functionName, {
-        method: options.method || 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(options.headers || {})
-        },
-        body: requestBody
+        body: payload
       });
       
       if (error) {

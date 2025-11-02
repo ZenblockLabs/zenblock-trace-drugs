@@ -30,6 +30,8 @@ export const DashboardPage = () => {
       const drugs = await service.getAllDrugs();
       return drugs.length;
     },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
   
   // Fetch recent events
@@ -39,6 +41,8 @@ export const DashboardPage = () => {
       const service = await getBlockchainService();
       return service.getRecentEvents(5);
     },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   return (

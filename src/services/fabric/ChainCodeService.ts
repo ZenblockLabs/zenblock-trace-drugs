@@ -8,7 +8,6 @@ export class ChainCodeService extends ApiService {
   async callChaincode(functionName: string, args: any[] = []): Promise<any> {
     try {
       const response = await this.invokeFunction('fabric-chaincode', {
-        method: 'POST',
         body: {
           chaincodeFcn: functionName,
           action: 'query',

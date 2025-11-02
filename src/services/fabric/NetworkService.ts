@@ -20,6 +20,17 @@ export class NetworkService extends ApiService {
         return false;
       }
 
+      // Perform POST sanity check to fabric-chaincode
+      // This ensures the edge function can accept POST requests with JSON bodies
+      const { error: chaincodeError } = await supabase.functions.invoke('fabric-chaincode', {
+        body: { action: 'query', chaincodeFcn: 'HealthCheck', args: [] }
+      });
+
+      if (chaincodeError) {
+        console.warn('fabric-chaincode POST sanity check failed, falling back to mock service:', chaincodeError);
+        return false;
+      }
+
       this.gatewayConnected = true;
       return true;
     } catch (err) {

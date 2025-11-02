@@ -59,7 +59,6 @@ export class DrugService extends ChainCodeService {
   async getDrugDetailsBySGTIN(sgtin: string): Promise<any> {
     try {
       const { data, error } = await this.invokeFunction('track-drug', {
-        method: 'POST',
         body: { code: sgtin }
       });
 

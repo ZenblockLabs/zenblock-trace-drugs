@@ -19,7 +19,6 @@ export class RecallService extends ChainCodeService {
     try {
       // Invoke chaincode to initiate recall
       const { data, error } = await this.invokeFunction<any>('fabric-chaincode', {
-        method: 'POST',
         body: { 
           action: 'invoke',
           chaincodeFcn: 'InitiateRecall',
@@ -48,7 +47,6 @@ export class RecallService extends ChainCodeService {
     try {
       // Query chaincode for recall status
       const { data, error } = await this.invokeFunction<any>('fabric-chaincode', {
-        method: 'POST',
         body: { 
           action: 'query',
           chaincodeFcn: 'IsRecalled',
