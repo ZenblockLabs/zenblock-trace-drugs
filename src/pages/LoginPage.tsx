@@ -122,7 +122,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
-                  className="border-[#E6EBE9] hover:bg-light-mist"
+                  className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Manufacturer
                 </Button>
@@ -130,7 +130,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
-                  className="border-[#E6EBE9] hover:bg-light-mist"
+                  className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Distributor
                 </Button>
@@ -138,7 +138,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
-                  className="border-[#E6EBE9] hover:bg-light-mist"
+                  className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Dispenser
                 </Button>
@@ -146,7 +146,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('regulator@authority.gov', 'password123')}
-                  className="border-[#E6EBE9] hover:bg-light-mist"
+                  className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Regulator
                 </Button>
@@ -154,7 +154,7 @@ export const LoginPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('brandmanager@zenblock.com', 'password123')}
-                  className="col-span-2 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 hover:from-pink-100 hover:to-purple-100"
+                  className="col-span-2 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 hover:from-pink-100 hover:to-purple-100 hover:text-purple-900"
                 >
                   🎯 Brand Manager (Kadha Access)
                 </Button>
