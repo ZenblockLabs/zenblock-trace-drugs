@@ -86,7 +86,16 @@ export default {
 					700: '#2B7998',
 					800: '#1D5169',
 					900: '#0E2834',
-				}
+				},
+				'deep-forest': 'hsl(var(--deep-forest))',
+				'professional-green': 'hsl(var(--professional-green))',
+				'fresh-green': 'hsl(var(--fresh-green))',
+				'mint-whisper': 'hsl(var(--mint-whisper))',
+				'pure-white': 'hsl(var(--pure-white))',
+				'cool-grey': 'hsl(var(--cool-grey))',
+				'border-grey': 'hsl(var(--border-grey))',
+				charcoal: 'hsl(var(--charcoal))',
+				'medium-grey': 'hsl(var(--medium-grey))',
 			},
 			fontFamily: {
 				sans: ['IBM Plex Sans', 'sans-serif'],

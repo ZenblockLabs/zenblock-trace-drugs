@@ -45,6 +45,16 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 201 50% 25%;
     --sidebar-ring: 201 100% 50%;
+
+    --deep-forest: 150 78% 18%;
+    --professional-green: 145 77% 27%;
+    --fresh-green: 158 64% 52%;
+    --mint-whisper: 156 73% 97%;
+    --pure-white: 0 0% 100%;
+    --cool-grey: 210 40% 98%;
+    --border-grey: 210 17% 93%;
+    --charcoal: 217 30% 17%;
+    --medium-grey: 217 10% 46%;
   }
 }
 
