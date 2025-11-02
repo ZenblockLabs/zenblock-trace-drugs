@@ -57,15 +57,52 @@ export async function handleRequest(req: Request): Promise<Response> {
     }
 
     // If not a recall endpoint, proceed with standard chaincode interaction
-    const { action, chaincodeFcn, args } = await req.json();
-
-    if (!action || !chaincodeFcn) {
+    if (req.method === 'GET') {
+      // Health/status endpoint for simple connectivity checks
       return new Response(
-        JSON.stringify({ error: 'Missing required parameters: action and/or chaincodeFcn' }),
-        { 
+        JSON.stringify({ status: 'ok', message: 'fabric-chaincode is reachable' }),
+        {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400 
+          status: 200,
         }
+      );
+    }
+
+    if (req.method !== 'POST') {
+      return new Response(
+        JSON.stringify({ error: 'Method not allowed' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 405 }
+      );
+    }
+
+    // Safely parse JSON body
+    const rawBody = await req.text();
+    if (!rawBody) {
+      return new Response(
+        JSON.stringify({ error: 'Missing JSON body' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    let payload: any;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    // Backward compatibility: support { functionName, args }
+    const action = payload.action || 'query';
+    const chaincodeFcn = payload.chaincodeFcn || payload.functionName;
+    const args = Array.isArray(payload.args) ? payload.args : (payload.args ? [payload.args] : []);
+
+    if (!chaincodeFcn) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required parameter: chaincodeFcn' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
 
@@ -82,7 +119,7 @@ export async function handleRequest(req: Request): Promise<Response> {
 
     // Process the chaincode interaction
     console.log(`Processing ${action} for function '${chaincodeFcn}' with args:`, args);
-    const result = await simulateChaincodeInteraction(action, chaincodeFcn, args || []);
+    const result = await simulateChaincodeInteraction(action, chaincodeFcn, args);
 
     return new Response(
       JSON.stringify(result),
@@ -95,7 +132,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     console.error('Error in fabric-chaincode function:', error);
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500 
