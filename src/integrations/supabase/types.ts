@@ -14,6 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
+      actor_capsule_analytics: {
+        Row: {
+          capsule_id: string
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          referrer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          capsule_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          capsule_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actor_capsule_analytics_capsule_id_fkey"
+            columns: ["capsule_id"]
+            isOneToOne: false
+            referencedRelation: "actor_capsules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      actor_capsules: {
+        Row: {
+          accent_color: string | null
+          actor_name: string
+          age: number | null
+          agent_contact: string | null
+          bio: string | null
+          created_at: string
+          credits: Json | null
+          email: string | null
+          eye_color: string | null
+          gallery_images: Json | null
+          hair_color: string | null
+          has_passport: boolean | null
+          height: string | null
+          id: string
+          imdb_url: string | null
+          instagram_url: string | null
+          intro_video_url: string | null
+          is_published: boolean | null
+          languages: string[] | null
+          profile_photo: string | null
+          qr_scan_count: number | null
+          short_link: string | null
+          skills: string[] | null
+          slug: string
+          tagline: string | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+          videos: Json | null
+          view_count: number | null
+          youtube_url: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          actor_name: string
+          age?: number | null
+          agent_contact?: string | null
+          bio?: string | null
+          created_at?: string
+          credits?: Json | null
+          email?: string | null
+          eye_color?: string | null
+          gallery_images?: Json | null
+          hair_color?: string | null
+          has_passport?: boolean | null
+          height?: string | null
+          id?: string
+          imdb_url?: string | null
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_published?: boolean | null
+          languages?: string[] | null
+          profile_photo?: string | null
+          qr_scan_count?: number | null
+          short_link?: string | null
+          skills?: string[] | null
+          slug: string
+          tagline?: string | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+          videos?: Json | null
+          view_count?: number | null
+          youtube_url?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          actor_name?: string
+          age?: number | null
+          agent_contact?: string | null
+          bio?: string | null
+          created_at?: string
+          credits?: Json | null
+          email?: string | null
+          eye_color?: string | null
+          gallery_images?: Json | null
+          hair_color?: string | null
+          has_passport?: boolean | null
+          height?: string | null
+          id?: string
+          imdb_url?: string | null
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_published?: boolean | null
+          languages?: string[] | null
+          profile_photo?: string | null
+          qr_scan_count?: number | null
+          short_link?: string | null
+          skills?: string[] | null
+          slug?: string
+          tagline?: string | null
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+          videos?: Json | null
+          view_count?: number | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      aggregations: {
+        Row: {
+          aggregation_date: string | null
+          batch_id: string | null
+          child_id: string
+          child_type: string
+          created_at: string | null
+          disaggregation_date: string | null
+          id: string
+          metadata: Json | null
+          parent_id: string
+          parent_type: string
+          status: string | null
+        }
+        Insert: {
+          aggregation_date?: string | null
+          batch_id?: string | null
+          child_id: string
+          child_type: string
+          created_at?: string | null
+          disaggregation_date?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_id: string
+          parent_type: string
+          status?: string | null
+        }
+        Update: {
+          aggregation_date?: string | null
+          batch_id?: string | null
+          child_id?: string
+          child_type?: string
+          created_at?: string | null
+          disaggregation_date?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_id?: string
+          parent_type?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aggregations_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      allowed_emails: {
+        Row: {
+          added_by: string | null
+          created_at: string | null
+          email: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string | null
+          email: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string | null
+          email?: string
+        }
+        Relationships: []
+      }
       batch_events: {
         Row: {
           actor_name: string | null
@@ -188,6 +399,7 @@ export type Database = {
       }
       capsules: {
         Row: {
+          accent_color: string | null
           created_at: string
           cta_text: string | null
           cta_url: string | null
@@ -200,6 +412,7 @@ export type Database = {
           slug: string
           story: string
           tags: string[] | null
+          theme: string | null
           timeline: Json | null
           title: string
           updated_at: string
@@ -211,6 +424,7 @@ export type Database = {
           voice_note_url: string | null
         }
         Insert: {
+          accent_color?: string | null
           created_at?: string
           cta_text?: string | null
           cta_url?: string | null
@@ -223,6 +437,7 @@ export type Database = {
           slug: string
           story: string
           tags?: string[] | null
+          theme?: string | null
           timeline?: Json | null
           title: string
           updated_at?: string
@@ -234,6 +449,7 @@ export type Database = {
           voice_note_url?: string | null
         }
         Update: {
+          accent_color?: string | null
           created_at?: string
           cta_text?: string | null
           cta_url?: string | null
@@ -246,6 +462,7 @@ export type Database = {
           slug?: string
           story?: string
           tags?: string[] | null
+          theme?: string | null
           timeline?: Json | null
           title?: string
           updated_at?: string
@@ -257,6 +474,71 @@ export type Database = {
           voice_note_url?: string | null
         }
         Relationships: []
+      }
+      coldchain_events: {
+        Row: {
+          batch_id: string | null
+          blockchain_tx_id: string | null
+          created_at: string | null
+          event_hash: string | null
+          excursion_details: string | null
+          excursion_flag: boolean | null
+          humidity: number | null
+          id: string
+          location_gln: string | null
+          metadata: Json | null
+          recorded_at: string
+          sensor_id: string | null
+          shipment_id: string
+          temp_avg: number | null
+          temp_max: number
+          temp_min: number
+        }
+        Insert: {
+          batch_id?: string | null
+          blockchain_tx_id?: string | null
+          created_at?: string | null
+          event_hash?: string | null
+          excursion_details?: string | null
+          excursion_flag?: boolean | null
+          humidity?: number | null
+          id?: string
+          location_gln?: string | null
+          metadata?: Json | null
+          recorded_at?: string
+          sensor_id?: string | null
+          shipment_id: string
+          temp_avg?: number | null
+          temp_max: number
+          temp_min: number
+        }
+        Update: {
+          batch_id?: string | null
+          blockchain_tx_id?: string | null
+          created_at?: string | null
+          event_hash?: string | null
+          excursion_details?: string | null
+          excursion_flag?: boolean | null
+          humidity?: number | null
+          id?: string
+          location_gln?: string | null
+          metadata?: Json | null
+          recorded_at?: string
+          sensor_id?: string | null
+          shipment_id?: string
+          temp_avg?: number | null
+          temp_max?: number
+          temp_min?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coldchain_events_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       compliance_reports: {
         Row: {
@@ -288,6 +570,30 @@ export type Database = {
           timestamp?: string | null
           title?: string
           violations?: number
+        }
+        Relationships: []
+      }
+      contact_form_rate_limit: {
+        Row: {
+          created_at: string | null
+          first_submission_at: string | null
+          ip_address: string
+          last_submission_at: string | null
+          submission_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_submission_at?: string | null
+          ip_address: string
+          last_submission_at?: string | null
+          submission_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          first_submission_at?: string | null
+          ip_address?: string
+          last_submission_at?: string | null
+          submission_count?: number | null
         }
         Relationships: []
       }
@@ -1012,6 +1318,87 @@ export type Database = {
           },
         ]
       }
+      recall_affected_items: {
+        Row: {
+          action_taken_at: string | null
+          created_at: string | null
+          current_location: string | null
+          id: string
+          item_id: string
+          item_type: string
+          lot_number: string | null
+          metadata: Json | null
+          notification_sent_at: string | null
+          owner_gln: string | null
+          recall_id: string
+          sgtin: string | null
+          status: string | null
+        }
+        Insert: {
+          action_taken_at?: string | null
+          created_at?: string | null
+          current_location?: string | null
+          id?: string
+          item_id: string
+          item_type: string
+          lot_number?: string | null
+          metadata?: Json | null
+          notification_sent_at?: string | null
+          owner_gln?: string | null
+          recall_id: string
+          sgtin?: string | null
+          status?: string | null
+        }
+        Update: {
+          action_taken_at?: string | null
+          created_at?: string | null
+          current_location?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          lot_number?: string | null
+          metadata?: Json | null
+          notification_sent_at?: string | null
+          owner_gln?: string | null
+          recall_id?: string
+          sgtin?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      recall_events: {
+        Row: {
+          actor_name: string | null
+          actor_role: string | null
+          description: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          recall_id: string
+          timestamp: string | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_role?: string | null
+          description?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          recall_id: string
+          timestamp?: string | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_role?: string | null
+          description?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          recall_id?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       serial_numbers: {
         Row: {
           batch_id: string | null
@@ -1062,6 +1449,74 @@ export type Database = {
             columns: ["drug_id"]
             isOneToOne: false
             referencedRelation: "drugs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          actual_arrival: string | null
+          batch_id: string | null
+          blockchain_tx_id: string | null
+          created_at: string | null
+          departure_date: string | null
+          expected_arrival: string | null
+          from_gln: string
+          from_location: string | null
+          id: string
+          route_info: Json | null
+          shipment_doc_hash: string | null
+          shipment_number: string
+          status: string | null
+          temperature_controlled: boolean | null
+          to_gln: string
+          to_location: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_arrival?: string | null
+          batch_id?: string | null
+          blockchain_tx_id?: string | null
+          created_at?: string | null
+          departure_date?: string | null
+          expected_arrival?: string | null
+          from_gln: string
+          from_location?: string | null
+          id?: string
+          route_info?: Json | null
+          shipment_doc_hash?: string | null
+          shipment_number: string
+          status?: string | null
+          temperature_controlled?: boolean | null
+          to_gln: string
+          to_location?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_arrival?: string | null
+          batch_id?: string | null
+          blockchain_tx_id?: string | null
+          created_at?: string | null
+          departure_date?: string | null
+          expected_arrival?: string | null
+          from_gln?: string
+          from_location?: string | null
+          id?: string
+          route_info?: Json | null
+          shipment_doc_hash?: string | null
+          shipment_number?: string
+          status?: string | null
+          temperature_controlled?: boolean | null
+          to_gln?: string
+          to_location?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
             referencedColumns: ["id"]
           },
         ]
@@ -1158,6 +1613,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       organizations_public: {
@@ -1207,14 +1683,10 @@ export type Database = {
       }
     }
     Functions: {
-      cleanup_old_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      cleanup_old_qr_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_contact_rate_limit: { Args: { ip: string }; Returns: boolean }
+      cleanup_analytics_pii: { Args: never; Returns: number }
+      cleanup_old_analytics: { Args: never; Returns: number }
+      cleanup_old_qr_analytics: { Args: never; Returns: undefined }
       get_analytics_summary: {
         Args: { p_batch_id?: string }
         Returns: {
@@ -1229,10 +1701,7 @@ export type Database = {
           scan_timestamp: string
         }[]
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_public_batch_events: {
         Args: { p_batch_id: string }
         Returns: {
@@ -1273,6 +1742,30 @@ export type Database = {
           step_name: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_actor_capsule_qr_scan_count: {
+        Args: { capsule_id: string }
+        Returns: undefined
+      }
+      increment_actor_capsule_view_count: {
+        Args: { capsule_id: string }
+        Returns: undefined
+      }
+      increment_capsule_qr_scan_count: {
+        Args: { capsule_id: string }
+        Returns: undefined
+      }
+      increment_capsule_view_count: {
+        Args: { capsule_id: string }
+        Returns: undefined
+      }
+      is_email_allowed: { Args: { check_email: string }; Returns: boolean }
     }
     Enums: {
       organization_type: "pharmaceutical" | "agriculture"

@@ -21,6 +21,8 @@ import {
   Bell,
   Eye,
   Heart,
+  Thermometer,
+  Layers,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -56,6 +58,16 @@ const pharmaOperations = [
     title: "Shipments",
     url: "/shipments",
     icon: Truck,
+  },
+  {
+    title: "Cold Chain",
+    url: "/cold-chain",
+    icon: Thermometer,
+  },
+  {
+    title: "Aggregation",
+    url: "/aggregation",
+    icon: Layers,
   },
 ]
 

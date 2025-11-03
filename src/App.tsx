@@ -29,6 +29,8 @@ import { ComplianceIntegrationPage } from "./pages/ComplianceIntegrationPage";
 import { PharmaTraceabilityPage } from "./pages/PharmaTraceabilityPage";
 import { KadhaCapsulesPage } from "./pages/KadhaCapsulesPage";
 import { PublicKadhaPage } from "./pages/PublicKadhaPage";
+import ColdChainPage from "./pages/ColdChainPage";
+import AggregationPage from "./pages/AggregationPage";
 
 const queryClient = new QueryClient();
 
@@ -180,6 +182,20 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/kadha/:shortLink" element={<PublicKadhaPage />} />
+              <Route path="/cold-chain" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ColdChainPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/aggregation" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AggregationPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </BrowserRouter>
