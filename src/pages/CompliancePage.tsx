@@ -148,32 +148,34 @@ export function CompliancePage() {
       <CompliancePageHeader isComplianceUser={isComplianceUser} />
       
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            Integrations
-          </TabsTrigger>
-          <TabsTrigger value="traceability" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Traceability
-          </TabsTrigger>
-          <TabsTrigger value="recalls" className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Recall Reports
-          </TabsTrigger>
-          <TabsTrigger value="configuration" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Configuration
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Custom Reports
-          </TabsTrigger>
-        </TabsList>
+        <div className="w-full overflow-x-auto">
+          <TabsList className="inline-flex w-full md:grid md:grid-cols-6 min-w-max md:min-w-0">
+            <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2 whitespace-nowrap">
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">Integrations</span>
+            </TabsTrigger>
+            <TabsTrigger value="traceability" className="flex items-center gap-2 whitespace-nowrap">
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Traceability</span>
+            </TabsTrigger>
+            <TabsTrigger value="recalls" className="flex items-center gap-2 whitespace-nowrap">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="hidden sm:inline">Recall Reports</span>
+            </TabsTrigger>
+            <TabsTrigger value="configuration" className="flex items-center gap-2 whitespace-nowrap">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Configuration</span>
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="flex items-center gap-2 whitespace-nowrap">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Custom Reports</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value="overview" className="mt-6 space-y-6">
           <ComplianceOverview 
