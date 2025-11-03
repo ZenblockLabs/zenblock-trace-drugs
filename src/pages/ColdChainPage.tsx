@@ -83,11 +83,11 @@ export default function ColdChainPage() {
 
   return (
     <Layout>
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Cold Chain Monitoring</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Cold Chain Monitoring</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Real-time temperature tracking and compliance monitoring
             </p>
           </div>
@@ -96,20 +96,20 @@ export default function ColdChainPage() {
         {excursions && excursions.length > 0 && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
+            <AlertDescription className="text-sm">
               {excursions.length} temperature excursion(s) detected in recent shipments
             </AlertDescription>
           </Alert>
         )}
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Shipments</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold">
                 {shipments?.filter(s => s.status === 'in_transit').length || 0}
               </div>
             </CardContent>
@@ -121,19 +121,19 @@ export default function ColdChainPage() {
               <AlertTriangle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">
+              <div className="text-xl sm:text-2xl font-bold text-destructive">
                 {excursions?.length || 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
               <TrendingUp className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">
+              <div className="text-xl sm:text-2xl font-bold text-success">
                 {shipments ? Math.round(((shipments.length - (excursions?.length || 0)) / shipments.length) * 100) : 0}%
               </div>
             </CardContent>
@@ -141,39 +141,39 @@ export default function ColdChainPage() {
         </div>
 
         <Tabs defaultValue="shipments" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="shipments">Shipments</TabsTrigger>
-            <TabsTrigger value="monitoring">Temperature Monitoring</TabsTrigger>
-            <TabsTrigger value="excursions">Excursions</TabsTrigger>
+          <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
+            <TabsTrigger value="shipments" className="text-xs sm:text-sm">Shipments</TabsTrigger>
+            <TabsTrigger value="monitoring" className="text-xs sm:text-sm">Monitoring</TabsTrigger>
+            <TabsTrigger value="excursions" className="text-xs sm:text-sm">Excursions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="shipments" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Temperature-Controlled Shipments</CardTitle>
-                <CardDescription>Select a shipment to view temperature data</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Temperature-Controlled Shipments</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Select a shipment to view temperature data</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-2">
                   {shipments?.map((shipment) => (
                     <div
                       key={shipment.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                         selectedShipment === shipment.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
                       }`}
                       onClick={() => setSelectedShipment(shipment.id)}
                     >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-semibold">{shipment.shipment_number}</div>
-                          <div className="text-sm text-muted-foreground">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-sm sm:text-base truncate">{shipment.shipment_number}</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground truncate">
                             {shipment.batches?.product_name} - {shipment.batches?.batch_number}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="text-xs text-muted-foreground mt-1 truncate">
                             {shipment.from_location} → {shipment.to_location}
                           </div>
                         </div>
-                        <Badge variant={shipment.status === 'in_transit' ? 'default' : 'secondary'}>
+                        <Badge variant={shipment.status === 'in_transit' ? 'default' : 'secondary'} className="text-xs">
                           {shipment.status}
                         </Badge>
                       </div>
@@ -187,17 +187,17 @@ export default function ColdChainPage() {
           <TabsContent value="monitoring" className="space-y-4">
             {selectedShipment && activeShipment ? (
               <Card>
-                <CardHeader>
-                  <CardTitle>Temperature Monitoring - {activeShipment.shipment_number}</CardTitle>
-                  <CardDescription>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">Temperature Monitoring - {activeShipment.shipment_number}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm truncate">
                     {activeShipment.from_location} → {activeShipment.to_location}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6 pt-0">
                   {hasExcursion && (
                     <Alert variant="destructive" className="mb-4">
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
+                      <AlertDescription className="text-sm">
                         Temperature excursion detected during this shipment
                       </AlertDescription>
                     </Alert>
@@ -206,16 +206,16 @@ export default function ColdChainPage() {
                   {temperatureData.length > 0 ? (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-                          <Thermometer className="h-4 w-4" />
+                        <h3 className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-2">
+                          <Thermometer className="h-3 w-3 sm:h-4 sm:w-4" />
                           Temperature Range (°C)
                         </h3>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={250}>
                           <AreaChart data={temperatureData}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis domain={[0, 12]} />
-                            <Tooltip />
+                            <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                            <YAxis domain={[0, 12]} tick={{ fontSize: 12 }} />
+                            <Tooltip contentStyle={{ fontSize: 12 }} />
                             <Area type="monotone" dataKey="max" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} />
                             <Area type="monotone" dataKey="avg" stackId="2" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.5} />
                             <Area type="monotone" dataKey="min" stackId="3" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
@@ -225,16 +225,16 @@ export default function ColdChainPage() {
 
                       {temperatureData.some(d => d.humidity) && (
                         <div>
-                          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-                            <Droplets className="h-4 w-4" />
+                          <h3 className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-2">
+                            <Droplets className="h-3 w-3 sm:h-4 sm:w-4" />
                             Humidity (%)
                           </h3>
-                          <ResponsiveContainer width="100%" height={200}>
+                          <ResponsiveContainer width="100%" height={180}>
                             <LineChart data={temperatureData}>
                               <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="time" />
-                              <YAxis domain={[0, 100]} />
-                              <Tooltip />
+                              <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                              <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                              <Tooltip contentStyle={{ fontSize: 12 }} />
                               <Line type="monotone" dataKey="humidity" stroke="#8b5cf6" />
                             </LineChart>
                           </ResponsiveContainer>
@@ -242,7 +242,7 @@ export default function ColdChainPage() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground text-center py-8">
+                    <p className="text-muted-foreground text-center py-6 sm:py-8 text-sm">
                       No temperature data recorded yet
                     </p>
                   )}
@@ -250,8 +250,8 @@ export default function ColdChainPage() {
               </Card>
             ) : (
               <Card>
-                <CardContent className="py-8">
-                  <p className="text-muted-foreground text-center">
+                <CardContent className="py-6 sm:py-8">
+                  <p className="text-muted-foreground text-center text-sm">
                     Select a shipment to view temperature monitoring data
                   </p>
                 </CardContent>
@@ -261,40 +261,40 @@ export default function ColdChainPage() {
 
           <TabsContent value="excursions" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Temperature Excursions</CardTitle>
-                <CardDescription>Recent violations of cold chain requirements</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Temperature Excursions</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Recent violations of cold chain requirements</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-3">
                   {excursions?.map((excursion) => (
-                    <div key={excursion.id} className="p-4 border border-destructive/20 rounded-lg bg-destructive/5">
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={excursion.id} className="p-3 sm:p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                         <div className="flex items-start gap-2">
-                          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
-                          <div>
-                            <div className="font-semibold">{excursion.shipments?.shipment_number}</div>
-                            <div className="text-sm text-muted-foreground">
+                          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <div className="font-semibold text-sm truncate">{excursion.shipments?.shipment_number}</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground truncate">
                               {excursion.shipments?.from_location} → {excursion.shipments?.to_location}
                             </div>
                           </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground sm:text-right">
                           {new Date(excursion.recorded_at).toLocaleString()}
                         </div>
                       </div>
-                      <div className="text-sm">
+                      <div className="text-xs sm:text-sm">
                         <span className="font-medium">Temperature:</span> {excursion.temp_min}°C - {excursion.temp_max}°C
                       </div>
                       {excursion.excursion_details && (
-                        <div className="text-sm text-destructive mt-1">
+                        <div className="text-xs sm:text-sm text-destructive mt-1">
                           {excursion.excursion_details}
                         </div>
                       )}
                     </div>
                   ))}
                   {!excursions || excursions.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">
+                    <p className="text-muted-foreground text-center py-4 text-sm">
                       No temperature excursions detected
                     </p>
                   )}

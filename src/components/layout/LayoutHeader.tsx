@@ -32,17 +32,19 @@ export const LayoutHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center mb-4 bg-muted/20 rounded-lg p-2">
-      <div className="flex items-center flex-wrap gap-2">
+    <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4 bg-muted/20 rounded-lg p-2">
+      <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
         {canScanBarcodes && (
           <>
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => navigate('/batch-processing')}
+              className="text-xs sm:text-sm"
             >
-              <ScanBarcode className="h-4 w-4 mr-1" />
-              Batch Scan
+              <ScanBarcode className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+              <span className="hidden xs:inline">Batch Scan</span>
+              <span className="xs:hidden">Batch</span>
             </Button>
             
             <BarcodeVerificationDialog />
@@ -53,23 +55,23 @@ export const LayoutHeader = () => {
         <QRCodeScanDialog 
           variant="outline" 
           size="sm" 
-          className="ml-0 sm:ml-2" 
+          className="text-xs sm:text-sm" 
           onScanComplete={handleQRScan} 
         />
       </div>
       
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground hidden sm:inline">
-          {user?.name} ({user?.role})
+      <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
+        <span className="text-xs sm:text-sm text-muted-foreground truncate flex-1 sm:flex-none">
+          {user?.name} <span className="hidden sm:inline">({user?.role})</span>
         </span>
         <Button 
           variant="outline" 
           size="sm"
           onClick={handleLogout}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 text-xs sm:text-sm flex-shrink-0"
         >
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline">Logout</span>
+          <LogOut className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">Logout</span>
         </Button>
         <NetworkStatusIndicator />
       </div>

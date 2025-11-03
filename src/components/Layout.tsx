@@ -31,10 +31,10 @@ const Layout = ({ children }: LayoutProps) => {
 
       <div className="min-h-screen flex w-full pt-14 lg:pt-0">
         <AppSidebar />
-        <main className="flex-1 p-6 overflow-auto">
-          <LayoutHeader />
-          {children || <Outlet />}
-        </main>
+      <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+        <LayoutHeader />
+        {children || <Outlet />}
+      </main>
       </div>
       <Toaster />
     </SidebarProvider>

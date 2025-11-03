@@ -82,39 +82,39 @@ export const DrugsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Drug Catalog</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Drug Catalog</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">
           Browse and search all pharmaceutical products in the supply chain
         </p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Search & Filter</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Search & Filter</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             Find specific drugs by name, ID, or status
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, SGTIN, or batch number"
+                placeholder="Search by name, SGTIN, or batch"
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-8"
+                className="pl-8 text-sm"
               />
             </div>
             <div className="w-full sm:w-[180px]">
               <Select value={statusFilter} onValueChange={handleStatusChange}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background z-50">
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="manufactured">Manufactured</SelectItem>
                   <SelectItem value="shipped">Shipped</SelectItem>
@@ -130,21 +130,21 @@ export const DrugsPage = () => {
       </Card>
 
       {filteredDrugs.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filteredDrugs.map((drug) => (
             <DrugCard key={drug.id} drug={drug} />
           ))}
         </div>
       ) : (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-10">
-            <p className="mb-2 text-lg font-medium">No drugs found</p>
-            <p className="text-sm text-muted-foreground">
+          <CardContent className="flex flex-col items-center justify-center py-8 sm:py-10 p-4">
+            <p className="mb-2 text-base sm:text-lg font-medium">No drugs found</p>
+            <p className="text-xs sm:text-sm text-muted-foreground text-center">
               Try adjusting your search or filter criteria
             </p>
             <Button 
               variant="outline" 
-              className="mt-4"
+              className="mt-4 text-sm"
               onClick={() => {
                 setSearchQuery("");
                 setStatusFilter("all");

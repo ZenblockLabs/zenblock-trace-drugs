@@ -62,22 +62,22 @@ export default function AggregationPage() {
 
   return (
     <Layout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Aggregation Tracking</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Aggregation Tracking</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Hierarchical view of packaging (Pallet → Case → Unit)
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pallets</CardTitle>
               <Layers className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalPallets}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.totalPallets}</div>
             </CardContent>
           </Card>
 
@@ -87,7 +87,7 @@ export default function AggregationPage() {
               <Box className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalCases}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.totalCases}</div>
             </CardContent>
           </Card>
 
@@ -97,52 +97,52 @@ export default function AggregationPage() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalUnits}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.totalUnits}</div>
             </CardContent>
           </Card>
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Aggregation Tree</CardTitle>
-            <CardDescription>Package hierarchy visualization</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Aggregation Tree</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Package hierarchy visualization</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0">
             <div className="space-y-4">
               {aggregationTree && Object.values(aggregationTree).map((parent: any) => (
                 <div
                   key={parent.parentId}
-                  className="border rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                  className="border rounded-lg p-3 sm:p-4 cursor-pointer hover:border-primary/50 transition-colors"
                   onClick={() => setSelectedParent(parent.parentId)}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
                       {getTypeIcon(parent.parentType)}
-                      <div>
-                        <div className="font-semibold flex items-center gap-2">
-                          <Badge variant="outline" className="capitalize">
+                      <div className="min-w-0">
+                        <div className="font-semibold flex flex-wrap items-center gap-2">
+                          <Badge variant="outline" className="capitalize text-xs">
                             {parent.parentType}
                           </Badge>
-                          <span className="text-sm font-mono">{parent.parentId.slice(0, 8)}...</span>
+                          <span className="text-xs sm:text-sm font-mono truncate">{parent.parentId.slice(0, 8)}...</span>
                         </div>
                         {parent.batchInfo && (
-                          <div className="text-sm text-muted-foreground mt-1">
+                          <div className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                             {parent.batchInfo.product_name} - {parent.batchInfo.batch_number}
                           </div>
                         )}
                       </div>
                     </div>
-                    <Badge variant="secondary">{parent.children.length} items</Badge>
+                    <Badge variant="secondary" className="text-xs self-start sm:self-auto">{parent.children.length} items</Badge>
                   </div>
 
                   {selectedParent === parent.parentId && (
                     <div className="mt-4 pt-4 border-t space-y-2">
-                      <div className="text-sm font-medium mb-2">Contents:</div>
+                      <div className="text-xs sm:text-sm font-medium mb-2">Contents:</div>
                       {parent.children.map((child: any, idx: number) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm pl-6">
+                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm pl-4 sm:pl-6">
                           {getTypeIcon(child.childType)}
                           <span className="capitalize">{child.childType}</span>
-                          <span className="font-mono text-xs text-muted-foreground">
+                          <span className="font-mono text-xs text-muted-foreground truncate">
                             {child.childId.slice(0, 8)}...
                           </span>
                           <span className="text-xs text-muted-foreground ml-auto">
@@ -156,7 +156,7 @@ export default function AggregationPage() {
               ))}
 
               {!aggregationTree || Object.keys(aggregationTree).length === 0 && (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground text-center py-6 sm:py-8 text-sm">
                   No aggregations found
                 </p>
               )}
