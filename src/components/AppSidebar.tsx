@@ -20,7 +20,6 @@ import {
   ScanLine,
   Bell,
   Eye,
-  Heart,
   Thermometer,
   Layers,
 } from "lucide-react"
@@ -123,15 +122,6 @@ const system = [
   },
 ]
 
-// Brand Engagement section
-const brandEngagement = [
-  {
-    title: "Kadha Capsules",
-    url: "/kadha-capsules",
-    icon: Heart,
-  },
-]
-
 export function AppSidebar() {
   return (
     <Sidebar>
@@ -195,24 +185,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {system.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel>BRAND ENGAGEMENT</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {brandEngagement.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>
