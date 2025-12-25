@@ -78,6 +78,7 @@ export type Database = {
           languages: string[] | null
           profile_photo: string | null
           qr_scan_count: number | null
+          reels: Json | null
           short_link: string | null
           skills: string[] | null
           slug: string
@@ -111,6 +112,7 @@ export type Database = {
           languages?: string[] | null
           profile_photo?: string | null
           qr_scan_count?: number | null
+          reels?: Json | null
           short_link?: string | null
           skills?: string[] | null
           slug: string
@@ -144,6 +146,7 @@ export type Database = {
           languages?: string[] | null
           profile_photo?: string | null
           qr_scan_count?: number | null
+          reels?: Json | null
           short_link?: string | null
           skills?: string[] | null
           slug?: string
@@ -400,6 +403,7 @@ export type Database = {
       capsules: {
         Row: {
           accent_color: string | null
+          accent_color_dark: string | null
           created_at: string
           cta_text: string | null
           cta_url: string | null
@@ -425,6 +429,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          accent_color_dark?: string | null
           created_at?: string
           cta_text?: string | null
           cta_url?: string | null
@@ -450,6 +455,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          accent_color_dark?: string | null
           created_at?: string
           cta_text?: string | null
           cta_url?: string | null

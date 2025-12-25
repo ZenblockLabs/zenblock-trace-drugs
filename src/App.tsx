@@ -27,8 +27,6 @@ import { NetworkAdminPage } from "./pages/NetworkAdminPage";
 import ApiTestPage from "./pages/ApiTestPage";
 import { ComplianceIntegrationPage } from "./pages/ComplianceIntegrationPage";
 import { PharmaTraceabilityPage } from "./pages/PharmaTraceabilityPage";
-import { KadhaCapsulesPage } from "./pages/KadhaCapsulesPage";
-import { PublicKadhaPage } from "./pages/PublicKadhaPage";
 import ColdChainPage from "./pages/ColdChainPage";
 import AggregationPage from "./pages/AggregationPage";
 
@@ -174,14 +172,6 @@ function App() {
               } />
               {/* Recall reports now accessible via compliance hub */}
               <Route path="/recall-reports" element={<Navigate to="/compliance" replace />} />
-              <Route path="/kadha-capsules" element={
-                <ProtectedRoute requiredRole={['brand_manager', 'admin']}>
-                  <Layout>
-                    <KadhaCapsulesPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/kadha/:shortLink" element={<PublicKadhaPage />} />
               <Route path="/cold-chain" element={
                 <ProtectedRoute>
                   <Layout>
