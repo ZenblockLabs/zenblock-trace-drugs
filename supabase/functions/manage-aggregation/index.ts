@@ -30,7 +30,33 @@ Deno.serve(async (req) => {
       }
     );
 
+    // Verify authentication
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - valid authentication required' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
     const payload: AggregationPayload = await req.json();
+
+    // Validate required fields
+    if (!payload.action || !payload.parentId || !payload.childIds || !Array.isArray(payload.childIds)) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: action, parentId, childIds' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
     
     if (payload.action === 'aggregate') {
       // Create aggregation records
@@ -50,7 +76,7 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      console.log(`Created ${aggregations.length} aggregation records`);
+      console.log(`Created ${aggregations.length} aggregation records by user:`, user.id);
 
       return new Response(
         JSON.stringify({
@@ -77,7 +103,7 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      console.log(`Disaggregated ${data.length} items`);
+      console.log(`Disaggregated ${data.length} items by user:`, user.id);
 
       return new Response(
         JSON.stringify({

@@ -33,7 +33,44 @@ Deno.serve(async (req) => {
       }
     );
 
+    // Verify authentication
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - valid authentication required' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
     const payload: TemperaturePayload = await req.json();
+
+    // Validate required fields
+    if (!payload.shipmentId || payload.tempMin === undefined || payload.tempMax === undefined) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: shipmentId, tempMin, tempMax' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Validate temperature values are numbers
+    if (typeof payload.tempMin !== 'number' || typeof payload.tempMax !== 'number') {
+      return new Response(
+        JSON.stringify({ error: 'Temperature values must be numbers' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
     
     // Calculate excursion flag (assuming safe range 2-8°C for cold chain)
     const excursionFlag = payload.tempMin < 2 || payload.tempMax > 8;
@@ -89,11 +126,12 @@ Deno.serve(async (req) => {
           temp_min: payload.tempMin,
           temp_max: payload.tempMax,
           sensor_id: payload.sensorId,
+          recorded_by: user.id,
         },
       });
     }
 
-    console.log('Temperature event recorded:', coldchainEvent.id);
+    console.log('Temperature event recorded:', coldchainEvent.id, 'by user:', user.id);
 
     return new Response(
       JSON.stringify({
