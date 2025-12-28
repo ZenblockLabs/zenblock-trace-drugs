@@ -251,7 +251,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error managing recall:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An error occurred while processing your request' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

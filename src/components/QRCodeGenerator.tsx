@@ -6,6 +6,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Printer, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// HTML escape function to prevent XSS
+const escapeHtml = (text: string): string => {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+};
+
 interface QRCodeGeneratorProps {
   drugCode: string;
   trackingBaseUrl?: string;
@@ -81,11 +88,15 @@ export function QRCodeGenerator({
       return;
     }
     
+    // Sanitize user inputs to prevent XSS
+    const safeProductName = escapeHtml(productName);
+    const safeDrugCode = escapeHtml(drugCode);
+    
     const printContent = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Zenblock Drug Traceability - ${drugCode}</title>
+          <title>Zenblock Drug Traceability - ${safeDrugCode}</title>
           <style>
             body {
               display: flex;
@@ -124,8 +135,8 @@ export function QRCodeGenerator({
         <body>
           <div class="container">
             ${canvas.innerHTML}
-            <div class="product-name">${productName}</div>
-            <div class="code">Drug Code: ${drugCode}</div>
+            <div class="product-name">${safeProductName}</div>
+            <div class="code">Drug Code: ${safeDrugCode}</div>
             <div class="url">Scan to verify at trace.zenblocklabs.com</div>
           </div>
         </body>
