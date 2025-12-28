@@ -53,6 +53,13 @@ export type Database = {
             referencedRelation: "actor_capsules"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "actor_capsule_analytics_capsule_id_fkey"
+            columns: ["capsule_id"]
+            isOneToOne: false
+            referencedRelation: "actor_capsules_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       actor_capsules: {
@@ -1642,6 +1649,102 @@ export type Database = {
       }
     }
     Views: {
+      actor_capsules_public: {
+        Row: {
+          accent_color: string | null
+          actor_name: string | null
+          age: number | null
+          bio: string | null
+          created_at: string | null
+          credits: Json | null
+          eye_color: string | null
+          gallery_images: Json | null
+          hair_color: string | null
+          has_passport: boolean | null
+          height: string | null
+          id: string | null
+          imdb_url: string | null
+          instagram_url: string | null
+          intro_video_url: string | null
+          is_published: boolean | null
+          languages: string[] | null
+          profile_photo: string | null
+          qr_scan_count: number | null
+          reels: Json | null
+          short_link: string | null
+          skills: string[] | null
+          slug: string | null
+          tagline: string | null
+          theme: string | null
+          updated_at: string | null
+          videos: Json | null
+          view_count: number | null
+          youtube_url: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          actor_name?: string | null
+          age?: number | null
+          bio?: string | null
+          created_at?: string | null
+          credits?: Json | null
+          eye_color?: string | null
+          gallery_images?: Json | null
+          hair_color?: string | null
+          has_passport?: boolean | null
+          height?: string | null
+          id?: string | null
+          imdb_url?: string | null
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_published?: boolean | null
+          languages?: string[] | null
+          profile_photo?: string | null
+          qr_scan_count?: number | null
+          reels?: Json | null
+          short_link?: string | null
+          skills?: string[] | null
+          slug?: string | null
+          tagline?: string | null
+          theme?: string | null
+          updated_at?: string | null
+          videos?: Json | null
+          view_count?: number | null
+          youtube_url?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          actor_name?: string | null
+          age?: number | null
+          bio?: string | null
+          created_at?: string | null
+          credits?: Json | null
+          eye_color?: string | null
+          gallery_images?: Json | null
+          hair_color?: string | null
+          has_passport?: boolean | null
+          height?: string | null
+          id?: string | null
+          imdb_url?: string | null
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_published?: boolean | null
+          languages?: string[] | null
+          profile_photo?: string | null
+          qr_scan_count?: number | null
+          reels?: Json | null
+          short_link?: string | null
+          skills?: string[] | null
+          slug?: string | null
+          tagline?: string | null
+          theme?: string | null
+          updated_at?: string | null
+          videos?: Json | null
+          view_count?: number | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       organizations_public: {
         Row: {
           created_at: string | null
