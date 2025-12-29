@@ -6,6 +6,7 @@ import { ScanModeTab } from '@/components/batch/ScanModeTab';
 import { BatchImportTab } from '@/components/batch/BatchImportTab';
 import { ResultsTab } from '@/components/batch/ResultsTab';
 import { useBatchProcessing } from '@/hooks/useBatchProcessing';
+import { QRScanConfirmDialog } from '@/components/batch/QRScanConfirmDialog';
 
 export const BatchProcessingPage = () => {
   const {
@@ -17,7 +18,12 @@ export const BatchProcessingPage = () => {
     handleDemoScan,
     handleBarcodeScan,
     handleVerifyAll,
-    handleBatchImportComplete
+    handleBatchImportComplete,
+    confirmDialogOpen,
+    setConfirmDialogOpen,
+    pendingBatchData,
+    handleConfirmBatchSave,
+    handleCancelBatchSave
   } = useBatchProcessing();
 
   // Mock user role - in production this would come from auth context
@@ -61,6 +67,14 @@ export const BatchProcessingPage = () => {
         open={batchModalOpen} 
         onOpenChange={setBatchModalOpen}
         onImportComplete={handleBatchImportComplete}
+      />
+
+      <QRScanConfirmDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        batchData={pendingBatchData}
+        onConfirm={handleConfirmBatchSave}
+        onCancel={handleCancelBatchSave}
       />
     </div>
   );

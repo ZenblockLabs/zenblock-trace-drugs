@@ -10,7 +10,7 @@ interface ScannedItem {
   batchData?: ERPBatchData;
 }
 
-interface ERPBatchData {
+export interface ERPBatchData {
   batchId: string;
   drugName: string;
   quantity: number;
@@ -20,10 +20,7 @@ interface ERPBatchData {
 
 const parseQRCodeData = (code: string): ERPBatchData | null => {
   try {
-    // Try to parse as JSON (QR code format)
     const parsed = JSON.parse(code);
-    
-    // Map the QR code fields to our interface
     if (parsed['Batch ID'] && parsed['Drug Name']) {
       return {
         batchId: parsed['Batch ID'],
@@ -35,7 +32,6 @@ const parseQRCodeData = (code: string): ERPBatchData | null => {
     }
     return null;
   } catch {
-    // Not a JSON QR code, return null
     return null;
   }
 };
@@ -71,6 +67,10 @@ export const useBatchProcessing = () => {
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [batchModalOpen, setBatchModalOpen] = useState(false);
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
+  
+  // State for QR confirmation dialog
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingBatchData, setPendingBatchData] = useState<ERPBatchData | null>(null);
 
   const handleDemoScan = () => {
     toast.info("Starting demo batch scan. This will add sample drugs.");
@@ -96,34 +96,51 @@ export const useBatchProcessing = () => {
     const batchData = parseQRCodeData(code);
     
     if (batchData) {
-      // It's an ERP batch QR code - save to database
-      toast.info(`Saving batch ${batchData.batchId} to database...`);
-      
-      const saved = await saveERPBatchToDatabase(batchData);
-      
-      const newItem: ScannedItem = {
-        sgtin: batchData.batchId,
-        timestamp: new Date().toISOString(),
-        status: saved ? 'verified' : 'error',
-        batchData
-      };
-      
-      setScannedItems((prev) => [newItem, ...prev]);
-      
-      if (saved) {
-        toast.success(`Batch ${batchData.batchId} saved successfully!`);
-      }
-    } else {
-      // Regular barcode/SGTIN
-      const newItem: ScannedItem = {
-        sgtin: code,
-        timestamp: new Date().toISOString(),
-        status: 'verified'
-      };
-      
-      setScannedItems((prev) => [newItem, ...prev]);
-      toast.success(`Barcode scanned: ${code}`);
+      // Show confirmation dialog instead of saving directly
+      setPendingBatchData(batchData);
+      setConfirmDialogOpen(true);
+      return;
     }
+    
+    // Regular barcode/SGTIN - save directly
+    const newItem: ScannedItem = {
+      sgtin: code,
+      timestamp: new Date().toISOString(),
+      status: 'verified'
+    };
+    
+    setScannedItems((prev) => [newItem, ...prev]);
+    toast.success(`Barcode scanned: ${code}`);
+  };
+
+  const handleConfirmBatchSave = async () => {
+    if (!pendingBatchData) return;
+
+    toast.info(`Saving batch ${pendingBatchData.batchId} to database...`);
+    
+    const saved = await saveERPBatchToDatabase(pendingBatchData);
+    
+    const newItem: ScannedItem = {
+      sgtin: pendingBatchData.batchId,
+      timestamp: new Date().toISOString(),
+      status: saved ? 'verified' : 'error',
+      batchData: pendingBatchData
+    };
+    
+    setScannedItems((prev) => [newItem, ...prev]);
+    
+    if (saved) {
+      toast.success(`Batch ${pendingBatchData.batchId} saved successfully!`);
+    }
+    
+    setConfirmDialogOpen(false);
+    setPendingBatchData(null);
+  };
+
+  const handleCancelBatchSave = () => {
+    setConfirmDialogOpen(false);
+    setPendingBatchData(null);
+    toast.info('Batch save cancelled');
   };
 
   const handleVerifyAll = () => {
@@ -164,6 +181,12 @@ export const useBatchProcessing = () => {
     handleDemoScan,
     handleBarcodeScan,
     handleVerifyAll,
-    handleBatchImportComplete
+    handleBatchImportComplete,
+    // Dialog state and handlers
+    confirmDialogOpen,
+    setConfirmDialogOpen,
+    pendingBatchData,
+    handleConfirmBatchSave,
+    handleCancelBatchSave
   };
 };
