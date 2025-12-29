@@ -1,6 +1,6 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ERPBatch {
   batchId: string;
@@ -16,101 +16,71 @@ export const useERPBatchData = (userRole: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const generateMockERPData = (role: string): ERPBatch[] => {
-    const baseData = [
-      {
-        batchId: "BATCH-X90",
-        drugName: "Amoxicillin 500mg",
-        quantity: 2000,
-        status: "Ready for QA",
-        createdAt: "2025-06-10",
-        facility: "Baddi Plant"
-      },
-      {
-        batchId: "BATCH-Y45",
-        drugName: "Paracetamol 650mg",
-        quantity: 1500,
-        status: "In Production",
-        createdAt: "2025-06-11",
-        facility: "Mumbai Facility"
-      },
-      {
-        batchId: "BATCH-Z12",
-        drugName: "Ibuprofen 400mg",
-        quantity: 3000,
-        status: "Quality Check",
-        createdAt: "2025-06-09",
-        facility: "Delhi Unit"
-      }
-    ];
-
-    switch (role.toLowerCase()) {
-      case 'manufacturer':
-        return baseData.map(batch => ({
-          ...batch,
-          status: ['In Production', 'Ready for QA', 'Quality Check'][Math.floor(Math.random() * 3)]
-        }));
-      
-      case 'distributor':
-        return baseData.map(batch => ({
-          ...batch,
-          status: ['Received', 'In Transit', 'Dispatched'][Math.floor(Math.random() * 3)],
-          facility: 'Distribution Center'
-        }));
-      
-      case 'dispenser':
-        return baseData.map(batch => ({
-          ...batch,
-          status: ['Incoming Stock', 'In Inventory', 'Dispensed'][Math.floor(Math.random() * 3)],
-          facility: 'Pharmacy Stock',
-          quantity: Math.floor(batch.quantity / 10)
-        }));
-      
-      case 'regulator':
-        return [
-          ...baseData,
-          {
-            batchId: "BATCH-R99",
-            drugName: "Controlled Substance A",
-            quantity: 500,
-            status: "Under Review",
-            createdAt: "2025-06-08",
-            facility: "Regulated Facility"
-          }
-        ];
-      
-      default:
-        return baseData;
-    }
-  };
-
-  const fetchERPBatches = async () => {
+  const fetchERPBatches = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`/api/erp/batches?role=${userRole.toLowerCase()}`);
+      const { data, error: fetchError } = await supabase
+        .from('erp_batches')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ERP data: ${response.statusText}`);
+      if (fetchError) {
+        throw fetchError;
       }
       
-      const data = await response.json();
-      setBatches(data);
-      toast.success('ERP batch data refreshed successfully');
+      if (data && data.length > 0) {
+        const formattedBatches: ERPBatch[] = data.map(batch => ({
+          batchId: batch.batch_id,
+          drugName: batch.drug_name,
+          quantity: batch.quantity,
+          status: batch.status || 'scanned',
+          createdAt: batch.original_created_at 
+            ? new Date(batch.original_created_at).toLocaleDateString()
+            : new Date(batch.created_at || '').toLocaleDateString(),
+          facility: batch.facility || 'Unknown'
+        }));
+        setBatches(formattedBatches);
+        toast.success('ERP batch data loaded from database');
+      } else {
+        setBatches([]);
+        setError('No batch data found. Scan a QR code to add batches.');
+      }
     } catch (err) {
-      const mockData = generateMockERPData(userRole);
-      setBatches(mockData);
-      setError('Using mock ERP data (external API not available)');
-      toast.info('Displaying mock ERP data');
+      console.error('Error fetching ERP batches:', err);
+      setError('Failed to fetch batch data from database');
+      setBatches([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchERPBatches();
-  }, [userRole]);
+  }, [fetchERPBatches]);
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('erp_batches_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'erp_batches'
+        },
+        () => {
+          fetchERPBatches();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchERPBatches]);
 
   return {
     batches,
