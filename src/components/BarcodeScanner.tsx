@@ -1,8 +1,9 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Camera, StopCircle, Upload, Scan } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 
 interface BarcodeScannerProps {
   onDetected: (code: string) => void;
@@ -11,23 +12,37 @@ interface BarcodeScannerProps {
 
 export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => {
   const [isScanning, setIsScanning] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const startScanner = async () => {
     try {
       setCameraError(null);
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setIsScanning(true);
-        toast.info("Camera active. Position barcode in the frame.");
+      if (!scannerRef.current) {
+        scannerRef.current = new Html5Qrcode("qr-reader");
       }
+
+      await scannerRef.current.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          console.log("QR Code detected:", decodedText);
+          toast.success("QR Code detected!");
+          onDetected(decodedText);
+          stopScanner();
+        },
+        (errorMessage) => {
+          // Ignore scanning errors - they happen frequently while scanning
+        }
+      );
+      
+      setIsScanning(true);
+      toast.info("Camera active. Position QR code in the frame.");
     } catch (error) {
       console.error('Error accessing camera:', error);
       setCameraError('Unable to access camera. Please check permissions or try uploading an image instead.');
@@ -35,100 +50,56 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
     }
   };
 
-  const stopScanner = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
+  const stopScanner = async () => {
+    if (scannerRef.current && isScanning) {
+      try {
+        await scannerRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping scanner:', error);
+      }
     }
     setIsScanning(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Simulate barcode detection from file
-    // In a real implementation, you would use a barcode detection library
-    setTimeout(() => {
-      // Generate a fake SGTIN for demo purposes
-      const fakeSGTIN = `sgtin:0${Math.floor(10000000000000 + Math.random() * 90000000000000)}.${Math.floor(Math.random() * 1000000)}`;
-      toast.success(`Barcode detected: ${fakeSGTIN}`);
-      onDetected(fakeSGTIN);
-    }, 1500);
+    try {
+      if (!scannerRef.current) {
+        scannerRef.current = new Html5Qrcode("qr-reader");
+      }
+      
+      const decodedText = await scannerRef.current.scanFile(file, true);
+      console.log("QR Code from file:", decodedText);
+      toast.success("QR Code detected from image!");
+      onDetected(decodedText);
+    } catch (error) {
+      console.error('Error scanning file:', error);
+      toast.error("Could not detect QR code in the image. Please try again.");
+    }
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopScanner();
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
     };
   }, []);
-
-  // This effect would handle the actual barcode scanning logic
-  // In a real implementation, you'd use a library like zbar.wasm or QuaggaJS
-  useEffect(() => {
-    if (!isScanning) return;
-
-    let animationFrameId: number;
-    let scanInterval: NodeJS.Timeout;
-
-    const scanBarcode = () => {
-      if (!videoRef.current || !canvasRef.current) return;
-      
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      if (!context) return;
-      
-      // Match canvas dimensions to video
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      
-      // Draw current video frame to canvas
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // In a real implementation, you would now analyze the canvas data
-      // to detect barcodes using a library
-      
-      // For demo purposes, we'll simulate periodic detection
-      animationFrameId = requestAnimationFrame(scanBarcode);
-    };
-
-    animationFrameId = requestAnimationFrame(scanBarcode);
-    
-    // Simulate detecting a barcode after a few seconds
-    scanInterval = setTimeout(() => {
-      // Generate a fake SGTIN for demo purposes
-      const fakeSGTIN = `sgtin:0${Math.floor(10000000000000 + Math.random() * 90000000000000)}.${Math.floor(Math.random() * 1000000)}`;
-      toast.success(`Barcode detected: ${fakeSGTIN}`);
-      onDetected(fakeSGTIN);
-      stopScanner();
-    }, 5000);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      clearTimeout(scanInterval);
-    };
-  }, [isScanning, onDetected]);
 
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-full max-w-md aspect-video bg-black mb-4 rounded-lg overflow-hidden">
-        {isScanning ? (
-          <>
-            <video 
-              ref={videoRef} 
-              className="w-full h-full object-cover"
-              playsInline
-            />
-            <canvas 
-              ref={canvasRef} 
-              className="absolute top-0 left-0 w-full h-full pointer-events-none"
-            />
-            <div className="absolute inset-0 border-2 border-primary/50 rounded m-8 pointer-events-none"></div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted/30">
+        <div 
+          id="qr-reader" 
+          ref={containerRef}
+          className="w-full h-full"
+          style={{ display: isScanning ? 'block' : 'none' }}
+        />
+        {!isScanning && (
+          <div className="w-full h-full flex items-center justify-center bg-muted/30 absolute inset-0">
             {cameraError ? (
               <p className="text-destructive text-sm p-4 text-center">{cameraError}</p>
             ) : (
@@ -142,7 +113,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
         {!isScanning ? (
           <Button onClick={startScanner} className="flex items-center gap-2">
             <Camera className="h-4 w-4" />
-            Scan Barcode
+            Scan QR Code
           </Button>
         ) : (
           <Button variant="destructive" onClick={stopScanner} className="flex items-center gap-2">
