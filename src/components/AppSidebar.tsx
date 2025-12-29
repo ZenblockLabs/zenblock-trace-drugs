@@ -207,6 +207,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Brand Engagement section - currently disabled
         <SidebarGroup>
           <SidebarGroupLabel>BRAND ENGAGEMENT</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -224,6 +225,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        */}
       </SidebarContent>
     </Sidebar>
   );
