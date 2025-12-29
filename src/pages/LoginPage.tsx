@@ -1,43 +1,42 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const success = await login(email, password);
       if (success) {
-        toast.success('Login successful!');
-        navigate('/dashboard');
+        toast.success("Login successful!");
+        navigate("/dashboard");
       } else {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
       }
     } catch (err) {
-      setError('An error occurred during login');
+      setError("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -55,9 +54,9 @@ export const LoginPage = () => {
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center space-x-3">
             <div className="w-16 h-16 flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/fd76e0b7-8d5a-4483-97be-efb53405f021.png" 
-                alt="Zenblock Labs Logo" 
+              <img
+                src="/lovable-uploads/fd76e0b7-8d5a-4483-97be-efb53405f021.png"
+                alt="Zenblock Labs Logo"
                 className="w-16 h-16 object-contain"
               />
             </div>
@@ -99,19 +98,15 @@ export const LoginPage = () => {
                   className="border-[#E6EBE9]"
                 />
               </div>
-              
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-deep-teal hover:bg-emerald" 
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+
+              <Button type="submit" className="w-full bg-deep-teal hover:bg-emerald" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
@@ -121,7 +116,7 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin('manufacturer@medico.com', 'password123')}
+                  onClick={() => quickLogin("manufacturer@medico.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Manufacturer
@@ -129,7 +124,7 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin('distributor@lifeline.com', 'password123')}
+                  onClick={() => quickLogin("distributor@lifeline.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Distributor
@@ -137,7 +132,7 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin('dispenser@citypharmacy.com', 'password123')}
+                  onClick={() => quickLogin("dispenser@citypharmacy.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Dispenser
@@ -145,19 +140,19 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin('regulator@authority.gov', 'password123')}
+                  onClick={() => quickLogin("regulator@authority.gov", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Regulator
                 </Button>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={() => quickLogin('brandmanager@zenblock.com', 'password123')}
                   className="col-span-2 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 hover:from-pink-100 hover:to-purple-100 hover:text-purple-900"
                 >
                   🎯 Brand Manager (Kadha Access)
-                </Button>
+                </Button> */}
               </div>
             </div>
           </CardContent>
