@@ -1,10 +1,11 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 console.log("Drug API function loaded");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-role, x-user-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
@@ -42,28 +43,7 @@ const simulateChaincodeInteraction = async (action: string, fcn: string, args: s
   }
 };
 
-// Helper function to get user and role from Supabase
-async function getUserWithRole(supabaseClient: any) {
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-  
-  if (authError || !user) {
-    return { user: null, role: null, error: authError };
-  }
-
-  // Get user role from user_roles table
-  const { data: roleData, error: roleError } = await supabaseClient
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single();
-
-  // Default to 'user' if no role found
-  const role = roleData?.role || 'user';
-
-  return { user, role, error: null };
-}
-
-Deno.serve(async (req) => {
+serve(async (req) => {
   console.log("Drug API function received request:", req.method, req.url);
   
   // Handle CORS preflight requests
@@ -75,53 +55,31 @@ Deno.serve(async (req) => {
   }
   
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
-
-    // Verify authentication
-    const { user, role: userRole, error: authError } = await getUserWithRole(supabaseClient);
-    
-    if (authError || !user) {
-      console.error('Authentication failed:', authError?.message);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - valid authentication required' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 401,
-        }
-      );
-    }
-
-    console.log(`Authenticated user: ${user.id}, role: ${userRole}`);
-
     const url = new URL(req.url);
     const pathSegments = url.pathname.split('/').filter(Boolean);
     const endpoint = pathSegments[pathSegments.length - 1];
+
+    // Extract user info from request headers
+    const userRole = req.headers.get('x-user-role') || 'manufacturer';
+    const userId = req.headers.get('x-user-id') || 'demo-user';
     
     console.log(`Processing ${req.method} request for endpoint: ${endpoint}, role: ${userRole}`);
 
     switch (endpoint) {
       case 'register':
-        return await handleDrugRegistration(req, userRole, user.id);
+        return await handleDrugRegistration(req, userRole);
       case 'ship':
-        return await handleDrugShipment(req, userRole, user.id);
+        return await handleDrugShipment(req, userRole);
       case 'receive':
-        return await handleDrugReceive(req, userRole, user.id);
+        return await handleDrugReceive(req, userRole);
       case 'dispense':
-        return await handleDrugDispense(req, userRole, user.id);
+        return await handleDrugDispense(req, userRole);
       case 'history':
-        return await handleDrugHistory(req, userRole, user.id);
+        return await handleDrugHistory(req, userRole);
       case 'compliance-status':
-        return await handleComplianceStatus(req, userRole, user.id);
+        return await handleComplianceStatus(req, userRole);
       case 'batch':
-        return await handleGetDrugBatch(req, userRole, user.id);
+        return await handleGetDrugBatch(req, userRole);
       default:
         return new Response(
           JSON.stringify({ error: 'Unknown endpoint' }),
@@ -135,7 +93,7 @@ Deno.serve(async (req) => {
     console.error("Error handling drug API request:", error);
     
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: error.message || "Internal server error" }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500
@@ -144,11 +102,10 @@ Deno.serve(async (req) => {
   }
 });
 
-async function handleDrugRegistration(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only manufacturers and admins can register drugs
-  if (userRole !== 'producer' && userRole !== 'admin') {
+async function handleDrugRegistration(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'manufacturer') {
     return new Response(
-      JSON.stringify({ error: 'Only manufacturers/producers can register drugs' }),
+      JSON.stringify({ error: 'Only manufacturers can register drugs' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
     );
   }
@@ -163,8 +120,6 @@ async function handleDrugRegistration(req: Request, userRole: string, userId: st
   const registrationData = await req.json();
   const result = await simulateChaincodeInteraction('invoke', 'RegisterDrug', [JSON.stringify(registrationData)]);
   
-  console.log('Drug registered by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -176,9 +131,8 @@ async function handleDrugRegistration(req: Request, userRole: string, userId: st
   );
 }
 
-async function handleDrugShipment(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only producers, brand_managers, and admins can ship drugs
-  if (userRole !== 'producer' && userRole !== 'brand_manager' && userRole !== 'admin') {
+async function handleDrugShipment(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'distributor' && userRole !== 'manufacturer') {
     return new Response(
       JSON.stringify({ error: 'Only distributors and manufacturers can ship drugs' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
@@ -195,8 +149,6 @@ async function handleDrugShipment(req: Request, userRole: string, userId: string
   const shipmentData = await req.json();
   const result = await simulateChaincodeInteraction('invoke', 'TransferOwnership', [JSON.stringify(shipmentData)]);
   
-  console.log('Drug shipped by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -208,9 +160,8 @@ async function handleDrugShipment(req: Request, userRole: string, userId: string
   );
 }
 
-async function handleDrugReceive(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only producers, brand_managers, and admins can receive drugs
-  if (userRole !== 'producer' && userRole !== 'brand_manager' && userRole !== 'admin') {
+async function handleDrugReceive(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'distributor' && userRole !== 'dispenser') {
     return new Response(
       JSON.stringify({ error: 'Only distributors and dispensers can receive drugs' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
@@ -230,8 +181,6 @@ async function handleDrugReceive(req: Request, userRole: string, userId: string)
     eventType: 'receive'
   })]);
   
-  console.log('Drug received by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -243,9 +192,8 @@ async function handleDrugReceive(req: Request, userRole: string, userId: string)
   );
 }
 
-async function handleDrugDispense(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only brand_managers and admins can dispense drugs
-  if (userRole !== 'brand_manager' && userRole !== 'admin') {
+async function handleDrugDispense(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'dispenser') {
     return new Response(
       JSON.stringify({ error: 'Only dispensers can dispense drugs' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
@@ -265,8 +213,6 @@ async function handleDrugDispense(req: Request, userRole: string, userId: string
     eventType: 'dispense'
   })]);
   
-  console.log('Drug dispensed by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -278,11 +224,10 @@ async function handleDrugDispense(req: Request, userRole: string, userId: string
   );
 }
 
-async function handleDrugHistory(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only admins can view full drug history
-  if (userRole !== 'admin') {
+async function handleDrugHistory(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'regulator') {
     return new Response(
-      JSON.stringify({ error: 'Only regulators/admins can view full drug history' }),
+      JSON.stringify({ error: 'Only regulators can view full drug history' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
     );
   }
@@ -306,8 +251,6 @@ async function handleDrugHistory(req: Request, userRole: string, userId: string)
 
   const result = await simulateChaincodeInteraction('query', 'GetDrugHistory', [batchId]);
   
-  console.log('Drug history viewed by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -319,11 +262,10 @@ async function handleDrugHistory(req: Request, userRole: string, userId: string)
   );
 }
 
-async function handleComplianceStatus(req: Request, userRole: string, userId: string): Promise<Response> {
-  // Only admins can check compliance status
-  if (userRole !== 'admin') {
+async function handleComplianceStatus(req: Request, userRole: string): Promise<Response> {
+  if (userRole !== 'regulator') {
     return new Response(
-      JSON.stringify({ error: 'Only regulators/admins can check compliance status' }),
+      JSON.stringify({ error: 'Only regulators can check compliance status' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
     );
   }
@@ -357,8 +299,6 @@ async function handleComplianceStatus(req: Request, userRole: string, userId: st
     }
   };
   
-  console.log('Compliance status checked by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 
@@ -370,8 +310,7 @@ async function handleComplianceStatus(req: Request, userRole: string, userId: st
   );
 }
 
-async function handleGetDrugBatch(req: Request, userRole: string, userId: string): Promise<Response> {
-  // All authenticated users can view batch info
+async function handleGetDrugBatch(req: Request, userRole: string): Promise<Response> {
   if (req.method !== 'GET') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
@@ -398,8 +337,6 @@ async function handleGetDrugBatch(req: Request, userRole: string, userId: string
     expiryDate: "2026-01-15"
   };
   
-  console.log('Batch info viewed by user:', userId);
-
   return new Response(
     JSON.stringify({ 
       success: true, 

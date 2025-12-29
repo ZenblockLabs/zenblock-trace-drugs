@@ -34,33 +34,7 @@ Deno.serve(async (req) => {
       }
     );
 
-    // Verify authentication
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error('Authentication failed:', authError?.message);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - valid authentication required' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 401,
-        }
-      );
-    }
-
-    console.log('Authenticated user:', user.id);
-
     const payload: ShipmentPayload = await req.json();
-
-    // Validate required fields
-    if (!payload.batchId || !payload.shipmentNumber || !payload.fromGln || !payload.toGln) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: batchId, shipmentNumber, fromGln, toGln' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      );
-    }
     
     // Create shipment document hash
     const shipmentData = JSON.stringify({
@@ -111,11 +85,10 @@ Deno.serve(async (req) => {
         from_gln: payload.fromGln,
         to_gln: payload.toGln,
         temperature_controlled: payload.temperatureControlled,
-        created_by: user.id,
       },
     });
 
-    console.log('Shipment created:', shipment.id, 'by user:', user.id);
+    console.log('Shipment created:', shipment.id);
 
     return new Response(
       JSON.stringify({
@@ -130,7 +103,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error creating shipment:', error);
     return new Response(
-      JSON.stringify({ error: 'An error occurred while processing your request' }),
+      JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

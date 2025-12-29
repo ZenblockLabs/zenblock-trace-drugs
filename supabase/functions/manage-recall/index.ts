@@ -49,46 +49,9 @@ Deno.serve(async (req) => {
       }
     );
 
-    // Verify authentication
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error('Authentication failed:', authError?.message);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - valid authentication required' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 401,
-        }
-      );
-    }
-
-    console.log('Authenticated user:', user.id);
-
     const payload: RecallPayload = await req.json();
-
-    // Validate action
-    if (!payload.action || !['initiate', 'update_item', 'add_event'].includes(payload.action)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid action. Must be "initiate", "update_item", or "add_event"' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      );
-    }
     
     if (payload.action === 'initiate') {
-      // Validate required fields for initiate
-      if (!payload.lotNumber || !payload.reason) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields for initiate: lotNumber, reason' }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 400,
-          }
-        );
-      }
-
       // Create recall via fabric-chaincode
       const { data: recallResult, error: recallError } = await supabaseClient.functions.invoke(
         'fabric-chaincode',
@@ -100,7 +63,7 @@ Deno.serve(async (req) => {
               JSON.stringify({
                 sgtin: payload.lotNumber,
                 reason: payload.reason,
-                initiatedBy: payload.raisedBy || user.email,
+                initiatedBy: payload.raisedBy,
                 timestamp: new Date().toISOString(),
               }),
             ],
@@ -138,14 +101,9 @@ Deno.serve(async (req) => {
           recall_id: recallId,
           event_type: 'recall_initiated',
           description: payload.reason,
-          actor_name: payload.raisedBy || user.email,
+          actor_name: payload.raisedBy,
           actor_role: 'regulator',
-          metadata: {
-            initiated_by_user_id: user.id,
-          },
         });
-
-        console.log('Recall initiated:', recallId, 'by user:', user.id);
 
         return new Response(
           JSON.stringify({
@@ -173,17 +131,6 @@ Deno.serve(async (req) => {
         }
       );
     } else if (payload.action === 'update_item' && payload.itemUpdate) {
-      // Validate required fields for update_item
-      if (!payload.itemUpdate.itemId || !payload.itemUpdate.status) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields for update_item: itemId, status' }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 400,
-          }
-        );
-      }
-
       // Update affected item status
       const { data, error } = await supabaseClient
         .from('recall_affected_items')
@@ -197,8 +144,6 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      console.log('Recall item updated:', payload.itemUpdate.itemId, 'by user:', user.id);
-
       return new Response(
         JSON.stringify({ success: true, data }),
         {
@@ -207,17 +152,6 @@ Deno.serve(async (req) => {
         }
       );
     } else if (payload.action === 'add_event' && payload.recallId && payload.eventData) {
-      // Validate required fields for add_event
-      if (!payload.eventData.eventType || !payload.eventData.description) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields for add_event: eventType, description' }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 400,
-          }
-        );
-      }
-
       // Add recall event
       const { data, error } = await supabaseClient
         .from('recall_events')
@@ -225,18 +159,13 @@ Deno.serve(async (req) => {
           recall_id: payload.recallId,
           event_type: payload.eventData.eventType,
           description: payload.eventData.description,
-          actor_name: payload.eventData.actorName || user.email,
+          actor_name: payload.eventData.actorName,
           actor_role: payload.eventData.actorRole,
-          metadata: {
-            added_by_user_id: user.id,
-          },
         })
         .select()
         .single();
 
       if (error) throw error;
-
-      console.log('Recall event added:', data.id, 'by user:', user.id);
 
       return new Response(
         JSON.stringify({ success: true, data }),
@@ -247,11 +176,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    throw new Error('Invalid action or missing required data');
+    throw new Error('Invalid action');
   } catch (error) {
     console.error('Error managing recall:', error);
     return new Response(
-      JSON.stringify({ error: 'An error occurred while processing your request' }),
+      JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

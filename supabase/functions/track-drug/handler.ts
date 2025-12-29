@@ -239,7 +239,7 @@ export async function handleRequest(req: Request): Promise<Response> {
   } catch (error) {
     console.error("Error in track-drug edge function:", error);
     return new Response(
-      JSON.stringify({ error: "An error occurred while processing your request" }),
+      JSON.stringify({ error: error.message || "An error occurred" }),
       {
         headers: corsHeaders,
         status: 500,
