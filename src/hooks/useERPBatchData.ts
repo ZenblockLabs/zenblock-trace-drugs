@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -16,7 +16,7 @@ export const useERPBatchData = (userRole: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchERPBatches = useCallback(async () => {
+  const fetchERPBatches = async () => {
     setLoading(true);
     setError(null);
     
@@ -42,7 +42,6 @@ export const useERPBatchData = (userRole: string) => {
           facility: batch.facility || 'Unknown'
         }));
         setBatches(formattedBatches);
-        toast.success('ERP batch data loaded from database');
       } else {
         setBatches([]);
         setError('No batch data found. Scan a QR code to add batches.');
@@ -54,14 +53,12 @@ export const useERPBatchData = (userRole: string) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchERPBatches();
-  }, [fetchERPBatches]);
-
-  // Subscribe to realtime changes
-  useEffect(() => {
+    
+    // Subscribe to realtime changes
     const channel = supabase
       .channel('erp_batches_changes')
       .on(
@@ -80,7 +77,7 @@ export const useERPBatchData = (userRole: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchERPBatches]);
+  }, []);
 
   return {
     batches,
