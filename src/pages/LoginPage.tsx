@@ -184,6 +184,67 @@ export const LoginPage = () => {
                   >
                     {isLoading ? 'Signing in...' : 'Sign In'}
                   </Button>
+
+                  <div className="mt-6 space-y-3">
+                    <p className="text-sm text-center text-muted-foreground">Quick login options:</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-border"
+                        onClick={() => {
+                          setEmail('manufacturer@demo.com');
+                          setPassword('Demo123!');
+                        }}
+                      >
+                        Manufacturer
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-border"
+                        onClick={() => {
+                          setEmail('distributor@demo.com');
+                          setPassword('Demo123!');
+                        }}
+                      >
+                        Distributor
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-border"
+                        onClick={() => {
+                          setEmail('dispenser@demo.com');
+                          setPassword('Demo123!');
+                        }}
+                      >
+                        Dispenser
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-border"
+                        onClick={() => {
+                          setEmail('regulator@demo.com');
+                          setPassword('Demo123!');
+                        }}
+                      >
+                        Regulator
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-pink-200 bg-pink-50 hover:bg-pink-100 text-foreground"
+                      onClick={() => {
+                        setEmail('brandmanager@demo.com');
+                        setPassword('Demo123!');
+                      }}
+                    >
+                      <span className="mr-2">🌿</span> Brand Manager (Kadha Access)
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
 
