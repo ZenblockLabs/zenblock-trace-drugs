@@ -693,6 +693,48 @@ export type Database = {
         }
         Relationships: []
       }
+      erp_batches: {
+        Row: {
+          batch_id: string
+          created_at: string | null
+          drug_name: string
+          facility: string | null
+          id: string
+          metadata: Json | null
+          original_created_at: string | null
+          quantity: number
+          scanned_at: string | null
+          scanned_by: string | null
+          status: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string | null
+          drug_name: string
+          facility?: string | null
+          id?: string
+          metadata?: Json | null
+          original_created_at?: string | null
+          quantity: number
+          scanned_at?: string | null
+          scanned_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string | null
+          drug_name?: string
+          facility?: string | null
+          id?: string
+          metadata?: Json | null
+          original_created_at?: string | null
+          quantity?: number
+          scanned_at?: string | null
+          scanned_by?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       event_images: {
         Row: {
           batch_id: string

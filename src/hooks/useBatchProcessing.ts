@@ -1,12 +1,71 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScannedItem {
   sgtin: string;
   timestamp: string;
   status: 'verified' | 'pending' | 'error';
+  batchData?: ERPBatchData;
 }
+
+interface ERPBatchData {
+  batchId: string;
+  drugName: string;
+  quantity: number;
+  createdAt: string;
+  facility: string;
+}
+
+const parseQRCodeData = (code: string): ERPBatchData | null => {
+  try {
+    // Try to parse as JSON (QR code format)
+    const parsed = JSON.parse(code);
+    
+    // Map the QR code fields to our interface
+    if (parsed['Batch ID'] && parsed['Drug Name']) {
+      return {
+        batchId: parsed['Batch ID'],
+        drugName: parsed['Drug Name'],
+        quantity: parsed['Quantity'] || 0,
+        createdAt: parsed['Created At'] || new Date().toISOString(),
+        facility: parsed['Facility'] || 'Unknown'
+      };
+    }
+    return null;
+  } catch {
+    // Not a JSON QR code, return null
+    return null;
+  }
+};
+
+const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('erp_batches')
+      .insert({
+        batch_id: batchData.batchId,
+        drug_name: batchData.drugName,
+        quantity: batchData.quantity,
+        facility: batchData.facility,
+        original_created_at: batchData.createdAt,
+        status: 'scanned'
+      });
+
+    if (error) {
+      console.error('Error saving ERP batch:', error);
+      toast.error(`Failed to save batch: ${error.message}`);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error saving ERP batch:', err);
+    toast.error('Failed to save batch to database');
+    return false;
+  }
+};
 
 export const useBatchProcessing = () => {
   const [isDemoMode, setIsDemoMode] = useState(true);
@@ -32,14 +91,39 @@ export const useBatchProcessing = () => {
     }, 2000);
   };
 
-  const handleBarcodeScan = (code: string) => {
-    const newItem = {
-      sgtin: code,
-      timestamp: new Date().toISOString(),
-      status: 'verified' as const
-    };
+  const handleBarcodeScan = async (code: string) => {
+    // Try to parse as ERP batch QR code
+    const batchData = parseQRCodeData(code);
     
-    setScannedItems((prev) => [newItem, ...prev]);
+    if (batchData) {
+      // It's an ERP batch QR code - save to database
+      toast.info(`Saving batch ${batchData.batchId} to database...`);
+      
+      const saved = await saveERPBatchToDatabase(batchData);
+      
+      const newItem: ScannedItem = {
+        sgtin: batchData.batchId,
+        timestamp: new Date().toISOString(),
+        status: saved ? 'verified' : 'error',
+        batchData
+      };
+      
+      setScannedItems((prev) => [newItem, ...prev]);
+      
+      if (saved) {
+        toast.success(`Batch ${batchData.batchId} saved successfully!`);
+      }
+    } else {
+      // Regular barcode/SGTIN
+      const newItem: ScannedItem = {
+        sgtin: code,
+        timestamp: new Date().toISOString(),
+        status: 'verified'
+      };
+      
+      setScannedItems((prev) => [newItem, ...prev]);
+      toast.success(`Barcode scanned: ${code}`);
+    }
   };
 
   const handleVerifyAll = () => {
