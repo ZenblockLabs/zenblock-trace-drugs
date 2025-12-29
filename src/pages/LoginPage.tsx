@@ -233,17 +233,6 @@ export const LoginPage = () => {
                         Regulator
                       </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full border-pink-200 bg-pink-50 hover:bg-pink-100 text-foreground"
-                      onClick={() => {
-                        setEmail('brandmanager@demo.com');
-                        setPassword('Demo123!');
-                      }}
-                    >
-                      <span className="mr-2">🌿</span> Brand Manager (Kadha Access)
-                    </Button>
                   </div>
                 </form>
               </TabsContent>
