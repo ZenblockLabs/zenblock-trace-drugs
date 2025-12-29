@@ -1,4 +1,3 @@
-
 import {
   Home,
   Search,
@@ -23,8 +22,8 @@ import {
   Heart,
   Thermometer,
   Layers,
-} from "lucide-react"
-import { Link } from "react-router-dom"
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 import {
   Sidebar,
@@ -35,7 +34,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 // Pharma Operations section
 const pharmaOperations = [
@@ -69,7 +68,7 @@ const pharmaOperations = [
     url: "/aggregation",
     icon: Layers,
   },
-]
+];
 
 // Supply Chain section (role-specific)
 const supplyChain = [
@@ -79,7 +78,7 @@ const supplyChain = [
     icon: Plus,
   },
   {
-    title: "Batch Processing", 
+    title: "Batch Processing",
     url: "/batch-processing",
     icon: Package2,
   },
@@ -88,7 +87,7 @@ const supplyChain = [
     url: "/erp-integration",
     icon: Database,
   },
-]
+];
 
 // Compliance & Security section
 const complianceSecurity = [
@@ -102,7 +101,7 @@ const complianceSecurity = [
     url: "/explorer",
     icon: Globe,
   },
-]
+];
 
 // System section
 const system = [
@@ -121,16 +120,16 @@ const system = [
     url: "/network-admin",
     icon: Network,
   },
-]
+];
 
 // Brand Engagement section
-const brandEngagement = [
-  {
-    title: "Kadha Capsules",
-    url: "/kadha-capsules",
-    icon: Heart,
-  },
-]
+// const brandEngagement = [
+//   {
+//     title: "Kadha Capsules",
+//     url: "/kadha-capsules",
+//     icon: Heart,
+//   },
+// ]
 
 export function AppSidebar() {
   return (
@@ -153,7 +152,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
         <SidebarGroup>
           <SidebarGroupLabel>SUPPLY CHAIN</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -171,7 +170,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
         <SidebarGroup>
           <SidebarGroupLabel>COMPLIANCE & SECURITY</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -189,7 +188,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
         <SidebarGroup>
           <SidebarGroupLabel>SYSTEM</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -207,7 +206,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
         <SidebarGroup>
           <SidebarGroupLabel>BRAND ENGAGEMENT</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -227,5 +226,5 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
