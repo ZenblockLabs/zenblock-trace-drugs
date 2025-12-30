@@ -1154,6 +1154,13 @@ export type Database = {
             referencedRelation: "pharma_organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pharma_batches_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_organizations_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pharma_kadha_analytics: {
@@ -1289,6 +1296,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "pharma_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pharma_kadha_capsules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "pharma_organizations_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1826,6 +1840,45 @@ export type Database = {
           organization_type?:
             | Database["public"]["Enums"]["organization_type"]
             | null
+          slug?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pharma_organizations_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string | null
+          industry: string | null
+          logo_url: string | null
+          name: string | null
+          organization_type: string | null
+          slug: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          industry?: string | null
+          logo_url?: string | null
+          name?: string | null
+          organization_type?: string | null
+          slug?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          industry?: string | null
+          logo_url?: string | null
+          name?: string | null
+          organization_type?: string | null
           slug?: string | null
           status?: string | null
           updated_at?: string | null
