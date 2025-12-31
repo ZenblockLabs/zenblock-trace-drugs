@@ -13,6 +13,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const isScannerRunningRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const startScanner = async () => {
@@ -40,6 +41,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
         },
       );
 
+      isScannerRunningRef.current = true;
       setIsScanning(true);
       toast.info("Camera active. Position QR code in the frame.");
     } catch (error) {
@@ -50,9 +52,10 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   };
 
   const stopScanner = async () => {
-    if (scannerRef.current && isScanning) {
+    if (scannerRef.current && isScannerRunningRef.current) {
       try {
         await scannerRef.current.stop();
+        isScannerRunningRef.current = false;
       } catch (error) {
         console.error("Error stopping scanner:", error);
       }
@@ -82,8 +85,9 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (scannerRef.current) {
+      if (scannerRef.current && isScannerRunningRef.current) {
         scannerRef.current.stop().catch(() => {});
+        isScannerRunningRef.current = false;
       }
     };
   }, []);
