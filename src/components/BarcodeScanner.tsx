@@ -1,9 +1,8 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { Camera, StopCircle, Upload, Scan } from 'lucide-react';
-import { Html5Qrcode } from 'html5-qrcode';
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Camera, StopCircle, Upload, Scan } from "lucide-react";
+import { Html5Qrcode } from "html5-qrcode";
 
 interface BarcodeScannerProps {
   onDetected: (code: string) => void;
@@ -19,7 +18,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   const startScanner = async () => {
     try {
       setCameraError(null);
-      
+
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode("qr-reader");
       }
@@ -38,14 +37,14 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
         },
         (errorMessage) => {
           // Ignore scanning errors - they happen frequently while scanning
-        }
+        },
       );
-      
+
       setIsScanning(true);
       toast.info("Camera active. Position QR code in the frame.");
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      setCameraError('Unable to access camera. Please check permissions or try uploading an image instead.');
+      console.error("Error accessing camera:", error);
+      setCameraError("Unable to access camera. Please check permissions or try uploading an image instead.");
       toast.error("Camera access denied. Please check permissions.");
     }
   };
@@ -55,7 +54,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
       try {
         await scannerRef.current.stop();
       } catch (error) {
-        console.error('Error stopping scanner:', error);
+        console.error("Error stopping scanner:", error);
       }
     }
     setIsScanning(false);
@@ -69,13 +68,13 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode("qr-reader");
       }
-      
+
       const decodedText = await scannerRef.current.scanFile(file, true);
       console.log("QR Code from file:", decodedText);
       toast.success("QR Code detected from image!");
       onDetected(decodedText);
     } catch (error) {
-      console.error('Error scanning file:', error);
+      console.error("Error scanning file:", error);
       toast.error("Could not detect QR code in the image. Please try again.");
     }
   };
@@ -92,11 +91,11 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-full max-w-md aspect-video bg-black mb-4 rounded-lg overflow-hidden">
-        <div 
-          id="qr-reader" 
+        <div
+          id="qr-reader"
           ref={containerRef}
           className="w-full h-full"
-          style={{ display: isScanning ? 'block' : 'none' }}
+          style={{ display: isScanning ? "block" : "none" }}
         />
         {!isScanning && (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 absolute inset-0 p-6">
@@ -109,62 +108,62 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-28 h-28 sm:w-32 sm:h-32 border-2 border-dashed border-muted-foreground/50 rounded-xl flex items-center justify-center bg-background/60 shadow-sm">
                       <svg viewBox="0 0 100 100" className="w-20 h-20 sm:w-24 sm:h-24 text-muted-foreground/70">
-                        <rect x="5" y="5" width="30" height="30" fill="currentColor"/>
-                        <rect x="65" y="5" width="30" height="30" fill="currentColor"/>
-                        <rect x="5" y="65" width="30" height="30" fill="currentColor"/>
-                        <rect x="10" y="10" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4"/>
-                        <rect x="70" y="10" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4"/>
-                        <rect x="10" y="70" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4"/>
-                        <rect x="17" y="17" width="6" height="6" fill="currentColor"/>
-                        <rect x="77" y="17" width="6" height="6" fill="currentColor"/>
-                        <rect x="17" y="77" width="6" height="6" fill="currentColor"/>
-                        <rect x="42" y="5" width="8" height="8" fill="currentColor"/>
-                        <rect x="55" y="5" width="5" height="5" fill="currentColor"/>
-                        <rect x="42" y="42" width="16" height="16" fill="currentColor"/>
-                        <rect x="65" y="42" width="8" height="8" fill="currentColor"/>
-                        <rect x="80" y="42" width="8" height="8" fill="currentColor"/>
-                        <rect x="42" y="65" width="8" height="8" fill="currentColor"/>
-                        <rect x="55" y="75" width="8" height="8" fill="currentColor"/>
-                        <rect x="80" y="65" width="15" height="8" fill="currentColor"/>
-                        <rect x="65" y="80" width="8" height="15" fill="currentColor"/>
-                        <rect x="80" y="85" width="10" height="10" fill="currentColor"/>
+                        <rect x="5" y="5" width="30" height="30" fill="currentColor" />
+                        <rect x="65" y="5" width="30" height="30" fill="currentColor" />
+                        <rect x="5" y="65" width="30" height="30" fill="currentColor" />
+                        <rect x="10" y="10" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4" />
+                        <rect x="70" y="10" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4" />
+                        <rect x="10" y="70" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="4" />
+                        <rect x="17" y="17" width="6" height="6" fill="currentColor" />
+                        <rect x="77" y="17" width="6" height="6" fill="currentColor" />
+                        <rect x="17" y="77" width="6" height="6" fill="currentColor" />
+                        <rect x="42" y="5" width="8" height="8" fill="currentColor" />
+                        <rect x="55" y="5" width="5" height="5" fill="currentColor" />
+                        <rect x="42" y="42" width="16" height="16" fill="currentColor" />
+                        <rect x="65" y="42" width="8" height="8" fill="currentColor" />
+                        <rect x="80" y="42" width="8" height="8" fill="currentColor" />
+                        <rect x="42" y="65" width="8" height="8" fill="currentColor" />
+                        <rect x="55" y="75" width="8" height="8" fill="currentColor" />
+                        <rect x="80" y="65" width="15" height="8" fill="currentColor" />
+                        <rect x="65" y="80" width="8" height="15" fill="currentColor" />
+                        <rect x="80" y="85" width="10" height="10" fill="currentColor" />
                       </svg>
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">QR Code</span>
+                    {/* <span className="text-sm font-medium text-muted-foreground">QR Code</span> */}
                   </div>
-                  
+
                   {/* Sample Barcode indicator */}
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-36 h-28 sm:w-44 sm:h-32 border-2 border-dashed border-muted-foreground/50 rounded-xl flex items-center justify-center bg-background/60 shadow-sm px-3">
                       <svg viewBox="0 0 140 70" className="w-full h-16 sm:h-20 text-muted-foreground/70">
-                        <rect x="5" y="5" width="4" height="55" fill="currentColor"/>
-                        <rect x="12" y="5" width="2" height="55" fill="currentColor"/>
-                        <rect x="18" y="5" width="5" height="55" fill="currentColor"/>
-                        <rect x="26" y="5" width="3" height="55" fill="currentColor"/>
-                        <rect x="33" y="5" width="4" height="55" fill="currentColor"/>
-                        <rect x="40" y="5" width="2" height="55" fill="currentColor"/>
-                        <rect x="46" y="5" width="6" height="55" fill="currentColor"/>
-                        <rect x="55" y="5" width="2" height="55" fill="currentColor"/>
-                        <rect x="60" y="5" width="4" height="55" fill="currentColor"/>
-                        <rect x="68" y="5" width="3" height="55" fill="currentColor"/>
-                        <rect x="75" y="5" width="5" height="55" fill="currentColor"/>
-                        <rect x="84" y="5" width="2" height="55" fill="currentColor"/>
-                        <rect x="90" y="5" width="4" height="55" fill="currentColor"/>
-                        <rect x="98" y="5" width="3" height="55" fill="currentColor"/>
-                        <rect x="105" y="5" width="6" height="55" fill="currentColor"/>
-                        <rect x="115" y="5" width="2" height="55" fill="currentColor"/>
-                        <rect x="121" y="5" width="4" height="55" fill="currentColor"/>
-                        <rect x="129" y="5" width="6" height="55" fill="currentColor"/>
+                        <rect x="5" y="5" width="4" height="55" fill="currentColor" />
+                        <rect x="12" y="5" width="2" height="55" fill="currentColor" />
+                        <rect x="18" y="5" width="5" height="55" fill="currentColor" />
+                        <rect x="26" y="5" width="3" height="55" fill="currentColor" />
+                        <rect x="33" y="5" width="4" height="55" fill="currentColor" />
+                        <rect x="40" y="5" width="2" height="55" fill="currentColor" />
+                        <rect x="46" y="5" width="6" height="55" fill="currentColor" />
+                        <rect x="55" y="5" width="2" height="55" fill="currentColor" />
+                        <rect x="60" y="5" width="4" height="55" fill="currentColor" />
+                        <rect x="68" y="5" width="3" height="55" fill="currentColor" />
+                        <rect x="75" y="5" width="5" height="55" fill="currentColor" />
+                        <rect x="84" y="5" width="2" height="55" fill="currentColor" />
+                        <rect x="90" y="5" width="4" height="55" fill="currentColor" />
+                        <rect x="98" y="5" width="3" height="55" fill="currentColor" />
+                        <rect x="105" y="5" width="6" height="55" fill="currentColor" />
+                        <rect x="115" y="5" width="2" height="55" fill="currentColor" />
+                        <rect x="121" y="5" width="4" height="55" fill="currentColor" />
+                        <rect x="129" y="5" width="6" height="55" fill="currentColor" />
                       </svg>
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">Barcode</span>
+                    {/* <span className="text-sm font-medium text-muted-foreground">Barcode</span> */}
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-center gap-2 mt-2">
-                  <p className="text-sm text-muted-foreground text-center font-medium">
+                  {/* <p className="text-sm text-muted-foreground text-center font-medium">
                     Position your QR code or barcode in the frame
-                  </p>
+                  </p> */}
                   <Scan className="h-6 w-6 text-primary/60 animate-pulse" />
                 </div>
               </div>
@@ -172,7 +171,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
           </div>
         )}
       </div>
-      
+
       <div className="flex flex-wrap gap-3 justify-center w-full">
         {!isScanning ? (
           <Button onClick={startScanner} className="flex items-center gap-2">
@@ -185,25 +184,19 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
             Stop Scanning
           </Button>
         )}
-        
+
         <div className="relative">
-          <input
-            type="file"
-            accept="image/*"
-            id="barcode-upload"
-            className="sr-only"
-            onChange={handleFileUpload}
-          />
-          <Button 
-            variant="outline" 
-            onClick={() => document.getElementById('barcode-upload')?.click()}
+          <input type="file" accept="image/*" id="barcode-upload" className="sr-only" onChange={handleFileUpload} />
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById("barcode-upload")?.click()}
             className="flex items-center gap-2"
           >
             <Upload className="h-4 w-4" />
             Upload Image
           </Button>
         </div>
-        
+
         {onClose && (
           <Button variant="ghost" onClick={onClose}>
             Cancel
