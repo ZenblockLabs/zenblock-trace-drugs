@@ -99,11 +99,63 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
           style={{ display: isScanning ? 'block' : 'none' }}
         />
         {!isScanning && (
-          <div className="w-full h-full flex items-center justify-center bg-muted/30 absolute inset-0">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 absolute inset-0 p-4">
             {cameraError ? (
               <p className="text-destructive text-sm p-4 text-center">{cameraError}</p>
             ) : (
-              <Scan className="h-16 w-16 text-muted-foreground/50" />
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-4">
+                  {/* Sample QR Code indicator */}
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-16 h-16 border-2 border-dashed border-muted-foreground/40 rounded-lg flex items-center justify-center bg-background/50">
+                      <svg viewBox="0 0 100 100" className="w-12 h-12 text-muted-foreground/60">
+                        <rect x="10" y="10" width="25" height="25" fill="currentColor"/>
+                        <rect x="65" y="10" width="25" height="25" fill="currentColor"/>
+                        <rect x="10" y="65" width="25" height="25" fill="currentColor"/>
+                        <rect x="15" y="15" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="3"/>
+                        <rect x="70" y="15" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="3"/>
+                        <rect x="15" y="70" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="3"/>
+                        <rect x="45" y="10" width="10" height="10" fill="currentColor"/>
+                        <rect x="45" y="45" width="10" height="10" fill="currentColor"/>
+                        <rect x="65" y="45" width="10" height="10" fill="currentColor"/>
+                        <rect x="80" y="65" width="10" height="10" fill="currentColor"/>
+                        <rect x="65" y="80" width="10" height="10" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <span className="text-xs text-muted-foreground">QR Code</span>
+                  </div>
+                  
+                  {/* Sample Barcode indicator */}
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-20 h-16 border-2 border-dashed border-muted-foreground/40 rounded-lg flex items-center justify-center bg-background/50 px-2">
+                      <svg viewBox="0 0 120 60" className="w-full h-10 text-muted-foreground/60">
+                        <rect x="5" y="5" width="3" height="50" fill="currentColor"/>
+                        <rect x="12" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="18" y="5" width="4" height="50" fill="currentColor"/>
+                        <rect x="26" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="32" y="5" width="3" height="50" fill="currentColor"/>
+                        <rect x="40" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="46" y="5" width="4" height="50" fill="currentColor"/>
+                        <rect x="54" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="60" y="5" width="3" height="50" fill="currentColor"/>
+                        <rect x="68" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="74" y="5" width="4" height="50" fill="currentColor"/>
+                        <rect x="82" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="88" y="5" width="3" height="50" fill="currentColor"/>
+                        <rect x="96" y="5" width="2" height="50" fill="currentColor"/>
+                        <rect x="102" y="5" width="4" height="50" fill="currentColor"/>
+                        <rect x="110" y="5" width="3" height="50" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Barcode</span>
+                  </div>
+                </div>
+                
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  Position your QR code or barcode here
+                </p>
+                <Scan className="h-8 w-8 text-muted-foreground/40 animate-pulse" />
+              </div>
             )}
           </div>
         )}
