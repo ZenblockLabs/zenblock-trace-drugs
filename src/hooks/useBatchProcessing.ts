@@ -2,12 +2,14 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { BarcodeFormData } from '@/components/batch/BarcodeDataEntryDialog';
 
 interface ScannedItem {
   sgtin: string;
   timestamp: string;
   status: 'verified' | 'pending' | 'error';
   batchData?: ERPBatchData;
+  scanType?: 'qr' | 'barcode';
 }
 
 export interface ERPBatchData {
@@ -17,6 +19,21 @@ export interface ERPBatchData {
   createdAt: string;
   facility: string;
 }
+
+// Detect if scanned code is QR (JSON) or barcode (plain number/text)
+const detectCodeType = (code: string): 'qr' | 'barcode' => {
+  try {
+    const parsed = JSON.parse(code);
+    // If it parses as JSON and has expected fields, it's a QR code
+    if (parsed && typeof parsed === 'object' && (parsed['Batch ID'] || parsed['Drug Name'] || parsed.batchId)) {
+      return 'qr';
+    }
+    return 'barcode';
+  } catch {
+    // If it doesn't parse as JSON, it's a barcode
+    return 'barcode';
+  }
+};
 
 const parseQRCodeData = (code: string): ERPBatchData | null => {
   try {
@@ -72,6 +89,10 @@ export const useBatchProcessing = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingBatchData, setPendingBatchData] = useState<ERPBatchData | null>(null);
 
+  // State for barcode manual entry dialog
+  const [barcodeEntryDialogOpen, setBarcodeEntryDialogOpen] = useState(false);
+  const [pendingBarcodeNumber, setPendingBarcodeNumber] = useState<string>('');
+
   const handleDemoScan = () => {
     toast.info("Starting demo batch scan. This will add sample drugs.");
     
@@ -92,25 +113,61 @@ export const useBatchProcessing = () => {
   };
 
   const handleBarcodeScan = async (code: string) => {
-    // Try to parse as ERP batch QR code
-    const batchData = parseQRCodeData(code);
+    const codeType = detectCodeType(code);
     
-    if (batchData) {
-      // Show confirmation dialog instead of saving directly
-      setPendingBatchData(batchData);
-      setConfirmDialogOpen(true);
-      return;
+    if (codeType === 'qr') {
+      // QR Code detected - has all data, show confirmation dialog
+      const batchData = parseQRCodeData(code);
+      
+      if (batchData) {
+        toast.success('QR Code detected with complete data!');
+        setPendingBatchData(batchData);
+        setConfirmDialogOpen(true);
+        return;
+      }
     }
     
-    // Regular barcode/SGTIN - save directly
+    // Barcode detected - show manual entry form
+    toast.info('Barcode detected. Please enter batch details.');
+    setPendingBarcodeNumber(code);
+    setBarcodeEntryDialogOpen(true);
+  };
+
+  const handleBarcodeFormSubmit = async (formData: BarcodeFormData) => {
+    const batchData: ERPBatchData = {
+      batchId: formData.batchId,
+      drugName: formData.drugName,
+      quantity: formData.quantity,
+      createdAt: formData.createdAt,
+      facility: formData.facility,
+    };
+
+    toast.info(`Saving batch ${batchData.batchId} to database...`);
+    
+    const saved = await saveERPBatchToDatabase(batchData);
+    
     const newItem: ScannedItem = {
-      sgtin: code,
+      sgtin: formData.barcodeNumber,
       timestamp: new Date().toISOString(),
-      status: 'verified'
+      status: saved ? 'verified' : 'error',
+      batchData: batchData,
+      scanType: 'barcode'
     };
     
     setScannedItems((prev) => [newItem, ...prev]);
-    toast.success(`Barcode scanned: ${code}`);
+    
+    if (saved) {
+      toast.success(`Batch ${batchData.batchId} saved successfully!`);
+    }
+    
+    setBarcodeEntryDialogOpen(false);
+    setPendingBarcodeNumber('');
+  };
+
+  const handleCancelBarcodeEntry = () => {
+    setBarcodeEntryDialogOpen(false);
+    setPendingBarcodeNumber('');
+    toast.info('Barcode entry cancelled');
   };
 
   const handleConfirmBatchSave = async () => {
@@ -124,7 +181,8 @@ export const useBatchProcessing = () => {
       sgtin: pendingBatchData.batchId,
       timestamp: new Date().toISOString(),
       status: saved ? 'verified' : 'error',
-      batchData: pendingBatchData
+      batchData: pendingBatchData,
+      scanType: 'qr'
     };
     
     setScannedItems((prev) => [newItem, ...prev]);
@@ -182,11 +240,17 @@ export const useBatchProcessing = () => {
     handleBarcodeScan,
     handleVerifyAll,
     handleBatchImportComplete,
-    // Dialog state and handlers
+    // QR Dialog state and handlers
     confirmDialogOpen,
     setConfirmDialogOpen,
     pendingBatchData,
     handleConfirmBatchSave,
-    handleCancelBatchSave
+    handleCancelBatchSave,
+    // Barcode entry dialog state and handlers
+    barcodeEntryDialogOpen,
+    setBarcodeEntryDialogOpen,
+    pendingBarcodeNumber,
+    handleBarcodeFormSubmit,
+    handleCancelBarcodeEntry
   };
 };

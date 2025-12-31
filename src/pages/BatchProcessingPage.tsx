@@ -7,6 +7,7 @@ import { BatchImportTab } from '@/components/batch/BatchImportTab';
 import { ResultsTab } from '@/components/batch/ResultsTab';
 import { useBatchProcessing } from '@/hooks/useBatchProcessing';
 import { QRScanConfirmDialog } from '@/components/batch/QRScanConfirmDialog';
+import { BarcodeDataEntryDialog } from '@/components/batch/BarcodeDataEntryDialog';
 
 export const BatchProcessingPage = () => {
   const {
@@ -23,7 +24,13 @@ export const BatchProcessingPage = () => {
     setConfirmDialogOpen,
     pendingBatchData,
     handleConfirmBatchSave,
-    handleCancelBatchSave
+    handleCancelBatchSave,
+    // Barcode entry dialog
+    barcodeEntryDialogOpen,
+    setBarcodeEntryDialogOpen,
+    pendingBarcodeNumber,
+    handleBarcodeFormSubmit,
+    handleCancelBarcodeEntry
   } = useBatchProcessing();
 
   // Mock user role - in production this would come from auth context
@@ -69,12 +76,22 @@ export const BatchProcessingPage = () => {
         onImportComplete={handleBatchImportComplete}
       />
 
+      {/* QR Code confirmation dialog */}
       <QRScanConfirmDialog
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         batchData={pendingBatchData}
         onConfirm={handleConfirmBatchSave}
         onCancel={handleCancelBatchSave}
+      />
+
+      {/* Barcode manual entry dialog */}
+      <BarcodeDataEntryDialog
+        open={barcodeEntryDialogOpen}
+        onOpenChange={setBarcodeEntryDialogOpen}
+        barcodeNumber={pendingBarcodeNumber}
+        onSubmit={handleBarcodeFormSubmit}
+        onCancel={handleCancelBarcodeEntry}
       />
     </div>
   );
