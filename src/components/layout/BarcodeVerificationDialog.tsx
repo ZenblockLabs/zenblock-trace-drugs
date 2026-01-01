@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Textarea } from "@/components/ui/textarea";
 import { QrCode, Package, Calendar, MapPin, Hash, Pill, CheckCircle } from "lucide-react";
@@ -204,9 +204,11 @@ export const BarcodeVerificationDialog = () => {
               <Button variant="outline" onClick={handleReset} className="flex-1">
                 Scan Another
               </Button>
-              <Button onClick={() => navigate('/batch-processing')} className="flex-1">
-                View All Batches
-              </Button>
+              <DialogClose asChild>
+                <Button onClick={() => navigate('/batch-processing')} className="flex-1">
+                  View All Batches
+                </Button>
+              </DialogClose>
             </div>
           </div>
         ) : (
