@@ -159,8 +159,8 @@ export const useBatchProcessing = () => {
     
     if (saved) {
       toast.success(`Batch ${batchData.batchId} saved successfully!`);
-      // Trigger refresh of ERP batch table
-      triggerERPBatchRefresh();
+      // Trigger refresh of ERP batch table with the specific batch ID
+      triggerERPBatchRefresh(batchData.batchId);
     }
     
     setBarcodeEntryDialogOpen(false);
@@ -191,8 +191,8 @@ export const useBatchProcessing = () => {
     
     if (saved) {
       toast.success(`Batch ${dataToSave.batchId} saved successfully!`);
-      // Trigger refresh of ERP batch table
-      triggerERPBatchRefresh();
+      // Trigger refresh of ERP batch table with the specific batch ID
+      triggerERPBatchRefresh(dataToSave.batchId);
     }
     
     setConfirmDialogOpen(false);
