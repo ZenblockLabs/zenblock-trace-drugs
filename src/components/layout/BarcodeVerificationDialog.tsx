@@ -4,17 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Textarea } from "@/components/ui/textarea";
-import { QrCode } from "lucide-react";
+import { QrCode, Package, Calendar, MapPin, Hash, Pill, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+
+interface VerifiedBatch {
+  batch_id: string;
+  drug_name: string;
+  quantity: number;
+  facility: string | null;
+  status: string | null;
+  scanned_at: string | null;
+  original_created_at: string | null;
+}
 
 export const BarcodeVerificationDialog = () => {
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
   const [barcodeResult, setBarcodeResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [verifiedBatch, setVerifiedBatch] = useState<VerifiedBatch | null>(null);
 
   const handleBarcodeDetected = (barcode: string) => {
     setBarcodeResult(barcode);
@@ -48,6 +62,7 @@ export const BarcodeVerificationDialog = () => {
     }
 
     setIsLoading(true);
+    setVerifiedBatch(null);
     
     try {
       const searchValue = extractBatchId(barcodeResult);
@@ -80,8 +95,8 @@ export const BarcodeVerificationDialog = () => {
       }
 
       if (erpBatch) {
-        toast.success(`Batch verified: ${erpBatch.drug_name} (${erpBatch.batch_id})`);
-        navigate('/batch-processing');
+        toast.success(`Batch verified successfully`);
+        setVerifiedBatch(erpBatch);
         return;
       }
 
@@ -91,6 +106,20 @@ export const BarcodeVerificationDialog = () => {
       toast.error("Failed to verify drug. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setVerifiedBatch(null);
+    setBarcodeResult("");
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "PPp");
+    } catch {
+      return dateString;
     }
   };
 
@@ -104,44 +133,120 @@ export const BarcodeVerificationDialog = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Scan or Enter Drug Barcode</DialogTitle>
+          <DialogTitle>
+            {verifiedBatch ? "Drug Verified ✓" : "Scan or Enter Drug Barcode"}
+          </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col space-y-4">
-          {isScanning ? (
-            <>
-              <div className="h-[300px]">
-                <BarcodeScanner onDetected={handleBarcodeDetected} />
-              </div>
-              <Button 
-                variant="secondary" 
-                onClick={() => setIsScanning(false)}
-                className="w-full"
-              >
-                Cancel
+        
+        {verifiedBatch ? (
+          <div className="flex flex-col space-y-4">
+            <Card className="border-green-200 bg-green-50/50">
+              <CardContent className="pt-4 space-y-3">
+                <div className="flex items-center gap-2 text-green-700 mb-3">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-medium">Verification Successful</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Pill className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Drug Name</p>
+                      <p className="font-medium">{verifiedBatch.drug_name}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <Hash className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Batch ID</p>
+                      <p className="font-medium">{verifiedBatch.batch_id}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <Package className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Quantity</p>
+                      <p className="font-medium">{verifiedBatch.quantity} units</p>
+                    </div>
+                  </div>
+                  
+                  {verifiedBatch.facility && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Facility</p>
+                        <p className="font-medium">{verifiedBatch.facility}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Created At</p>
+                      <p className="font-medium">{formatDate(verifiedBatch.original_created_at)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Status:</span>
+                    <Badge variant="outline" className="capitalize">
+                      {verifiedBatch.status || "Unknown"}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleReset} className="flex-1">
+                Scan Another
               </Button>
-            </>
-          ) : (
-            <Button onClick={() => setIsScanning(true)}>
-              <QrCode className="h-4 w-4 mr-2" /> Scan Barcode
+              <Button onClick={() => navigate('/batch-processing')} className="flex-1">
+                View All Batches
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-4">
+            {isScanning ? (
+              <>
+                <div className="h-[300px]">
+                  <BarcodeScanner onDetected={handleBarcodeDetected} />
+                </div>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setIsScanning(false)}
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => setIsScanning(true)}>
+                <QrCode className="h-4 w-4 mr-2" /> Scan Barcode
+              </Button>
+            )}
+            
+            <div className="text-center">or</div>
+            
+            <Textarea
+              placeholder="Enter Batch ID or SGTIN manually"
+              value={barcodeResult}
+              onChange={handleManualEntry}
+              className="min-h-[80px]"
+            />
+            
+            <Button 
+              onClick={handleVerifyBarcode}
+              disabled={isLoading || !barcodeResult}
+            >
+              {isLoading ? "Verifying..." : "Verify"}
             </Button>
-          )}
-          
-          <div className="text-center">or</div>
-          
-          <Textarea
-            placeholder="Enter SGTIN manually"
-            value={barcodeResult}
-            onChange={handleManualEntry}
-            className="min-h-[80px]"
-          />
-          
-          <Button 
-            onClick={handleVerifyBarcode}
-            disabled={isLoading || !barcodeResult}
-          >
-            {isLoading ? "Verifying..." : "Verify"}
-          </Button>
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
