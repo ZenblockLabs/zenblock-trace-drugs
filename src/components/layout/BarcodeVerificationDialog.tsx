@@ -29,28 +29,99 @@ export const BarcodeVerificationDialog = () => {
   const [barcodeResult, setBarcodeResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [verifiedBatch, setVerifiedBatch] = useState<VerifiedBatch | null>(null);
+  const [scannedId, setScannedId] = useState<string | null>(null);
 
-  const handleBarcodeDetected = (barcode: string) => {
+  // Detect if scanned data is QR code (JSON) or barcode (plain text)
+  const detectCodeType = (code: string): 'qr' | 'barcode' => {
+    try {
+      JSON.parse(code);
+      return 'qr';
+    } catch {
+      return 'barcode';
+    }
+  };
+
+  // Generate a unique batch ID for QR codes that don't have one
+  const generateBatchId = (): string => {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 8);
+    return `BATCH-${timestamp}-${random}`.toUpperCase();
+  };
+
+  // Extract or generate batch ID from scanned data
+  const extractOrGenerateBatchId = (input: string): { id: string; drugName: string; quantity: number } => {
+    const codeType = detectCodeType(input);
+    
+    if (codeType === 'qr') {
+      try {
+        const parsed = JSON.parse(input);
+        const batchId = parsed["Batch ID"] || parsed.batch_id || generateBatchId();
+        const drugName = parsed["Drug Name"] || parsed.drug_name || "Unknown Drug";
+        const quantity = parseInt(parsed["Quantity"] || parsed.quantity) || 1;
+        return { id: batchId, drugName, quantity };
+      } catch {
+        return { id: generateBatchId(), drugName: "Unknown Drug", quantity: 1 };
+      }
+    } else {
+      // Barcode - use the scanned value as the ID
+      return { id: input.trim(), drugName: "Scanned Product", quantity: 1 };
+    }
+  };
+
+  const handleBarcodeDetected = async (barcode: string) => {
     setBarcodeResult(barcode);
     setIsScanning(false);
+    
+    // Extract or generate batch ID and store to database
+    const { id, drugName, quantity } = extractOrGenerateBatchId(barcode);
+    setScannedId(id);
+    
+    try {
+      // Check if batch already exists
+      const { data: existing } = await supabase
+        .from('erp_batches')
+        .select('batch_id')
+        .eq('batch_id', id)
+        .maybeSingle();
+      
+      if (!existing) {
+        // Store new batch to database
+        const { error } = await supabase
+          .from('erp_batches')
+          .insert({
+            batch_id: id,
+            drug_name: drugName,
+            quantity: quantity,
+            status: 'scanned',
+            scanned_at: new Date().toISOString(),
+            original_created_at: new Date().toISOString()
+          });
+        
+        if (error) {
+          console.error("Error storing scanned batch:", error);
+        } else {
+          toast.success("Batch ID stored successfully");
+        }
+      } else {
+        toast.info("Batch ID already exists in database");
+      }
+    } catch (error) {
+      console.error("Error storing batch:", error);
+    }
   };
 
   const handleManualEntry = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBarcodeResult(e.target.value);
+    setScannedId(null); // Clear scanned ID for manual entry
   };
 
   const extractBatchId = (input: string): string | null => {
-    // Try to parse as JSON first (scanned QR codes contain JSON)
     try {
       const parsed = JSON.parse(input);
-      if (parsed["Batch ID"]) {
-        return parsed["Batch ID"];
-      }
-      if (parsed.batch_id) {
-        return parsed.batch_id;
-      }
+      if (parsed["Batch ID"]) return parsed["Batch ID"];
+      if (parsed.batch_id) return parsed.batch_id;
     } catch {
-      // Not JSON, treat as plain batch ID or SGTIN
+      // Not JSON
     }
     return input.trim();
   };
@@ -65,7 +136,8 @@ export const BarcodeVerificationDialog = () => {
     setVerifiedBatch(null);
     
     try {
-      const searchValue = extractBatchId(barcodeResult);
+      // Use the stored scanned ID or extract from manual entry
+      const searchValue = scannedId || extractBatchId(barcodeResult);
       
       if (!searchValue) {
         toast.error("Invalid barcode format");
@@ -73,17 +145,7 @@ export const BarcodeVerificationDialog = () => {
         return;
       }
 
-      // First try to find in mock drugs by SGTIN
-      const service = await getBlockchainService();
-      const drug = await service.getDrugBySGTIN(searchValue);
-      
-      if (drug) {
-        toast.success("Drug verified successfully");
-        navigate(`/drugs/${drug.id}`);
-        return;
-      }
-
-      // If not found, check erp_batches by batch_id
+      // Check erp_batches for matching batch_id
       const { data: erpBatch, error } = await supabase
         .from('erp_batches')
         .select('*')
@@ -95,12 +157,22 @@ export const BarcodeVerificationDialog = () => {
       }
 
       if (erpBatch) {
-        toast.success(`Batch verified successfully`);
+        toast.success(`Batch verified - ID matched in database`);
         setVerifiedBatch(erpBatch);
         return;
       }
 
-      toast.error("Drug not found or invalid barcode");
+      // If not in erp_batches, try mock drugs
+      const service = await getBlockchainService();
+      const drug = await service.getDrugBySGTIN(searchValue);
+      
+      if (drug) {
+        toast.success("Drug verified successfully");
+        navigate(`/drugs/${drug.id}`);
+        return;
+      }
+
+      toast.error("Batch ID not found in database");
     } catch (error) {
       console.error("Error verifying drug:", error);
       toast.error("Failed to verify drug. Please try again.");
@@ -112,6 +184,7 @@ export const BarcodeVerificationDialog = () => {
   const handleReset = () => {
     setVerifiedBatch(null);
     setBarcodeResult("");
+    setScannedId(null);
   };
 
   const formatDate = (dateString: string | null) => {
