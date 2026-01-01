@@ -8,6 +8,7 @@ import { QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export const BarcodeVerificationDialog = () => {
   const navigate = useNavigate();
@@ -33,15 +34,34 @@ export const BarcodeVerificationDialog = () => {
     setIsLoading(true);
     
     try {
+      // First try to find in mock drugs by SGTIN
       const service = await getBlockchainService();
       const drug = await service.getDrugBySGTIN(barcodeResult);
       
       if (drug) {
         toast.success("Drug verified successfully");
         navigate(`/drugs/${drug.id}`);
-      } else {
-        toast.error("Drug not found or invalid barcode");
+        return;
       }
+
+      // If not found, check erp_batches by batch_id
+      const { data: erpBatch, error } = await supabase
+        .from('erp_batches')
+        .select('*')
+        .eq('batch_id', barcodeResult.trim())
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking ERP batches:", error);
+      }
+
+      if (erpBatch) {
+        toast.success(`Batch verified: ${erpBatch.drug_name} (${erpBatch.batch_id})`);
+        navigate('/batch-processing');
+        return;
+      }
+
+      toast.error("Drug not found or invalid barcode");
     } catch (error) {
       console.error("Error verifying drug:", error);
       toast.error("Failed to verify drug. Please try again.");
