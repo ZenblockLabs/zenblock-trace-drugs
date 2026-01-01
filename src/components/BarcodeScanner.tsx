@@ -216,7 +216,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-3 w-full">
+      <div className="flex flex-wrap items-center justify-center gap-2 w-full">
         {!isScanning ? (
           <Button onClick={startScanner} className="flex items-center gap-2">
             <Camera className="h-4 w-4" />
