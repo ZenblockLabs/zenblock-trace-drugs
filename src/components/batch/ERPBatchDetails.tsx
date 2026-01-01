@@ -12,7 +12,7 @@ interface ERPBatchDetailsProps {
 }
 
 export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
-  const { batches, loading, error, fetchERPBatches } = useERPBatchData(userRole);
+  const { batches, loading, error, fetchERPBatches, deleteBatches } = useERPBatchData(userRole);
   const { 
     syncBatchToBlockchain, 
     syncAllBatchesToBlockchain, 
@@ -25,6 +25,10 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
 
   const handleSyncAllBatches = async () => {
     await syncAllBatchesToBlockchain(batches);
+  };
+
+  const handleDeleteBatches = async (batchIds: string[]) => {
+    await deleteBatches(batchIds);
   };
 
   return (
@@ -54,6 +58,7 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
             batches={batches}
             onSyncBatch={handleSyncBatch}
             isBatchSyncing={isBatchSyncing}
+            onDeleteBatches={handleDeleteBatches}
           />
         )}
       </CardContent>
