@@ -30,6 +30,12 @@ interface AIVerificationResult {
   analysis: string;
   riskFactors: string[];
   recommendations: string[];
+  detectedInfo?: {
+    drugName?: string | null;
+    batchId?: string | null;
+    facility?: string | null;
+    expiryDate?: string | null;
+  };
 }
 
 export const BarcodeVerificationDialog = () => {
@@ -279,6 +285,45 @@ export const BarcodeVerificationDialog = () => {
                     />
                   </div>
                 </div>
+
+                {/* Detected Drug Info */}
+                {(aiVerification.detectedInfo?.drugName || aiVerification.detectedInfo?.batchId || aiVerification.detectedInfo?.facility || aiVerification.detectedInfo?.expiryDate) && (
+                  <div className="space-y-2 p-3 bg-background/50 rounded-lg border">
+                    <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                      <Pill className="h-3 w-3" />
+                      Detected Drug Information
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {aiVerification.detectedInfo?.drugName && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Drug Name</p>
+                          <p className="font-medium">{aiVerification.detectedInfo.drugName}</p>
+                        </div>
+                      )}
+                      {aiVerification.detectedInfo?.batchId && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Batch ID</p>
+                          <p className="font-medium font-mono">{aiVerification.detectedInfo.batchId}</p>
+                        </div>
+                      )}
+                      {aiVerification.detectedInfo?.facility && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Facility</p>
+                          <p className="font-medium">{aiVerification.detectedInfo.facility}</p>
+                        </div>
+                      )}
+                      {aiVerification.detectedInfo?.expiryDate && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Expiry Date</p>
+                          <p className="font-medium">{aiVerification.detectedInfo.expiryDate}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Verified at: {format(new Date(), "PPp")}
+                    </div>
+                  </div>
+                )}
 
                 {/* Analysis */}
                 <div className="space-y-1">
