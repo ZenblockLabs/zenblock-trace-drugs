@@ -8,6 +8,7 @@ import { ResultsTab } from '@/components/batch/ResultsTab';
 import { useBatchProcessing } from '@/hooks/useBatchProcessing';
 import { QRScanConfirmDialog } from '@/components/batch/QRScanConfirmDialog';
 import { BarcodeDataEntryDialog } from '@/components/batch/BarcodeDataEntryDialog';
+import { DuplicateBatchWarningDialog } from '@/components/batch/DuplicateBatchWarningDialog';
 
 export const BatchProcessingPage = () => {
   const {
@@ -30,7 +31,11 @@ export const BatchProcessingPage = () => {
     setBarcodeEntryDialogOpen,
     pendingBarcodeNumber,
     handleBarcodeFormSubmit,
-    handleCancelBarcodeEntry
+    handleCancelBarcodeEntry,
+    // Duplicate warning dialog
+    duplicateWarningOpen,
+    duplicateBatchId,
+    handleCloseDuplicateWarning
   } = useBatchProcessing();
 
   // Mock user role - in production this would come from auth context
@@ -92,6 +97,13 @@ export const BatchProcessingPage = () => {
         barcodeNumber={pendingBarcodeNumber}
         onSubmit={handleBarcodeFormSubmit}
         onCancel={handleCancelBarcodeEntry}
+      />
+
+      {/* Duplicate batch warning dialog */}
+      <DuplicateBatchWarningDialog
+        open={duplicateWarningOpen}
+        batchId={duplicateBatchId}
+        onClose={handleCloseDuplicateWarning}
       />
     </div>
   );

@@ -116,6 +116,10 @@ export const useBatchProcessing = () => {
   const [barcodeEntryDialogOpen, setBarcodeEntryDialogOpen] = useState(false);
   const [pendingBarcodeNumber, setPendingBarcodeNumber] = useState<string>('');
 
+  // State for duplicate warning dialog
+  const [duplicateWarningOpen, setDuplicateWarningOpen] = useState(false);
+  const [duplicateBatchId, setDuplicateBatchId] = useState<string>('');
+
   const handleDemoScan = () => {
     toast.info("Starting demo batch scan. This will add sample drugs.");
     
@@ -170,10 +174,8 @@ export const useBatchProcessing = () => {
     const result = await saveERPBatchToDatabase(batchData);
     
     if (result.isDuplicate) {
-      toast.warning(`Batch ${batchData.batchId} already exists in the database!`, {
-        description: 'This batch has already been scanned and saved.',
-        duration: 5000,
-      });
+      setDuplicateBatchId(batchData.batchId);
+      setDuplicateWarningOpen(true);
       setBarcodeEntryDialogOpen(false);
       setPendingBarcodeNumber('');
       return;
@@ -212,10 +214,8 @@ export const useBatchProcessing = () => {
     const result = await saveERPBatchToDatabase(dataToSave);
     
     if (result.isDuplicate) {
-      toast.warning(`Batch ${dataToSave.batchId} already exists in the database!`, {
-        description: 'This batch has already been scanned and saved.',
-        duration: 5000,
-      });
+      setDuplicateBatchId(dataToSave.batchId);
+      setDuplicateWarningOpen(true);
       setConfirmDialogOpen(false);
       setPendingBatchData(null);
       return;
@@ -276,6 +276,11 @@ export const useBatchProcessing = () => {
     toast.success("Batch import complete. 10 items added.");
   };
 
+  const handleCloseDuplicateWarning = () => {
+    setDuplicateWarningOpen(false);
+    setDuplicateBatchId('');
+  };
+
   return {
     isDemoMode,
     setIsDemoMode,
@@ -297,6 +302,10 @@ export const useBatchProcessing = () => {
     setBarcodeEntryDialogOpen,
     pendingBarcodeNumber,
     handleBarcodeFormSubmit,
-    handleCancelBarcodeEntry
+    handleCancelBarcodeEntry,
+    // Duplicate warning dialog state
+    duplicateWarningOpen,
+    duplicateBatchId,
+    handleCloseDuplicateWarning
   };
 };
