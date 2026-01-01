@@ -170,25 +170,24 @@ export const useBatchProcessing = () => {
     toast.info('Barcode entry cancelled');
   };
 
-  const handleConfirmBatchSave = async () => {
-    if (!pendingBatchData) return;
-
-    toast.info(`Saving batch ${pendingBatchData.batchId} to database...`);
+  const handleConfirmBatchSave = async (editedData?: ERPBatchData) => {
+    const dataToSave = editedData || pendingBatchData;
+    if (!dataToSave) return;
     
-    const saved = await saveERPBatchToDatabase(pendingBatchData);
+    const saved = await saveERPBatchToDatabase(dataToSave);
     
     const newItem: ScannedItem = {
-      sgtin: pendingBatchData.batchId,
+      sgtin: dataToSave.batchId,
       timestamp: new Date().toISOString(),
       status: saved ? 'verified' : 'error',
-      batchData: pendingBatchData,
+      batchData: dataToSave,
       scanType: 'qr'
     };
     
     setScannedItems((prev) => [newItem, ...prev]);
     
     if (saved) {
-      toast.success(`Batch ${pendingBatchData.batchId} saved successfully!`);
+      toast.success(`Batch ${dataToSave.batchId} saved successfully!`);
     }
     
     setConfirmDialogOpen(false);
