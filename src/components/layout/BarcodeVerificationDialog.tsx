@@ -25,6 +25,22 @@ export const BarcodeVerificationDialog = () => {
     setBarcodeResult(e.target.value);
   };
 
+  const extractBatchId = (input: string): string | null => {
+    // Try to parse as JSON first (scanned QR codes contain JSON)
+    try {
+      const parsed = JSON.parse(input);
+      if (parsed["Batch ID"]) {
+        return parsed["Batch ID"];
+      }
+      if (parsed.batch_id) {
+        return parsed.batch_id;
+      }
+    } catch {
+      // Not JSON, treat as plain batch ID or SGTIN
+    }
+    return input.trim();
+  };
+
   const handleVerifyBarcode = async () => {
     if (!barcodeResult) {
       toast.error("Please scan or enter a barcode");
@@ -34,9 +50,17 @@ export const BarcodeVerificationDialog = () => {
     setIsLoading(true);
     
     try {
+      const searchValue = extractBatchId(barcodeResult);
+      
+      if (!searchValue) {
+        toast.error("Invalid barcode format");
+        setIsLoading(false);
+        return;
+      }
+
       // First try to find in mock drugs by SGTIN
       const service = await getBlockchainService();
-      const drug = await service.getDrugBySGTIN(barcodeResult);
+      const drug = await service.getDrugBySGTIN(searchValue);
       
       if (drug) {
         toast.success("Drug verified successfully");
@@ -48,7 +72,7 @@ export const BarcodeVerificationDialog = () => {
       const { data: erpBatch, error } = await supabase
         .from('erp_batches')
         .select('*')
-        .eq('batch_id', barcodeResult.trim())
+        .eq('batch_id', searchValue)
         .maybeSingle();
 
       if (error) {
