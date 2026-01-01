@@ -21,6 +21,7 @@ interface VerifiedBatch {
   status: string | null;
   scanned_at: string | null;
   original_created_at: string | null;
+  drug_id: string | null;
 }
 
 export const BarcodeVerificationDialog = () => {
@@ -83,7 +84,24 @@ export const BarcodeVerificationDialog = () => {
         return;
       }
 
-      // If not found, check erp_batches by batch_id
+      // Search by drug_id first (scanned barcode number is stored as drug_id)
+      const { data: erpBatchByDrugId, error: drugIdError } = await supabase
+        .from('erp_batches')
+        .select('*')
+        .eq('drug_id', searchValue)
+        .maybeSingle();
+
+      if (drugIdError) {
+        console.error("Error checking ERP batches by drug_id:", drugIdError);
+      }
+
+      if (erpBatchByDrugId) {
+        toast.success(`Drug verified successfully by Drug ID`);
+        setVerifiedBatch(erpBatchByDrugId);
+        return;
+      }
+
+      // Fallback: check erp_batches by batch_id
       const { data: erpBatch, error } = await supabase
         .from('erp_batches')
         .select('*')
@@ -153,6 +171,14 @@ export const BarcodeVerificationDialog = () => {
                     <div>
                       <p className="text-xs text-muted-foreground">Drug Name</p>
                       <p className="font-medium">{verifiedBatch.drug_name}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <Hash className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Drug ID</p>
+                      <p className="font-medium font-mono text-sm">{verifiedBatch.drug_id || "N/A"}</p>
                     </div>
                   </div>
                   

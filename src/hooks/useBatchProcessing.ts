@@ -70,7 +70,12 @@ const checkBatchExists = async (batchId: string): Promise<boolean> => {
   return data !== null;
 };
 
-const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<{ success: boolean; isDuplicate: boolean }> => {
+// Generate a unique drug ID
+const generateDrugId = (): string => {
+  return `DRUG-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+};
+
+const saveERPBatchToDatabase = async (batchData: ERPBatchData, drugId: string): Promise<{ success: boolean; isDuplicate: boolean }> => {
   try {
     // Check for duplicate first
     const exists = await checkBatchExists(batchData.batchId);
@@ -86,7 +91,8 @@ const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<{ succes
         quantity: batchData.quantity,
         facility: batchData.facility,
         original_created_at: batchData.createdAt,
-        status: 'scanned'
+        status: 'scanned',
+        drug_id: drugId
       });
 
     if (error) {
@@ -169,9 +175,12 @@ export const useBatchProcessing = () => {
       facility: formData.facility,
     };
 
+    // Use the scanned barcode number as the drug_id
+    const drugId = pendingBarcodeNumber;
+
     toast.info(`Saving batch ${batchData.batchId} to database...`);
     
-    const result = await saveERPBatchToDatabase(batchData);
+    const result = await saveERPBatchToDatabase(batchData, drugId);
     
     if (result.isDuplicate) {
       setDuplicateBatchId(batchData.batchId);
@@ -211,7 +220,10 @@ export const useBatchProcessing = () => {
     const dataToSave = editedData || pendingBatchData;
     if (!dataToSave) return;
     
-    const result = await saveERPBatchToDatabase(dataToSave);
+    // Generate a new drug_id for QR code scans
+    const drugId = generateDrugId();
+    
+    const result = await saveERPBatchToDatabase(dataToSave, drugId);
     
     if (result.isDuplicate) {
       setDuplicateBatchId(dataToSave.batchId);
@@ -232,7 +244,7 @@ export const useBatchProcessing = () => {
     setScannedItems((prev) => [newItem, ...prev]);
     
     if (result.success) {
-      toast.success(`Batch ${dataToSave.batchId} saved successfully!`);
+      toast.success(`Batch ${dataToSave.batchId} saved with Drug ID: ${drugId}`);
       // Trigger refresh of ERP batch table with the specific batch ID
       triggerERPBatchRefresh(dataToSave.batchId);
     }
