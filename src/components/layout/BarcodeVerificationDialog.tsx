@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Textarea } from "@/components/ui/textarea";
-import { QrCode, Package, Calendar, MapPin, Hash, Pill, CheckCircle } from "lucide-react";
+import { QrCode, Package, Calendar, MapPin, Hash, Pill, CheckCircle, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { getBlockchainService } from "@/services/blockchainServiceFactory";
 import { useNavigate } from "react-router-dom";
@@ -160,9 +160,15 @@ export const BarcodeVerificationDialog = () => {
           <div className="flex flex-col space-y-4">
             <Card className="border-green-200 bg-green-50/50">
               <CardContent className="pt-4 space-y-3">
-                <div className="flex items-center gap-2 text-green-700 mb-3">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-medium">Verification Successful</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="font-medium">Verification Successful</span>
+                  </div>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    Monitor Only
+                  </Badge>
                 </div>
                 
                 <div className="space-y-3">
