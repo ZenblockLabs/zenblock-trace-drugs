@@ -10,20 +10,35 @@ interface ERPBatch {
   facility: string;
 }
 
-// Global event emitter for cross-component refresh
-type RefreshListener = () => void;
+// Global event emitter for cross-component refresh with batch ID tracking
+type RefreshListener = (updatedBatchId?: string) => void;
 const refreshListeners = new Set<RefreshListener>();
 
-export const triggerERPBatchRefresh = () => {
-  refreshListeners.forEach(listener => listener());
+export const triggerERPBatchRefresh = (updatedBatchId?: string) => {
+  refreshListeners.forEach(listener => listener(updatedBatchId));
+};
+
+// Store for the last updated batch ID
+let lastUpdatedBatchId: string | null = null;
+
+export const getLastUpdatedBatchId = () => {
+  const id = lastUpdatedBatchId;
+  lastUpdatedBatchId = null; // Clear after reading
+  return id;
 };
 
 export const useERPBatchData = (userRole: string) => {
   const [batches, setBatches] = useState<ERPBatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedBatchId, setHighlightedBatchId] = useState<string | null>(null);
 
-  const fetchERPBatches = useCallback(async () => {
+  const fetchERPBatches = useCallback(async (updatedBatchId?: string) => {
+    if (updatedBatchId) {
+      setHighlightedBatchId(updatedBatchId);
+      // Clear highlight after animation
+      setTimeout(() => setHighlightedBatchId(null), 1500);
+    }
     setLoading(true);
     setError(null);
     
@@ -105,6 +120,7 @@ export const useERPBatchData = (userRole: string) => {
     loading,
     error,
     fetchERPBatches,
-    deleteBatches
+    deleteBatches,
+    highlightedBatchId
   };
 };

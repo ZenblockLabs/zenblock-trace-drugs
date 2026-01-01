@@ -12,7 +12,7 @@ interface ERPBatchDetailsProps {
 }
 
 export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
-  const { batches, loading, error, fetchERPBatches, deleteBatches } = useERPBatchData(userRole);
+  const { batches, loading, error, fetchERPBatches, deleteBatches, highlightedBatchId } = useERPBatchData(userRole);
   const { 
     syncBatchToBlockchain, 
     syncAllBatchesToBlockchain, 
@@ -59,6 +59,7 @@ export const ERPBatchDetails = ({ userRole }: ERPBatchDetailsProps) => {
             onSyncBatch={handleSyncBatch}
             isBatchSyncing={isBatchSyncing}
             onDeleteBatches={handleDeleteBatches}
+            highlightedBatchId={highlightedBatchId}
           />
         )}
       </CardContent>

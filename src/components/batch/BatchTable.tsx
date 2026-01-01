@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,40 +31,13 @@ interface BatchTableProps {
   onSyncBatch: (batch: ERPBatch) => void;
   isBatchSyncing: (batchId: string) => boolean;
   onDeleteBatches?: (batchIds: string[]) => Promise<void>;
+  highlightedBatchId?: string | null;
 }
 
-export const BatchTable = ({ batches, onSyncBatch, isBatchSyncing, onDeleteBatches }: BatchTableProps) => {
-  const [highlightedBatchIds, setHighlightedBatchIds] = useState<Set<string>>(new Set());
+export const BatchTable = ({ batches, onSyncBatch, isBatchSyncing, onDeleteBatches, highlightedBatchId }: BatchTableProps) => {
   const [selectedBatchIds, setSelectedBatchIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const prevBatchIdsRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    const currentBatchIds = new Set(batches.map(b => b.batchId));
-    const prevBatchIds = prevBatchIdsRef.current;
-    
-    // Find newly added or updated batches
-    const newOrUpdatedIds = new Set<string>();
-    batches.forEach(batch => {
-      if (!prevBatchIds.has(batch.batchId)) {
-        newOrUpdatedIds.add(batch.batchId);
-      }
-    });
-
-    if (newOrUpdatedIds.size > 0) {
-      setHighlightedBatchIds(newOrUpdatedIds);
-      
-      // Remove highlight after animation completes
-      const timer = setTimeout(() => {
-        setHighlightedBatchIds(new Set());
-      }, 1500);
-      
-      return () => clearTimeout(timer);
-    }
-    
-    prevBatchIdsRef.current = currentBatchIds;
-  }, [batches]);
 
   // Clear selection when batches change (e.g., after delete)
   useEffect(() => {
@@ -180,7 +153,7 @@ export const BatchTable = ({ batches, onSyncBatch, isBatchSyncing, onDeleteBatch
                 key={batch.batchId}
                 className={cn(
                   "transition-colors duration-1000",
-                  highlightedBatchIds.has(batch.batchId) && "animate-row-highlight",
+                  highlightedBatchId === batch.batchId && "animate-row-highlight",
                   selectedBatchIds.has(batch.batchId) && "bg-muted/50"
                 )}
               >
