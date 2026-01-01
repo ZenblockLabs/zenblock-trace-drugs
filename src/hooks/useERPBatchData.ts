@@ -30,22 +30,18 @@ export const useERPBatchData = (userRole: string) => {
         throw fetchError;
       }
       
-      if (data && data.length > 0) {
-        const formattedBatches: ERPBatch[] = data.map(batch => ({
-          batchId: batch.batch_id,
-          drugName: batch.drug_name,
-          quantity: batch.quantity,
-          status: batch.status || 'scanned',
-          createdAt: batch.original_created_at 
-            ? new Date(batch.original_created_at).toLocaleDateString()
-            : new Date(batch.created_at || '').toLocaleDateString(),
-          facility: batch.facility || 'Unknown'
-        }));
-        setBatches(formattedBatches);
-      } else {
-        setBatches([]);
-        setError('No batch data found. Scan a QR code to add batches.');
-      }
+      const formattedBatches: ERPBatch[] = (data || []).map(batch => ({
+        batchId: batch.batch_id,
+        drugName: batch.drug_name,
+        quantity: batch.quantity,
+        status: batch.status || 'scanned',
+        createdAt: batch.original_created_at 
+          ? new Date(batch.original_created_at).toLocaleDateString()
+          : new Date(batch.created_at || '').toLocaleDateString(),
+        facility: batch.facility || 'Unknown'
+      }));
+      setBatches(formattedBatches);
+      setError(null);
     } catch (err) {
       console.error('Error fetching ERP batches:', err);
       setError('Failed to fetch batch data from database');
