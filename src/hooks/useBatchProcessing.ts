@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { BarcodeFormData } from '@/components/batch/BarcodeDataEntryDialog';
+import { triggerERPBatchRefresh } from '@/hooks/useERPBatchData';
 
 interface ScannedItem {
   sgtin: string;
@@ -158,6 +159,8 @@ export const useBatchProcessing = () => {
     
     if (saved) {
       toast.success(`Batch ${batchData.batchId} saved successfully!`);
+      // Trigger refresh of ERP batch table
+      triggerERPBatchRefresh();
     }
     
     setBarcodeEntryDialogOpen(false);
@@ -188,6 +191,8 @@ export const useBatchProcessing = () => {
     
     if (saved) {
       toast.success(`Batch ${dataToSave.batchId} saved successfully!`);
+      // Trigger refresh of ERP batch table
+      triggerERPBatchRefresh();
     }
     
     setConfirmDialogOpen(false);

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ERPBatch {
@@ -11,12 +10,20 @@ interface ERPBatch {
   facility: string;
 }
 
+// Global event emitter for cross-component refresh
+type RefreshListener = () => void;
+const refreshListeners = new Set<RefreshListener>();
+
+export const triggerERPBatchRefresh = () => {
+  refreshListeners.forEach(listener => listener());
+};
+
 export const useERPBatchData = (userRole: string) => {
   const [batches, setBatches] = useState<ERPBatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchERPBatches = async () => {
+  const fetchERPBatches = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -49,10 +56,13 @@ export const useERPBatchData = (userRole: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchERPBatches();
+    
+    // Register this instance's refresh function
+    refreshListeners.add(fetchERPBatches);
     
     // Subscribe to realtime changes
     const channel = supabase
@@ -71,9 +81,10 @@ export const useERPBatchData = (userRole: string) => {
       .subscribe();
 
     return () => {
+      refreshListeners.delete(fetchERPBatches);
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchERPBatches]);
 
   return {
     batches,
