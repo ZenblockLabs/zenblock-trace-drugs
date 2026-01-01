@@ -108,3 +108,17 @@
 .status-badge.recalled {
   @apply bg-red-100 text-red-800;
 }
+
+/* Row highlight animation for newly added/updated rows */
+@keyframes row-highlight {
+  0% {
+    background-color: hsl(145 60% 78% / 0.6);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.animate-row-highlight {
+  animation: row-highlight 1.5s ease-out forwards;
+}
