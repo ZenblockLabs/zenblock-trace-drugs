@@ -232,14 +232,22 @@ export const BarcodeVerificationDialog = () => {
               </Button>
             )}
             
-            <div className="text-center">or</div>
-            
-            <Textarea
-              placeholder="Enter Batch ID or SGTIN manually"
-              value={barcodeResult}
-              onChange={handleManualEntry}
-              className="min-h-[80px]"
-            />
+            {barcodeResult ? (
+              <div className="p-3 bg-muted rounded-md border">
+                <p className="text-xs text-muted-foreground mb-1">Scanned Data</p>
+                <p className="text-sm font-mono break-all">{extractBatchId(barcodeResult)}</p>
+              </div>
+            ) : (
+              <>
+                <div className="text-center">or</div>
+                <Textarea
+                  placeholder="Enter Batch ID or SGTIN manually"
+                  value={barcodeResult}
+                  onChange={handleManualEntry}
+                  className="min-h-[80px]"
+                />
+              </>
+            )}
             
             <Button 
               onClick={handleVerifyBarcode}
