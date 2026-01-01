@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface ERPBatch {
   batchId: string;
+  drugId: string | null;
   drugName: string;
   quantity: number;
   status: string;
@@ -54,6 +55,7 @@ export const useERPBatchData = (userRole: string) => {
       
       const formattedBatches: ERPBatch[] = (data || []).map(batch => ({
         batchId: batch.batch_id,
+        drugId: batch.drug_id || null,
         drugName: batch.drug_name,
         quantity: batch.quantity,
         status: batch.status || 'scanned',
