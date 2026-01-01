@@ -301,25 +301,23 @@ export const BarcodeVerificationDialog = () => {
               </>
             ) : (
               <Button onClick={() => setIsScanning(true)}>
-                <QrCode className="h-4 w-4 mr-2" /> Scan Barcode
+                <QrCode className="h-4 w-4 mr-2" /> Scan Barcode / QR Code
               </Button>
             )}
             
-            {barcodeResult ? (
-              <div className="p-3 bg-muted rounded-md border">
-                <p className="text-xs text-muted-foreground mb-1">Scanned Data</p>
-                <p className="text-sm font-mono break-all">{extractBatchId(barcodeResult)}</p>
-              </div>
-            ) : (
-              <>
-                <div className="text-center">or</div>
-                <Textarea
-                  placeholder="Enter Batch ID or SGTIN manually"
-                  value={barcodeResult}
-                  onChange={handleManualEntry}
-                  className="min-h-[80px]"
-                />
-              </>
+            {barcodeResult && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="pt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-primary mb-2">
+                    <QrCode className="h-4 w-4" />
+                    <span className="text-sm font-medium">Scanned Data (Read Only)</span>
+                  </div>
+                  <div className="p-3 bg-background rounded-md border">
+                    <p className="text-xs text-muted-foreground mb-1">Batch ID</p>
+                    <p className="text-sm font-mono break-all font-medium">{extractBatchId(barcodeResult)}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
             
             <Button 
