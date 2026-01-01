@@ -201,6 +201,17 @@ Analyze whether this appears to be a genuine pharmaceutical product or potential
     if (toolCall?.function?.arguments) {
       const result = JSON.parse(toolCall.function.arguments);
       console.log("Verification result:", { isGenuine: result.isGenuine, confidence: result.confidence });
+      
+      // For text-based verification, include the input data as detectedInfo if not already present
+      if (!isImageVerification && !result.detectedInfo) {
+        result.detectedInfo = {
+          drugName: drugName || null,
+          batchId: batchId || null,
+          facility: facility || null,
+          expiryDate: null
+        };
+      }
+      
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
