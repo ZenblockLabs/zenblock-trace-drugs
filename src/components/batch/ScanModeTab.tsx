@@ -163,44 +163,47 @@ export const ScanModeTab = ({
                     </div>
                   </div>
 
-                  {/* Detected Drug Info */}
-                  {(aiVerification.detectedInfo?.drugName || aiVerification.detectedInfo?.batchId || aiVerification.detectedInfo?.facility || aiVerification.detectedInfo?.expiryDate) && (
-                    <div className="space-y-2 p-3 bg-background/50 rounded-lg border">
-                      <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                        <Pill className="h-3 w-3" />
-                        Detected Drug Information
-                      </p>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        {aiVerification.detectedInfo?.drugName && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Drug Name</p>
-                            <p className="font-medium">{aiVerification.detectedInfo.drugName}</p>
-                          </div>
-                        )}
-                        {aiVerification.detectedInfo?.batchId && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Batch ID</p>
-                            <p className="font-medium font-mono">{aiVerification.detectedInfo.batchId}</p>
-                          </div>
-                        )}
-                        {aiVerification.detectedInfo?.facility && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Facility</p>
-                            <p className="font-medium">{aiVerification.detectedInfo.facility}</p>
-                          </div>
-                        )}
-                        {aiVerification.detectedInfo?.expiryDate && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Expiry Date</p>
-                            <p className="font-medium">{aiVerification.detectedInfo.expiryDate}</p>
-                          </div>
-                        )}
+                  {/* Detected Drug Info Box */}
+                  <div className="p-4 bg-background rounded-lg border space-y-3">
+                    <p className="text-xs text-muted-foreground font-medium flex items-center gap-1 mb-2">
+                      <Pill className="h-3 w-3" />
+                      Drug Information
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Pill className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Drug Name</p>
+                          <p className="font-medium">{aiVerification.detectedInfo?.drugName || "Not detected"}</p>
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Verified at: {format(new Date(), "PPp")}
+                      
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Batch ID</p>
+                          <p className="font-medium font-mono">{aiVerification.detectedInfo?.batchId || "Not detected"}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Facility</p>
+                          <p className="font-medium">{aiVerification.detectedInfo?.facility || "Not detected"}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Verified At</p>
+                          <p className="font-medium">{format(new Date(), "PPp")}</p>
+                        </div>
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* Analysis */}
                   <div className="space-y-1">
