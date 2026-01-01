@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Camera, StopCircle, Upload, Scan } from "lucide-react";
@@ -14,11 +14,49 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
   const [cameraError, setCameraError] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isScannerRunningRef = useRef(false);
+  const isProcessingRef = useRef(false); // Prevent duplicate scans
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const stopScanner = useCallback(async () => {
+    if (scannerRef.current && isScannerRunningRef.current) {
+      try {
+        await scannerRef.current.stop();
+        isScannerRunningRef.current = false;
+      } catch (error) {
+        console.error("Error stopping scanner:", error);
+      }
+    }
+    setIsScanning(false);
+  }, []);
+
+  const handleDetection = useCallback((decodedText: string) => {
+    // Prevent duplicate processing
+    if (isProcessingRef.current) {
+      console.log("Already processing a scan, ignoring duplicate");
+      return;
+    }
+    
+    isProcessingRef.current = true;
+    console.log("QR/Barcode detected:", decodedText);
+    toast.success("Code detected!");
+    
+    // Stop scanner first, then trigger callback
+    stopScanner().then(() => {
+      // Small delay to ensure state is updated before triggering callback
+      setTimeout(() => {
+        onDetected(decodedText);
+        // Reset processing flag after a delay to allow new scans
+        setTimeout(() => {
+          isProcessingRef.current = false;
+        }, 1000);
+      }, 100);
+    });
+  }, [onDetected, stopScanner]);
 
   const startScanner = async () => {
     try {
       setCameraError(null);
+      isProcessingRef.current = false; // Reset processing flag
 
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode("qr-reader");
@@ -30,12 +68,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
           fps: 10,
           qrbox: { width: 250, height: 250 },
         },
-        (decodedText) => {
-          console.log("QR Code detected:", decodedText);
-          toast.success("QR Code detected!");
-          onDetected(decodedText);
-          stopScanner();
-        },
+        handleDetection,
         (errorMessage) => {
           // Ignore scanning errors - they happen frequently while scanning
         },
@@ -43,7 +76,7 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
 
       isScannerRunningRef.current = true;
       setIsScanning(true);
-      toast.info("Camera active. Position QR code in the frame.");
+      toast.info("Camera active. Position QR code or barcode in the frame.");
     } catch (error) {
       console.error("Error accessing camera:", error);
       setCameraError("Unable to access camera. Please check permissions or try uploading an image instead.");
@@ -51,35 +84,42 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
     }
   };
 
-  const stopScanner = async () => {
-    if (scannerRef.current && isScannerRunningRef.current) {
-      try {
-        await scannerRef.current.stop();
-        isScannerRunningRef.current = false;
-      } catch (error) {
-        console.error("Error stopping scanner:", error);
-      }
-    }
-    setIsScanning(false);
-  };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Prevent duplicate processing
+    if (isProcessingRef.current) {
+      toast.info("Please wait, processing previous scan...");
+      return;
+    }
+
     try {
+      isProcessingRef.current = true;
+      
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode("qr-reader");
       }
 
       const decodedText = await scannerRef.current.scanFile(file, true);
-      console.log("QR Code from file:", decodedText);
-      toast.success("QR Code detected from image!");
-      onDetected(decodedText);
+      console.log("QR/Barcode from file:", decodedText);
+      toast.success("Code detected from image!");
+      
+      // Small delay to ensure state is ready
+      setTimeout(() => {
+        onDetected(decodedText);
+        setTimeout(() => {
+          isProcessingRef.current = false;
+        }, 1000);
+      }, 100);
     } catch (error) {
       console.error("Error scanning file:", error);
-      toast.error("Could not detect QR code in the image. Please try again.");
+      toast.error("Could not detect code in the image. Please try again.");
+      isProcessingRef.current = false;
     }
+    
+    // Reset the file input
+    event.target.value = '';
   };
 
   // Cleanup on unmount
