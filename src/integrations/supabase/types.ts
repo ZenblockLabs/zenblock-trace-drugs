@@ -697,6 +697,7 @@ export type Database = {
         Row: {
           batch_id: string
           created_at: string | null
+          drug_id: string | null
           drug_name: string
           facility: string | null
           id: string
@@ -710,6 +711,7 @@ export type Database = {
         Insert: {
           batch_id: string
           created_at?: string | null
+          drug_id?: string | null
           drug_name: string
           facility?: string | null
           id?: string
@@ -723,6 +725,7 @@ export type Database = {
         Update: {
           batch_id?: string
           created_at?: string | null
+          drug_id?: string | null
           drug_name?: string
           facility?: string | null
           id?: string
