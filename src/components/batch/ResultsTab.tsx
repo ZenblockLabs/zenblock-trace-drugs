@@ -1,7 +1,8 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ScannedItemDetailsDialog } from './ScannedItemDetailsDialog';
 
 interface ScannedItem {
   sgtin: string;
@@ -16,6 +17,14 @@ interface ResultsTabProps {
 }
 
 export const ResultsTab = ({ scannedItems, handleVerifyAll, handleDemoScan }: ResultsTabProps) => {
+  const [selectedItem, setSelectedItem] = useState<ScannedItem | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const handleViewDetails = (item: ScannedItem) => {
+    setSelectedItem(item);
+    setDetailsOpen(true);
+  };
+
   return (
     <div className="mt-6">
       <Card>
@@ -69,7 +78,12 @@ export const ResultsTab = ({ scannedItems, handleVerifyAll, handleDemoScan }: Re
                         )}
                       </td>
                       <td className="p-2 text-right">
-                        <Button size="sm" variant="ghost" className="h-7 px-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-7 px-2"
+                          onClick={() => handleViewDetails(item)}
+                        >
                           Details <ArrowRight className="ml-1 h-3 w-3" />
                         </Button>
                       </td>
@@ -88,6 +102,12 @@ export const ResultsTab = ({ scannedItems, handleVerifyAll, handleDemoScan }: Re
           )}
         </CardContent>
       </Card>
+
+      <ScannedItemDetailsDialog
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+        item={selectedItem}
+      />
     </div>
   );
 };
