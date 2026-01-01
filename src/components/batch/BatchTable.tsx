@@ -19,6 +19,7 @@ import {
 
 interface ERPBatch {
   batchId: string;
+  drugId: string | null;
   drugName: string;
   quantity: number;
   status: string;
@@ -139,6 +140,7 @@ export const BatchTable = ({ batches, onSyncBatch, isBatchSyncing, onDeleteBatch
                 />
               </TableHead>
               <TableHead>Batch ID</TableHead>
+              <TableHead>Drug ID</TableHead>
               <TableHead>Drug Name</TableHead>
               <TableHead>Quantity</TableHead>
               <TableHead>Status</TableHead>
@@ -165,6 +167,7 @@ export const BatchTable = ({ batches, onSyncBatch, isBatchSyncing, onDeleteBatch
                   />
                 </TableCell>
                 <TableCell className="font-mono text-sm">{batch.batchId}</TableCell>
+                <TableCell className="font-mono text-sm text-muted-foreground">{batch.drugId || '-'}</TableCell>
                 <TableCell className="font-medium">{batch.drugName}</TableCell>
                 <TableCell>{batch.quantity.toLocaleString()}</TableCell>
                 <TableCell>
