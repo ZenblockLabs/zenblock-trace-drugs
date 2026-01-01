@@ -86,10 +86,25 @@ export const useERPBatchData = (userRole: string) => {
     };
   }, [fetchERPBatches]);
 
+  const deleteBatches = useCallback(async (batchIds: string[]) => {
+    const { error: deleteError } = await supabase
+      .from('erp_batches')
+      .delete()
+      .in('batch_id', batchIds);
+    
+    if (deleteError) {
+      throw deleteError;
+    }
+    
+    // Refresh data after delete
+    await fetchERPBatches();
+  }, [fetchERPBatches]);
+
   return {
     batches,
     loading,
     error,
-    fetchERPBatches
+    fetchERPBatches,
+    deleteBatches
   };
 };
