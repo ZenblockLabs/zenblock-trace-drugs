@@ -54,8 +54,30 @@ const parseQRCodeData = (code: string): ERPBatchData | null => {
   }
 };
 
-const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<boolean> => {
+// Check if batch already exists in database
+const checkBatchExists = async (batchId: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('erp_batches')
+    .select('batch_id')
+    .eq('batch_id', batchId)
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error checking batch existence:', error);
+    return false;
+  }
+  
+  return data !== null;
+};
+
+const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<{ success: boolean; isDuplicate: boolean }> => {
   try {
+    // Check for duplicate first
+    const exists = await checkBatchExists(batchData.batchId);
+    if (exists) {
+      return { success: false, isDuplicate: true };
+    }
+
     const { error } = await supabase
       .from('erp_batches')
       .insert({
@@ -70,14 +92,14 @@ const saveERPBatchToDatabase = async (batchData: ERPBatchData): Promise<boolean>
     if (error) {
       console.error('Error saving ERP batch:', error);
       toast.error(`Failed to save batch: ${error.message}`);
-      return false;
+      return { success: false, isDuplicate: false };
     }
     
-    return true;
+    return { success: true, isDuplicate: false };
   } catch (err) {
     console.error('Error saving ERP batch:', err);
     toast.error('Failed to save batch to database');
-    return false;
+    return { success: false, isDuplicate: false };
   }
 };
 
@@ -145,19 +167,29 @@ export const useBatchProcessing = () => {
 
     toast.info(`Saving batch ${batchData.batchId} to database...`);
     
-    const saved = await saveERPBatchToDatabase(batchData);
+    const result = await saveERPBatchToDatabase(batchData);
+    
+    if (result.isDuplicate) {
+      toast.warning(`Batch ${batchData.batchId} already exists in the database!`, {
+        description: 'This batch has already been scanned and saved.',
+        duration: 5000,
+      });
+      setBarcodeEntryDialogOpen(false);
+      setPendingBarcodeNumber('');
+      return;
+    }
     
     const newItem: ScannedItem = {
       sgtin: formData.barcodeNumber,
       timestamp: new Date().toISOString(),
-      status: saved ? 'verified' : 'error',
+      status: result.success ? 'verified' : 'error',
       batchData: batchData,
       scanType: 'barcode'
     };
     
     setScannedItems((prev) => [newItem, ...prev]);
     
-    if (saved) {
+    if (result.success) {
       toast.success(`Batch ${batchData.batchId} saved successfully!`);
       // Trigger refresh of ERP batch table with the specific batch ID
       triggerERPBatchRefresh(batchData.batchId);
@@ -177,19 +209,29 @@ export const useBatchProcessing = () => {
     const dataToSave = editedData || pendingBatchData;
     if (!dataToSave) return;
     
-    const saved = await saveERPBatchToDatabase(dataToSave);
+    const result = await saveERPBatchToDatabase(dataToSave);
+    
+    if (result.isDuplicate) {
+      toast.warning(`Batch ${dataToSave.batchId} already exists in the database!`, {
+        description: 'This batch has already been scanned and saved.',
+        duration: 5000,
+      });
+      setConfirmDialogOpen(false);
+      setPendingBatchData(null);
+      return;
+    }
     
     const newItem: ScannedItem = {
       sgtin: dataToSave.batchId,
       timestamp: new Date().toISOString(),
-      status: saved ? 'verified' : 'error',
+      status: result.success ? 'verified' : 'error',
       batchData: dataToSave,
       scanType: 'qr'
     };
     
     setScannedItems((prev) => [newItem, ...prev]);
     
-    if (saved) {
+    if (result.success) {
       toast.success(`Batch ${dataToSave.batchId} saved successfully!`);
       // Trigger refresh of ERP batch table with the specific batch ID
       triggerERPBatchRefresh(dataToSave.batchId);
