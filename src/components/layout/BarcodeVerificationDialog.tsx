@@ -139,8 +139,9 @@ export const BarcodeVerificationDialog = () => {
     }
   };
 
-  const runAIVerification = async (scannedData: string) => {
+  const runAIVerification = async (scannedData: string, imageData?: string) => {
     setIsAiVerifying(true);
+    setIsScanning(false);
     
     try {
       // Try to extract drug info from scanned data
@@ -148,18 +149,26 @@ export const BarcodeVerificationDialog = () => {
       let facility = "";
       let batchId = "";
       
-      try {
-        const parsed = JSON.parse(scannedData);
-        drugName = parsed["Drug Name"] || parsed.drug_name || "";
-        facility = parsed["Facility"] || parsed.facility || "";
-        batchId = parsed["Batch ID"] || parsed.batch_id || "";
-      } catch {
-        // Plain text - use as batch ID
-        batchId = scannedData.trim();
+      if (scannedData && !imageData) {
+        try {
+          const parsed = JSON.parse(scannedData);
+          drugName = parsed["Drug Name"] || parsed.drug_name || "";
+          facility = parsed["Facility"] || parsed.facility || "";
+          batchId = parsed["Batch ID"] || parsed.batch_id || "";
+        } catch {
+          // Plain text - use as batch ID
+          batchId = scannedData.trim();
+        }
       }
 
       const response = await supabase.functions.invoke('verify-drug-ai', {
-        body: { drugName, facility, batchId, scannedData }
+        body: { 
+          drugName, 
+          facility, 
+          batchId, 
+          scannedData: scannedData || undefined,
+          imageData: imageData || undefined
+        }
       });
 
       if (response.error) {
@@ -187,6 +196,11 @@ export const BarcodeVerificationDialog = () => {
     } finally {
       setIsAiVerifying(false);
     }
+  };
+
+  const handleImageScanFailed = async (imageData: string) => {
+    console.log("Image scan failed, sending to AI for analysis");
+    await runAIVerification("", imageData);
   };
 
   const handleReset = () => {
@@ -417,7 +431,10 @@ export const BarcodeVerificationDialog = () => {
             {isScanning ? (
               <>
                 <div className="h-[300px]">
-                  <BarcodeScanner onDetected={handleBarcodeDetected} />
+                  <BarcodeScanner 
+                    onDetected={handleBarcodeDetected} 
+                    onScanFailed={handleImageScanFailed}
+                  />
                 </div>
                 <Button 
                   variant="secondary" 

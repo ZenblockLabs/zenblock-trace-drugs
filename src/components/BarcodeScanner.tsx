@@ -6,10 +6,11 @@ import { Html5Qrcode } from "html5-qrcode";
 
 interface BarcodeScannerProps {
   onDetected: (code: string) => void;
+  onScanFailed?: (imageData: string) => void;
   onClose?: () => void;
 }
 
-export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => {
+export const BarcodeScanner = ({ onDetected, onScanFailed, onClose }: BarcodeScannerProps) => {
   const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -114,8 +115,31 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
       }, 100);
     } catch (error) {
       console.error("Error scanning file:", error);
-      toast.error("Could not detect code in the image. Please try again.");
-      isProcessingRef.current = false;
+      
+      // If scan failed and we have a callback for failed scans, convert image to base64 and send it
+      if (onScanFailed) {
+        toast.info("Code not detected. Sending to AI for analysis...");
+        try {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            onScanFailed(base64);
+            isProcessingRef.current = false;
+          };
+          reader.onerror = () => {
+            toast.error("Failed to read image file.");
+            isProcessingRef.current = false;
+          };
+          reader.readAsDataURL(file);
+        } catch (readError) {
+          console.error("Error reading file:", readError);
+          toast.error("Failed to process image for AI analysis.");
+          isProcessingRef.current = false;
+        }
+      } else {
+        toast.error("Could not detect code in the image. Please try again.");
+        isProcessingRef.current = false;
+      }
     }
     
     // Reset the file input
