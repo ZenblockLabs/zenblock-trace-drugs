@@ -216,33 +216,35 @@ export const BarcodeScanner = ({ onDetected, onClose }: BarcodeScannerProps) => 
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 w-full">
-        {!isScanning ? (
-          <Button onClick={startScanner} className="flex items-center gap-2">
-            <Camera className="h-4 w-4" />
-            Scan QR Code
-          </Button>
-        ) : (
-          <Button variant="destructive" onClick={stopScanner} className="flex items-center gap-2">
-            <StopCircle className="h-4 w-4" />
-            Stop Scanning
-          </Button>
-        )}
+      <div className="flex flex-col items-center gap-3 w-full">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {!isScanning ? (
+            <Button onClick={startScanner} className="flex items-center gap-2">
+              <Camera className="h-4 w-4" />
+              Scan QR Code
+            </Button>
+          ) : (
+            <Button variant="destructive" onClick={stopScanner} className="flex items-center gap-2">
+              <StopCircle className="h-4 w-4" />
+              Stop Scanning
+            </Button>
+          )}
 
-        <div className="relative">
-          <input type="file" accept="image/*" id="barcode-upload" className="sr-only" onChange={handleFileUpload} />
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById("barcode-upload")?.click()}
-            className="flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Upload Image
-          </Button>
+          <div className="relative">
+            <input type="file" accept="image/*" id="barcode-upload" className="sr-only" onChange={handleFileUpload} />
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById("barcode-upload")?.click()}
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Image
+            </Button>
+          </div>
         </div>
 
         {onClose && (
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose} className="w-full max-w-[200px]">
             Cancel
           </Button>
         )}
