@@ -64,16 +64,18 @@ export const BarcodeVerificationDialog = () => {
         </DialogHeader>
         <div className="flex flex-col space-y-4">
           {isScanning ? (
-            <div className="h-[300px] relative">
-              <BarcodeScanner onDetected={handleBarcodeDetected} />
+            <>
+              <div className="h-[300px]">
+                <BarcodeScanner onDetected={handleBarcodeDetected} />
+              </div>
               <Button 
                 variant="secondary" 
-                className="absolute bottom-4 right-4"
                 onClick={() => setIsScanning(false)}
+                className="w-full"
               >
                 Cancel
               </Button>
-            </div>
+            </>
           ) : (
             <Button onClick={() => setIsScanning(true)}>
               <QrCode className="h-4 w-4 mr-2" /> Scan Barcode
