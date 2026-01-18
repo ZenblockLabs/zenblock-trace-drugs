@@ -1,8 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Camera, StopCircle, Upload, Scan } from "lucide-react";
+import { Camera, StopCircle, Upload, Scan, AlertTriangle } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface BarcodeScannerProps {
   onDetected: (code: string) => void;
@@ -13,6 +22,7 @@ interface BarcodeScannerProps {
 export const BarcodeScanner = ({ onDetected, onScanFailed, onClose }: BarcodeScannerProps) => {
   const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [showScanErrorDialog, setShowScanErrorDialog] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isScannerRunningRef = useRef(false);
   const isProcessingRef = useRef(false); // Prevent duplicate scans
@@ -137,7 +147,7 @@ export const BarcodeScanner = ({ onDetected, onScanFailed, onClose }: BarcodeSca
           isProcessingRef.current = false;
         }
       } else {
-        toast.error("Could not detect code in the image. Please try again.");
+        setShowScanErrorDialog(true);
         isProcessingRef.current = false;
       }
     }
@@ -273,6 +283,26 @@ export const BarcodeScanner = ({ onDetected, onScanFailed, onClose }: BarcodeSca
           </Button>
         )}
       </div>
+
+      {/* Scan Error Dialog */}
+      <AlertDialog open={showScanErrorDialog} onOpenChange={setShowScanErrorDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+            </div>
+            <AlertDialogTitle>Could Not Detect Code</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              We couldn't detect a QR code or barcode in the uploaded image. Please make sure the image is clear and try again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <AlertDialogAction onClick={() => setShowScanErrorDialog(false)}>
+              Try Again
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
