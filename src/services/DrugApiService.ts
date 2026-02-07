@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
 
 export interface DrugRegistrationData {
   drugName: string;
@@ -50,32 +49,16 @@ export interface DispenseData {
 }
 
 export class DrugApiService {
-  private getUserRole(): string {
-    // Extract role from current user context
-    const userData = JSON.parse(localStorage.getItem('zenblock_user') || '{}');
-    return userData.role || 'unknown';
-  }
-
-  private getUserId(): string {
-    const userData = JSON.parse(localStorage.getItem('zenblock_user') || '{}');
-    return userData.id || 'unknown';
-  }
-
   private async callApi(endpoint: string, method: 'GET' | 'POST' = 'POST', data?: any) {
-    const headers: Record<string, string> = {
-      'x-user-role': this.getUserRole(),
-      'x-user-id': this.getUserId()
-    };
-
     const options: any = {
       method,
-      headers
     };
 
     if (data && method === 'POST') {
       options.body = data;
     }
 
+    // Supabase client automatically includes the auth JWT in the Authorization header
     const { data: responseData, error } = await supabase.functions.invoke(`drug-api/${endpoint}`, options);
 
     if (error) {
