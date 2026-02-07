@@ -1,11 +1,12 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
 console.log("Drug API function loaded");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-role, x-user-id',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
@@ -13,7 +14,6 @@ const corsHeaders = {
 const simulateChaincodeInteraction = async (action: string, fcn: string, args: string[]) => {
   console.log(`Simulating ${action} for function '${fcn}' with args:`, args);
   
-  // Return mock data based on function name
   switch (fcn) {
     case 'RegisterDrug':
       return { 
@@ -43,10 +43,46 @@ const simulateChaincodeInteraction = async (action: string, fcn: string, args: s
   }
 };
 
+async function authenticateUser(req: Request): Promise<{ user: any; role: string } | null> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) return null;
+
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  // Get user role from user_profiles table
+  const { data: profile } = await supabaseClient
+    .from('user_profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+
+  const role = profile?.role || 'unknown';
+  
+  // Map database roles to drug API roles based on email as fallback
+  let drugApiRole = role;
+  if (role === 'producer' || role === 'brand_manager') {
+    // Determine specific pharma role from email pattern
+    const email = user.email?.toLowerCase() || '';
+    if (email.includes('manufacturer')) drugApiRole = 'manufacturer';
+    else if (email.includes('distributor')) drugApiRole = 'distributor';
+    else if (email.includes('dispenser')) drugApiRole = 'dispenser';
+    else if (email.includes('regulator')) drugApiRole = 'regulator';
+    else drugApiRole = 'manufacturer'; // default for producers
+  }
+
+  return { user, role: drugApiRole };
+}
+
 serve(async (req) => {
   console.log("Drug API function received request:", req.method, req.url);
   
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: corsHeaders,
@@ -55,13 +91,20 @@ serve(async (req) => {
   }
   
   try {
+    // Authenticate the user via JWT
+    const authResult = await authenticateUser(req);
+    if (!authResult) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized. Please log in.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const { role: userRole } = authResult;
+
     const url = new URL(req.url);
     const pathSegments = url.pathname.split('/').filter(Boolean);
     const endpoint = pathSegments[pathSegments.length - 1];
-
-    // Extract user info from request headers
-    const userRole = req.headers.get('x-user-role') || 'manufacturer';
-    const userId = req.headers.get('x-user-id') || 'demo-user';
     
     console.log(`Processing ${req.method} request for endpoint: ${endpoint}, role: ${userRole}`);
 
@@ -93,7 +136,7 @@ serve(async (req) => {
     console.error("Error handling drug API request:", error);
     
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500
