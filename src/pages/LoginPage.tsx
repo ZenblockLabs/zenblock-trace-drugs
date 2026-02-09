@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
-import { DemoBanner } from "@/components/DemoBanner";
 import { toast } from "sonner";
 
 export const LoginPage = () => {
@@ -43,15 +42,13 @@ export const LoginPage = () => {
     }
   };
 
-  const quickLogin = (userEmail: string) => {
+  const quickLogin = (userEmail: string, userPassword: string) => {
     setEmail(userEmail);
-    setPassword("");
+    setPassword(userPassword);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAF9]">
-      <DemoBanner />
-      <div className="flex-1 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAF9]">
       <div className="w-full max-w-md space-y-6">
         {/* Zenblock Labs Header */}
         <div className="text-center space-y-2">
@@ -114,12 +111,12 @@ export const LoginPage = () => {
             </form>
 
             <div className="mt-6 space-y-2">
-              <p className="text-sm text-slate-gray text-center">Demo accounts (enter password manually):</p>
+              <p className="text-sm text-slate-gray text-center">Quick login options:</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin("manufacturer@medico.com")}
+                  onClick={() => quickLogin("manufacturer@medico.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Manufacturer
@@ -127,7 +124,7 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin("distributor@lifeline.com")}
+                  onClick={() => quickLogin("distributor@lifeline.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Distributor
@@ -135,7 +132,7 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin("dispenser@citypharmacy.com")}
+                  onClick={() => quickLogin("dispenser@citypharmacy.com", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Dispenser
@@ -143,16 +140,23 @@ export const LoginPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => quickLogin("regulator@authority.gov")}
+                  onClick={() => quickLogin("regulator@authority.gov", "password123")}
                   className="border-[#E6EBE9] hover:bg-light-mist hover:text-charcoal"
                 >
                   Regulator
                 </Button>
+                {/* <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => quickLogin('brandmanager@zenblock.com', 'password123')}
+                  className="col-span-2 bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 hover:from-pink-100 hover:to-purple-100 hover:text-purple-900"
+                >
+                  🎯 Brand Manager (Kadha Access)
+                </Button> */}
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
       </div>
     </div>
   );

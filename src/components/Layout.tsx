@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import { ReactNode } from "react";
 import { LayoutHeader } from "./layout/LayoutHeader";
-import { DemoBanner } from "./DemoBanner";
 import { Menu } from "lucide-react";
 
 interface LayoutProps {
@@ -22,7 +21,6 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <SidebarProvider>
-      <DemoBanner />
       {/* Mobile navigation header - always visible */}
       <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b bg-background flex items-center px-4 lg:hidden">
         <SidebarTrigger className="mr-2">
