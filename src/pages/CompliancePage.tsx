@@ -13,8 +13,9 @@ import { InteroperabilityPanel } from "@/components/compliance/InteroperabilityP
 import { ComplianceConfigPanel } from "@/components/compliance/ComplianceConfigPanel";
 import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Settings, FileText, Activity, AlertTriangle } from "lucide-react";
+import { Globe, Settings, FileText, Activity, AlertTriangle, ShieldAlert } from "lucide-react";
 import { RecallReportsTab } from "@/components/compliance/RecallReportsTab";
+import { RiskAlertsDashboard } from "@/components/compliance/RiskAlertsDashboard";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -149,10 +150,14 @@ export function CompliancePage() {
       
       <Tabs defaultValue="overview" className="w-full">
         <div className="w-full overflow-x-auto">
-          <TabsList className="inline-flex w-full md:grid md:grid-cols-6 min-w-max md:min-w-0">
+          <TabsList className="inline-flex w-full md:grid md:grid-cols-7 min-w-max md:min-w-0">
             <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="risk-alerts" className="flex items-center gap-2 whitespace-nowrap">
+              <ShieldAlert className="h-4 w-4" />
+              <span className="hidden sm:inline">Risk & Alerts</span>
             </TabsTrigger>
             <TabsTrigger value="integrations" className="flex items-center gap-2 whitespace-nowrap">
               <Globe className="h-4 w-4" />
@@ -194,6 +199,10 @@ export function CompliancePage() {
             onFilterChange={setAuditFilter}
             onDownload={handleDownloadReport}
           />
+        </TabsContent>
+        
+        <TabsContent value="risk-alerts" className="mt-6">
+          <RiskAlertsDashboard />
         </TabsContent>
         
         <TabsContent value="integrations" className="mt-6">
