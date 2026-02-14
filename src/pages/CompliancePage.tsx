@@ -13,9 +13,11 @@ import { InteroperabilityPanel } from "@/components/compliance/InteroperabilityP
 import { ComplianceConfigPanel } from "@/components/compliance/ComplianceConfigPanel";
 import { ProductTraceability } from "@/components/compliance/ProductTraceability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Settings, FileText, Activity, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Globe, Settings, FileText, Activity, AlertTriangle, ShieldAlert, History, Gavel } from "lucide-react";
 import { RecallReportsTab } from "@/components/compliance/RecallReportsTab";
 import { RiskAlertsDashboard } from "@/components/compliance/RiskAlertsDashboard";
+import { ViolationTracker } from "@/components/compliance/ViolationTracker";
+import { AuditTrailPanel } from "@/components/compliance/AuditTrailPanel";
 
 export function CompliancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
@@ -150,14 +152,22 @@ export function CompliancePage() {
       
       <Tabs defaultValue="overview" className="w-full">
         <div className="w-full overflow-x-auto">
-          <TabsList className="inline-flex w-full md:grid md:grid-cols-7 min-w-max md:min-w-0">
+          <TabsList className="inline-flex w-full md:grid md:grid-cols-9 min-w-max md:min-w-0">
             <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
+            <TabsTrigger value="violations" className="flex items-center gap-2 whitespace-nowrap">
+              <Gavel className="h-4 w-4" />
+              <span className="hidden sm:inline">Violations</span>
+            </TabsTrigger>
             <TabsTrigger value="risk-alerts" className="flex items-center gap-2 whitespace-nowrap">
               <ShieldAlert className="h-4 w-4" />
               <span className="hidden sm:inline">Risk & Alerts</span>
+            </TabsTrigger>
+            <TabsTrigger value="audit-trail" className="flex items-center gap-2 whitespace-nowrap">
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">Audit Trail</span>
             </TabsTrigger>
             <TabsTrigger value="integrations" className="flex items-center gap-2 whitespace-nowrap">
               <Globe className="h-4 w-4" />
@@ -201,8 +211,16 @@ export function CompliancePage() {
           />
         </TabsContent>
         
+        <TabsContent value="violations" className="mt-6">
+          <ViolationTracker />
+        </TabsContent>
+        
         <TabsContent value="risk-alerts" className="mt-6">
           <RiskAlertsDashboard />
+        </TabsContent>
+        
+        <TabsContent value="audit-trail" className="mt-6">
+          <AuditTrailPanel />
         </TabsContent>
         
         <TabsContent value="integrations" className="mt-6">
