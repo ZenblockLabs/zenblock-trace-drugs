@@ -106,7 +106,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/compliance" element={
-                <ProtectedRoute requiredRole={['regulator', 'compliance']}>
+                <ProtectedRoute requiredRole={['regulator', 'compliance', 'manufacturer', 'producer']}>
                   <Layout>
                     <CompliancePage />
                   </Layout>
