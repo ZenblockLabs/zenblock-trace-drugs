@@ -553,6 +553,39 @@ export type Database = {
           },
         ]
       }
+      compliance_audit_trail: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_name: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_name?: string | null
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_name?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       compliance_reports: {
         Row: {
           compliance_score: number
@@ -583,6 +616,57 @@ export type Database = {
           timestamp?: string | null
           title?: string
           violations?: number
+        }
+        Relationships: []
+      }
+      compliance_violations: {
+        Row: {
+          assigned_to: string | null
+          batch_number: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          detected_at: string
+          drug_name: string
+          id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          updated_at: string
+          violation_type: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          detected_at?: string
+          drug_name: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          violation_type: string
+        }
+        Update: {
+          assigned_to?: string | null
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          detected_at?: string
+          drug_name?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          violation_type?: string
         }
         Relationships: []
       }
@@ -809,6 +893,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      expiry_alerts: {
+        Row: {
+          acknowledged: boolean
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          batch_number: string
+          created_at: string
+          drug_name: string
+          expiry_date: string
+          id: string
+          location: string | null
+          quantity: number
+          severity: string
+        }
+        Insert: {
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          batch_number: string
+          created_at?: string
+          drug_name: string
+          expiry_date: string
+          id?: string
+          location?: string | null
+          quantity?: number
+          severity?: string
+        }
+        Update: {
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          batch_number?: string
+          created_at?: string
+          drug_name?: string
+          expiry_date?: string
+          id?: string
+          location?: string | null
+          quantity?: number
+          severity?: string
+        }
+        Relationships: []
       }
       kadha_analytics: {
         Row: {
@@ -1592,6 +1718,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      supply_chain_anomalies: {
+        Row: {
+          affected_batch: string | null
+          anomaly_type: string
+          created_at: string
+          description: string
+          detected_at: string
+          id: string
+          resolution_notes: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+        }
+        Insert: {
+          affected_batch?: string | null
+          anomaly_type: string
+          created_at?: string
+          description: string
+          detected_at?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Update: {
+          affected_batch?: string | null
+          anomaly_type?: string
+          created_at?: string
+          description?: string
+          detected_at?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Relationships: []
       }
       tracking_events: {
         Row: {
