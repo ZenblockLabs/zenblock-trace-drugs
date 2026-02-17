@@ -122,9 +122,19 @@ export function CompliancePage() {
       const report = await service.getLatestComplianceReport();
       setComplianceReport(report);
       
+      const generatedReport = {
+        id: `report-${Date.now()}`,
+        name: report ? report.title : `DSCSA Compliance Report - ${selectedPeriod}`,
+        date: report ? new Date(report.timestamp) : new Date(),
+        type: "DSCSA",
+        status: report && report.complianceScore > 95 ? "Passed" : "Failed",
+        findings: report ? report.violations : 0,
+      };
+      downloadAuditReport(generatedReport, complianceData);
+      
       toast({
-        title: "Report Generated",
-        description: `DSCSA Compliance report for ${selectedPeriod} has been generated successfully`,
+        title: "Report Downloaded",
+        description: `DSCSA Compliance report for ${selectedPeriod} has been generated and downloaded`,
       });
     } catch (error) {
       toast({
