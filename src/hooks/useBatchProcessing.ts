@@ -77,12 +77,8 @@ const generateDrugId = (): string => {
 
 const saveERPBatchToDatabase = async (batchData: ERPBatchData, drugId: string): Promise<{ success: boolean; isDuplicate: boolean }> => {
   try {
-    // Check if user is authenticated
+    // Try to get Supabase user (may be null if using mock auth)
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error('You must be logged in to save batch data');
-      return { success: false, isDuplicate: false };
-    }
 
     // Check for duplicate first
     const exists = await checkBatchExists(batchData.batchId);
@@ -100,7 +96,7 @@ const saveERPBatchToDatabase = async (batchData: ERPBatchData, drugId: string): 
         original_created_at: batchData.createdAt,
         status: 'scanned',
         drug_id: drugId,
-        scanned_by: user.id
+        ...(user ? { scanned_by: user.id } : {})
       });
 
     if (error) {
