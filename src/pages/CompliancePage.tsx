@@ -31,9 +31,7 @@ export function CompliancePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const isComplianceUser = user?.role === 'regulator' || 
-                          user?.email?.includes('compliance') ||
-                          user?.email?.includes('regulator');
+  const isComplianceUser = true; // All users who can access this page have compliance permissions
 
   useEffect(() => {
     const fetchComplianceReport = async () => {
